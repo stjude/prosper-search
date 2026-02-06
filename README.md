@@ -26,47 +26,49 @@
 
 - 🔍 **Slide-level search**: Find morphologically similar whole slide images
 - 🎯 **ROI-level search**: Identify similar tissue regions across slides
-- 🧠 **Multiple foundation models**: Virchow2, UNI2, UNI, GigaPath
-- 📊 **Multiple embedding methods**: Percentile, Bag-of-Barcodes (BoB), Optimal Transport (OT)
+- 🧠 **Multiple foundation models**: Virchow2, UNI2, GigaPath
+- 📊 **Multiple embedding methods**: SAMPLER (percentile), Bag-of-Barcodes (BoB), Optimal Transport (OT)
 - 🎨 **OT Visualization**: Heatmap overlays showing patch-level similarity contributions
 - ⚡ **Efficient processing**: Optimized for large-scale datasets with GPU acceleration
 
 ## 🏗️ Pipeline Architecture
 
 ```
-┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐     ┌────────────┐
-│  Whole Slide    │────▶│  Mosaic          │────▶│  Patch          │────▶│  Slide     │
-│  Images (.svs)  │     │  Generation      │     │  Embeddings     │     │  Embeddings│
-└─────────────────┘     └──────────────────┘     │  (Virchow2/     │     │ (Percentile│
-                                                 │   UNI2/GigaPath)│     │  /BoB/OT)  │
-                                                 └─────────────────┘     └────────────┘
-                                                                                │
-                              ┌──────────────────────────────────────────────────┘
-                              ▼
-                        ┌────────────┐     ┌─────────────────┐
-                        │  Search    │────▶│  Results &      │
-                        │  Engine    │     │  Visualization  │
-                        └────────────┘     └─────────────────┘
+┌─────────────────┐      ┌──────────────────┐      ┌─────────────────┐      ┌──────────────┐
+│  Whole Slide    │─────▶│     Mosaic       │─────▶│     Patch       │─────▶│    Slide     │
+│  Images (.svs)  │      │   Generation     │      │   Embeddings    │      │  Embeddings  │
+└─────────────────┘      └──────────────────┘      │   (Virchow2/    │      │  (SAMPLER/   │
+                                                   │  UNI2/GigaPath) │      │   BoB/OT)    │
+                                                   └─────────────────┘      └──────────────┘
+                                                                                    │
+                                    ┌───────────────────────────────────────────────┘
+                                    │
+                                    ▼
+                              ┌────────────┐      ┌─────────────────┐
+                              │   Search   │─────▶│   Results &     │
+                              │   Engine   │      │  Visualization  │
+                              └────────────┘      └─────────────────┘
 ```
 
 ## 🧠 Models & Methods
 
 ### Patch Embedding Models
 
-| Model | Embedding Dim | Description |
-|-------|---------------|-------------|
-| **Virchow2** | 2560 | Paige AI pathology foundation model (default) |
-| **UNI2** | 1536 | Mahmood Lab universal pathology model |
-| **UNI** | 1024 | Original UNI model |
-| **GigaPath** | 1536 | Providence large-scale pathology model |
+| Model | Embedding Dim | Features Used | Description |
+|-------|---------------|---------------|-------------|
+| **Virchow2** | 2560 | First 1280 (CLS token) | Paige AI pathology foundation model (default) |
+| **UNI2** | 1536 | 1536 | Mahmood Lab universal pathology model v2 |
+| **GigaPath** | 1536 | 1536 | Providence large-scale pathology model |
 
 ### Slide Embedding Methods
 
-| Method | Speed | Accuracy | Use Case |
-|--------|-------|----------|----------|
-| **Percentile** | ⚡⚡⚡ | ★★★ | General purpose, fast search |
-| **BoB** | ⚡⚡⚡⚡ | ★★ | Very large databases, binary hashing |
-| **OT** | ⚡ | ★★★★★ | Highest accuracy, visualization |
+| Method | Speed | Accuracy | Interpretability | Description |
+|--------|:-----:|:--------:|:----------------:|-------------|
+| **SAMPLER** | ⚡⚡⚡⚡⚡ | ★★★☆☆ | ★★☆☆☆ | Percentile-based aggregation (5th-95th) |
+| **BoB** | ⚡⚡⚡☆☆ | ★★★★☆ | ★★★★☆ | Bag-of-Barcodes binary hashing |
+| **OT** | ⚡⚡☆☆☆ | ★★★★★ | ★★★★★ | Optimal Transport with visualization |
+
+> **Note**: SAMPLER uses a percentile-based approach, computing statistical percentiles (5th, 15th, ..., 95th) across patch embeddings to create a robust slide-level signature.
 
 ## 🚀 Installation
 
@@ -136,7 +138,7 @@ python scripts/setup_models.py --all
 ```
 
 > **Note**: You need to accept model licenses on Hugging Face:
-> - [Virchow2](https://huggingface.co/paige-ai/Virchow2)
+> - [Virchow2](https://huggingface.co/paige-ai/Virchow2) - Uses first 1280 features (CLS token)
 > - [UNI2](https://huggingface.co/MahmoodLab/UNI2-h)
 > - [GigaPath](https://huggingface.co/prov-gigapath/prov-gigapath)
 
@@ -154,8 +156,8 @@ config = PePathConfig(
     device="cuda",
     
     # Model selection
-    patch_model="virchow2",           # Options: virchow2, uni2, uni, gigapath
-    slide_embedding_method="percentile",  # Options: percentile, bob, ot
+    patch_model="virchow2",           # Options: virchow2, uni2, gigapath
+    slide_embedding_method="sampler",  # Options: sampler, bob, ot
     
     top_k=10
 )
@@ -229,8 +231,8 @@ slide_path: "/path/to/slides"
 output_dir: "./output"
 
 # Model selection
-patch_model: "virchow2"           # virchow2, uni2, uni, gigapath
-slide_embedding_method: "percentile"  # percentile, bob, ot
+patch_model: "virchow2"           # virchow2, uni2, gigapath
+slide_embedding_method: "sampler"  # sampler, bob, ot
 
 # Processing
 base_patchsize: 512

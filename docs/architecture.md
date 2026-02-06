@@ -44,17 +44,25 @@ comet/
 
 ### 2. Patch Embedding Extraction
 - Input: Mosaic metadata, slide files
+- Models supported:
+  - **Virchow2**: 2560-dim output, uses first 1280 features (CLS token)
+  - **UNI2**: 1536-dim embeddings
+  - **GigaPath**: 1536-dim embeddings
 - Process:
-  - Load Virchow2 foundation model
+  - Load foundation model (Virchow2 default)
   - Extract patches at specified magnification
-  - Generate 2560-dim embeddings per patch
+  - Generate embeddings per patch
 - Output: Patch embedding arrays
 
 ### 3. Slide Embedding Generation
 - Input: Patch embeddings
-- Process:
-  - Compute percentiles across patches (5th, 15th, ..., 95th)
-  - Create 10 × 1280 slide signature
+- Methods available:
+  - **SAMPLER** (default): Percentile-based aggregation (5th-95th percentiles)
+    - Speed: ⚡⚡⚡⚡⚡ | Accuracy: ★★★ | Interpretability: ★★
+  - **BoB**: Bag-of-Barcodes binary hashing
+    - Speed: ⚡⚡⚡ | Accuracy: ★★★★ | Interpretability: ★★★★
+  - **OT**: Optimal Transport with Wasserstein distance
+    - Speed: ⚡⚡ | Accuracy: ★★★★★ | Interpretability: ★★★★★
 - Output: Slide-level embeddings
 
 ### 4. Similarity Search
