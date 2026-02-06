@@ -64,9 +64,9 @@
 
 | Method | Speed | Accuracy | Interpretability | Description |
 |--------|:-----:|:--------:|:----------------:|-------------|
-| **SAMPLER** | ⚡⚡⚡⚡⚡ | ★★★☆☆ | ★★☆☆☆ | Percentile-based aggregation (5th-95th) |
-| **BoB** | ⚡⚡⚡☆☆ | ★★★★☆ | ★★★★☆ | Bag-of-Barcodes binary hashing |
-| **OT** | ⚡⚡☆☆☆ | ★★★★★ | ★★★★★ | Optimal Transport with visualization |
+| **SAMPLER** | ★★★★★ | ★★★☆☆ | ★★☆☆☆ | Percentile-based aggregation (5th-95th) |
+| **BoB** | ★★★☆☆ | ★★★★☆ | ★★★★☆ | Bag-of-Barcodes binary hashing |
+| **OT** | ★★☆☆☆ | ★★★★★ | ★★★★★ | Optimal Transport with visualization |
 
 > **Note**: SAMPLER uses a percentile-based approach, computing statistical percentiles (5th, 15th, ..., 95th) across patch embeddings to create a robust slide-level signature.
 
@@ -141,6 +141,31 @@ python scripts/setup_models.py --all
 > - [Virchow2](https://huggingface.co/paige-ai/Virchow2) - Uses first 1280 features (CLS token)
 > - [UNI2](https://huggingface.co/MahmoodLab/UNI2-h)
 > - [GigaPath](https://huggingface.co/prov-gigapath/prov-gigapath)
+
+## 📦 Data Download
+
+The demo and pre-computed search require data files (~14 GB total). Small metadata files are included; large files must be downloaded:
+
+```bash
+# List available files and status
+python scripts/download_data.py --list
+
+# Download all data (~14 GB)
+python scripts/download_data.py --all
+
+# Download essential files only (~10 GB) - for basic search
+python scripts/download_data.py --essential
+
+# Download specific components
+python scripts/download_data.py --patch-embeddings  # For ROI search
+python scripts/download_data.py --sample-slide      # For demo
+```
+
+**Data sources:**
+- **St. Jude internal**: Auto-detected from `REDACTED_INTERNAL_PATH/DNB_Core_Public/`
+- **External**: Zenodo (DOI to be added upon publication)
+
+See [data/README.md](data/README.md) for detailed file descriptions.
 
 ## ⚡ Quick Start
 

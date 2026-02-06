@@ -152,7 +152,11 @@ secrets.yaml
 
 # Test data (except small samples)
 test_data/
-data/
+
+# Data directory - exclude large files, keep small metadata
+data/*
+!data/README.md
+!data/*.csv
 
 # Logs
 *.log

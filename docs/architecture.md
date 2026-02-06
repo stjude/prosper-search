@@ -58,11 +58,11 @@ comet/
 - Input: Patch embeddings
 - Methods available:
   - **SAMPLER** (default): Percentile-based aggregation (5th-95th percentiles)
-    - Speed: ⚡⚡⚡⚡⚡ | Accuracy: ★★★ | Interpretability: ★★
+    - Speed: ★★★★★ | Accuracy: ★★★ | Interpretability: ★★
   - **BoB**: Bag-of-Barcodes binary hashing
-    - Speed: ⚡⚡⚡ | Accuracy: ★★★★ | Interpretability: ★★★★
+    - Speed: ★★★ | Accuracy: ★★★★ | Interpretability: ★★★★
   - **OT**: Optimal Transport with Wasserstein distance
-    - Speed: ⚡⚡ | Accuracy: ★★★★★ | Interpretability: ★★★★★
+    - Speed: ★★ | Accuracy: ★★★★★ | Interpretability: ★★★★★
 - Output: Slide-level embeddings
 
 ### 4. Similarity Search
