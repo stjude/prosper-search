@@ -1,0 +1,50 @@
+# COMET - Computational Morphology Embedding Tool
+# Requirements for installation
+
+# Core dependencies
+numpy>=1.21.0
+pandas>=1.3.0
+scipy>=1.7.0
+scikit-learn>=1.0.0
+tqdm>=4.62.0
+PyYAML>=6.0
+
+# Image processing
+Pillow>=9.0.0
+opencv-python>=4.5.0
+openslide-python>=1.2.0
+
+# Deep learning
+torch>=1.12.0
+torchvision>=0.13.0
+timm>=0.9.0
+
+# Hugging Face (for foundation models)
+huggingface-hub>=0.16.0
+safetensors>=0.3.0
+
+# Optimal Transport (for OT slide embedding)
+POT>=0.9.0
+
+# Graph-based clustering (for OT visualization)
+networkx>=2.6.0
+
+# Binary barcodes (for BoB slide embedding)
+bitarray>=2.6.0
+
+# Visualization
+matplotlib>=3.5.0
+seaborn>=0.11.0
+
+# Optional: Jupyter support
+jupyter>=1.0.0
+ipykernel>=6.0.0
+
+# Optional: Enhanced colormaps
+colorcet>=3.0.0
+
+# Development (optional)
+pytest>=7.0.0
+pytest-cov>=4.0.0
+black>=22.0.0
+flake8>=5.0.0

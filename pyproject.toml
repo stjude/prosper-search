@@ -1,0 +1,114 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools-scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pepath"
+version = "1.0.0"
+description = "PePath: Pediatric Pathology Slide Search Tool for Whole Slide Image Analysis"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Haoran Chen", email = "haoran.chen@stjude.org"}
+]
+requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Healthcare Industry",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Image Processing",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+]
+keywords = [
+    "pathology",
+    "pediatric",
+    "whole-slide-image", 
+    "deep-learning",
+    "computer-vision",
+    "medical-imaging",
+    "similarity-search",
+    "foundation-model",
+    "optimal-transport"
+]
+dependencies = [
+    "numpy>=1.21.0",
+    "pandas>=1.3.0",
+    "scipy>=1.7.0",
+    "scikit-learn>=1.0.0",
+    "tqdm>=4.62.0",
+    "PyYAML>=6.0",
+    "Pillow>=9.0.0",
+    "opencv-python>=4.5.0",
+    "openslide-python>=1.2.0",
+    "torch>=1.12.0",
+    "torchvision>=0.13.0",
+    "timm>=0.9.0",
+    "huggingface-hub>=0.16.0",
+    "POT>=0.9.0",
+    "networkx>=2.6.0",
+    "bitarray>=2.6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=22.0.0",
+    "flake8>=5.0.0",
+]
+jupyter = [
+    "jupyter>=1.0.0",
+    "ipykernel>=6.0.0",
+    "matplotlib>=3.5.0",
+    "seaborn>=0.11.0",
+    "colorcet>=3.0.0",
+]
+all = [
+    "pepath[dev,jupyter]",
+]
+
+[project.scripts]
+pepath = "pepath.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/yourusername/pepath"
+Documentation = "https://github.com/yourusername/pepath#readme"
+Repository = "https://github.com/yourusername/pepath.git"
+Issues = "https://github.com/yourusername/pepath/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["pepath*"]
+exclude = ["tests*", "docs*", "examples*"]
+
+[tool.black]
+line-length = 100
+target-version = ['py38', 'py39', 'py310', 'py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"

@@ -1,0 +1,76 @@
+# PePath Configuration Example
+# Copy this file and modify for your setup
+
+# ============================================================================
+# Input/Output paths
+# ============================================================================
+slide_path: "/path/to/your/slides"
+output_dir: "./output"
+reference_db_path: null  # Path to pre-built reference database (optional)
+
+# ============================================================================
+# Processing parameters
+# ============================================================================
+base_patchsize: 512           # Patch size for tiling (512 recommended for 20x)
+percentage_selected: 15       # Percentage of patches to select per cluster
+tissue_threshold: 0.7         # Minimum tissue coverage (0-1)
+
+# ============================================================================
+# Model Selection
+# ============================================================================
+# Patch embedding model options: virchow2, uni2, uni, gigapath
+patch_model: "virchow2"
+
+# Slide embedding method options: percentile, bob, ot
+#   - percentile: Percentile-based aggregation (fast, good for general use)
+#   - bob: Bag of Barcodes (binary hashing, very fast search)
+#   - ot: Optimal Transport (most accurate, slower)
+slide_embedding_method: "percentile"
+
+# ============================================================================
+# Compute Settings
+# ============================================================================
+device: "cuda"                # Use 'cpu' if no GPU available
+batch_size: 64                # Reduce if running out of GPU memory
+
+# ============================================================================
+# Parallel processing
+# ============================================================================
+num_workers: 8                # Workers for data loading
+n_cpus: 32                    # CPUs for parallel processing
+
+# ============================================================================
+# Search parameters
+# ============================================================================
+top_k: 10                     # Number of similar slides to return
+distance_metric: "l1"         # Options: 'l1', 'l2', 'cosine'
+
+# ============================================================================
+# Slide embedding method-specific parameters
+# ============================================================================
+# For percentile method
+percentiles: [5, 15, 25, 35, 45, 55, 65, 75, 85, 95]
+feature_dim: 1280             # Dimension of features to use
+
+# For BoB method
+bob_barcode_dim: 64           # Binary barcode dimension
+
+# For OT method
+ot_metric: "cosine"           # Distance metric: 'cosine' or 'euclidean'
+ot_reg: 0.0                   # Regularization (0 = exact EMD)
+
+# ============================================================================
+# Visualization options (for OT method)
+# ============================================================================
+generate_visualizations: false     # Generate OT heatmap overlays
+visualization_output_dir: null     # Uses output_dir/visualizations if null
+visualization_slide_level: 2       # OpenSlide level (0=highest resolution)
+visualization_alpha: 100           # Heatmap transparency (0-255)
+
+# ============================================================================
+# Runtime options
+# ============================================================================
+smoketest: false              # Set true for quick test with few slides
+force_recompute: false        # Set true to recompute all steps
+save_intermediate: true       # Save intermediate results
+verbose: true                 # Print progress messages

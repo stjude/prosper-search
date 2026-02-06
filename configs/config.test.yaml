@@ -1,0 +1,25 @@
+# COMET Quick Test Configuration
+# Use this for testing the pipeline on a small subset
+
+slide_path: "./data/test_slides"
+output_dir: "./output/test"
+reference_db_path: null
+
+base_patchsize: 512
+percentage_selected: 15
+tissue_threshold: 0.7
+
+device: "cuda"
+batch_size: 32
+model_name: "virchow2"
+
+num_workers: 4
+n_cpus: 8
+
+top_k: 5
+distance_metric: "l1"
+
+smoketest: true
+force_recompute: true
+save_intermediate: true
+verbose: true

@@ -1,0 +1,3 @@
+"""
+COMET test suite initialization.
+"""
