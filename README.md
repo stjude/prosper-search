@@ -163,7 +163,7 @@ python scripts/download_data.py --sample-slide      # For demo
 
 **Data sources:**
 - **St. Jude internal**: Auto-detected from `REDACTED_INTERNAL_PATH/DNB_Core_Public/`
-- **External**: Zenodo (DOI to be added upon publication)
+- **Git LFS**: Large files tracked with Git LFS (run `git lfs pull` after cloning)
 
 See [data/README.md](data/README.md) for detailed file descriptions.
 

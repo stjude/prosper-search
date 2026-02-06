@@ -33,11 +33,22 @@ python scripts/download_data.py --thumbnails
 python scripts/download_data.py --sample-slide
 ```
 
-### Option 2: Manual Download
+### Option 2: Git LFS (For Repository Clones)
+
+Large files are tracked with Git LFS. After cloning:
+
+```bash
+# Install Git LFS if not already installed
+git lfs install
+
+# Pull large files
+git lfs pull
+```
+
+### Option 3: Manual Download (St. Jude Internal)
 
 Data files are hosted at:
 - **St. Jude internal**: `REDACTED_INTERNAL_PATH/DNB_Core_Public/COMET_portal_files/`
-- **External (Zenodo)**: [DOI to be added upon publication]
 
 Copy files to this `data/` directory:
 

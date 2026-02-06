@@ -1,0 +1,21 @@
+# Git LFS tracking for large data files
+# See https://git-lfs.github.com/
+
+# Large pickle files
+data/*.pkl filter=lfs diff=lfs merge=lfs -text
+
+# Whole slide images
+data/*.svs filter=lfs diff=lfs merge=lfs -text
+
+# Patch embeddings directory (npz files)
+data/patch_embeddings/*.npz filter=lfs diff=lfs merge=lfs -text
+
+# Thumbnails directory
+data/thumbnails/*.jpg filter=lfs diff=lfs merge=lfs -text
+data/thumbnails/*.jpeg filter=lfs diff=lfs merge=lfs -text
+data/thumbnails/*.png filter=lfs diff=lfs merge=lfs -text
+
+# Any large binary files in data
+data/**/*.pkl filter=lfs diff=lfs merge=lfs -text
+data/**/*.npz filter=lfs diff=lfs merge=lfs -text
+data/**/*.npy filter=lfs diff=lfs merge=lfs -text

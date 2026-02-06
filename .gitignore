@@ -153,10 +153,14 @@ secrets.yaml
 # Test data (except small samples)
 test_data/
 
-# Data directory - exclude large files, keep small metadata
-data/*
-!data/README.md
-!data/*.csv
+# Data directory - large files tracked with Git LFS
+# Small metadata files are regular git files
+# Large files (.pkl, .npz, .svs, thumbnails) are Git LFS tracked
+
+# Exclude temporary/working files but keep LFS-tracked data
+data/.tmp/
+data/*.tmp
+data/*.bak
 
 # Logs
 *.log

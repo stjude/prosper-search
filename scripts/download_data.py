@@ -21,7 +21,7 @@ from typing import Dict, Optional
 
 # Data source configurations
 INTERNAL_SOURCE = "REDACTED_INTERNAL_PATH/DNB_Core_Public/COMET_portal_files"
-ZENODO_DOI = None  # To be added upon publication
+USE_GIT_LFS = True  # Large files are tracked with Git LFS
 
 # File manifest with sizes (in MB)
 DATA_FILES = {
@@ -165,16 +165,42 @@ def download_from_internal(file_key: str) -> bool:
     return copy_file(source_path, dest_path, info["is_dir"])
 
 
-def download_from_zenodo(file_key: str) -> bool:
-    """Download a file from Zenodo."""
-    if ZENODO_DOI is None:
-        print("❌ Zenodo download not yet available. Please use internal source.")
-        print("   Zenodo hosting will be available upon publication.")
-        return False
+def download_from_git_lfs() -> bool:
+    """Pull large files using Git LFS."""
+    import subprocess
     
-    # TODO: Implement Zenodo download when DOI is available
-    print(f"Downloading {file_key} from Zenodo...")
-    return False
+    print("\n📥 Pulling large files from Git LFS...")
+    print("   (This requires Git LFS to be installed: https://git-lfs.github.com/)")
+    
+    try:
+        # Check if git lfs is installed
+        result = subprocess.run(["git", "lfs", "version"], 
+                                capture_output=True, text=True)
+        if result.returncode != 0:
+            print("❌ Git LFS not installed. Install with:")
+            print("   brew install git-lfs  # macOS")
+            print("   apt install git-lfs   # Ubuntu")
+            return False
+        
+        print(f"   Git LFS version: {result.stdout.strip()}")
+        
+        # Pull LFS files
+        result = subprocess.run(["git", "lfs", "pull"], 
+                                capture_output=True, text=True,
+                                cwd=get_project_root())
+        if result.returncode != 0:
+            print(f"❌ Git LFS pull failed: {result.stderr}")
+            return False
+        
+        print("✅ Git LFS pull complete!")
+        return True
+        
+    except FileNotFoundError:
+        print("❌ Git not found in PATH")
+        return False
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        return False
 
 
 def download_file(file_key: str, source: str = "auto") -> bool:
@@ -195,11 +221,12 @@ def download_file(file_key: str, source: str = "auto") -> bool:
         if check_internal_access():
             return download_from_internal(file_key)
         else:
-            return download_from_zenodo(file_key)
+            print("Internal source not available. Use 'git lfs pull' to fetch large files.")
+            return False
     elif source == "internal":
         return download_from_internal(file_key)
-    elif source == "zenodo":
-        return download_from_zenodo(file_key)
+    elif source == "lfs":
+        return download_from_git_lfs()
     else:
         print(f"❌ Unknown source: {source}")
         return False
@@ -245,9 +272,11 @@ Examples:
                         help="Download all data files (~14 GB)")
     parser.add_argument("--essential", action="store_true",
                         help="Download essential files only (~10 GB)")
-    parser.add_argument("--source", choices=["auto", "internal", "zenodo"],
+    parser.add_argument("--source", choices=["auto", "internal", "lfs"],
                         default="auto",
-                        help="Data source (default: auto-detect)")
+                        help="Data source: auto (internal if available), internal, lfs (Git LFS)")
+    parser.add_argument("--lfs", action="store_true",
+                        help="Pull all large files using Git LFS")
     
     # Individual file downloads
     parser.add_argument("--patch-embeddings", action="store_true",
@@ -281,7 +310,9 @@ Examples:
     
     any_specific = any(file_flags.values())
     
-    if args.all:
+    if args.lfs:
+        success = download_from_git_lfs()
+    elif args.all:
         success = download_all(args.source)
     elif args.essential:
         success = download_essential(args.source)
