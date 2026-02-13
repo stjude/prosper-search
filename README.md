@@ -67,6 +67,8 @@
 
 ### Patch Embedding Models
 
+Each WSI is tiled into 512×512 patches, and a pretrained pathology foundation model encodes every patch into a fixed-length feature vector.
+
 | Model | Embedding Dim | Features Used | Description |
 |-------|---------------|---------------|-------------|
 | **Virchow2** | 2560 | First 1280 (CLS token) | Paige AI pathology foundation model (default) |
@@ -74,6 +76,8 @@
 | **GigaPath** | 1536 | 1536 | Providence large-scale pathology model |
 
 ### Slide Similarity Formulations
+
+Patch embeddings are aggregated into a single slide-level representation, and pairwise distances between slides define the search ranking.
 
 | Method | Speed | Accuracy | Interpretability | Description |
 |--------|:-----:|:--------:|:----------------:|-------------|
