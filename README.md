@@ -2,7 +2,7 @@
 
 # 🔬 PROSPER
 
-### <span style="color:#E74C3C">**P**</span>ediatric <span style="color:#E67E22">**R**</span>etrieval for <span style="color:#F1C40F">**O**</span>ncology <span style="color:#2ECC71">**S**</span>lides, <span style="color:#3498DB">**P**</span>athology <span style="color:#9B59B6">**E**</span>vidence, and <span style="color:#1ABC9C">**R**</span>eporting
+### $\color{#E74C3C}{\textbf{P}}$ediatric $\color{#E67E22}{\textbf{R}}$etrieval for $\color{#F1C40F}{\textbf{O}}$ncology $\color{#2ECC71}{\textbf{S}}$lides, $\color{#3498DB}{\textbf{P}}$athology $\color{#9B59B6}{\textbf{E}}$vidence, and $\color{#1ABC9C}{\textbf{R}}$eporting
 
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
