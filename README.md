@@ -96,7 +96,7 @@ After retrieval, PROSPER converts raw distances into calibrated disease probabil
 
 ### Interpretability Visualization
 
-Beyond returning a ranked list, PROSPER shows *why* two slides match by mapping similarity back to tissue morphology.
+Beyond returning a ranked list and probability, PROSPER shows *why* two slides match or how an ROI matches to a full slide by mapping similarity back to tissue morphology.
 
 | Visualization | Input | Output | Description |
 |---------------|-------|--------|-------------|
