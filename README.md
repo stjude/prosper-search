@@ -21,7 +21,7 @@
 ## 📋 Overview
 
 <div align="center">
-<img src="data/fig/overview.png" alt="PROSPER Overview" width="85%">
+<img src="data/fig/overview.png" alt="PROSPER Overview" width="100%">
 </div>
 
 <br>
