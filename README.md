@@ -67,7 +67,7 @@
 
 ### Patch Embedding Models
 
-Each WSI is tiled into 512×512 patches, and a pretrained pathology foundation model encodes every patch into a fixed-length feature vector.
+Each WSI is tiled into 512×512 patches, and a pretrained pathology foundation model encodes every patch into a fixed-length feature vector. PROSPER supports the following models:
 
 | Model | Embedding Dim | Features Used | Description |
 |-------|---------------|---------------|-------------|
