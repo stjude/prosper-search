@@ -2,7 +2,7 @@
 
 # 🔬 PROSPER
 
-### Pediatric Retrieval for Oncology Slides, Pathology Evidence, and Reporting
+### <span style="color:#E74C3C">**P**</span>ediatric <span style="color:#E67E22">**R**</span>etrieval for <span style="color:#F1C40F">**O**</span>ncology <span style="color:#2ECC71">**S**</span>lides, <span style="color:#3498DB">**P**</span>athology <span style="color:#9B59B6">**E**</span>vidence, and <span style="color:#1ABC9C">**R**</span>eporting
 
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -19,6 +19,12 @@
 ---
 
 ## 📋 Overview
+
+<div align="center">
+<img src="data/fig/overview.png" alt="PROSPER Overview" width="85%">
+</div>
+
+<br>
 
 **PROSPER** is a computational tool for extracting morphological embeddings from whole slide images (WSIs) and performing similarity-based search across pathology databases. Designed for **pediatric pathology** applications, PROSPER enables:
 
@@ -87,6 +93,41 @@ After retrieval, PROSPER converts raw distances into calibrated disease probabil
 |-----------|---------|-------------|
 | `n_neighbors` | 20 | Number of nearest neighbors to aggregate |
 | `temperature` | 20.0 | Smoothing factor — larger = softer probabilities |
+
+### Interpretability Visualization
+
+PROSPER provides two complementary visualization modes that make search results **explainable at the patch level**:
+
+| Visualization | Input | Output | Description |
+|---------------|-------|--------|-------------|
+| **OT Heatmap Overlay** | OT transport matrix + WSI | Whole-slide heatmap | Colors every patch by its transport-weighted similarity score, highlighting which regions drove the match |
+| **ROI Search Heatmap** | Patch embeddings + query ROI | Thumbnail heatmap overlay | Computes cosine similarity of every tile to a query patch and overlays the result on a slide thumbnail |
+
+**OT Heatmap Overlay** — After solving the optimal transport problem between two slides, the transport matrix \(T\) and cost matrix \(M\) are combined to produce per-patch weighted distance scores. These scores are normalized to \([0, 1]\) and rendered as a colormap overlay on the WSI, so clinicians can see *exactly* which tissue regions are most (or least) similar. An optional clustering step groups co-transported patches into discrete regions.
+
+**ROI Search Heatmap** — Given a query patch (identified by slide ID and patch index), PROSPER computes cosine similarities between the query embedding and all patch embeddings of a hit slide. The resulting similarity map is overlaid on a slide thumbnail using accurate coordinate mapping from `slide_dimensions.csv`, producing a publication-ready figure without requiring the original `.svs` file.
+
+```python
+# OT Visualization
+from prosper.visualization import OTVisualizer
+
+visualizer = OTVisualizer(patch_size=512, slide_level=2)
+results = visualizer.visualize_similarity(
+    slide_a_path, slide_b_path,
+    ot_result, mosaic_a, mosaic_b
+)
+
+# ROI Search Heatmap
+from prosper.visualization import generate_roi_search_heatmap
+
+output_path = generate_roi_search_heatmap(
+    embeddings_dir="data/patch_embeddings",
+    query_slide_id="4261",
+    query_patch_idx=860,
+    hit_slide_id="4264",
+    output_dir="output/heatmaps"
+)
+```
 
 ### LLM Summarization
 
@@ -204,117 +245,38 @@ See [data/README.md](data/README.md) for detailed file descriptions.
 ```python
 from prosper import ProsperPipeline, ProsperConfig
 
-# Configure the pipeline
 config = ProsperConfig(
-    slide_path="/path/to/your/slides",
+    slide_path="/path/to/slides",
     output_dir="./output",
-    device="cuda",
-    
-    # Model selection
-    patch_model="virchow2",           # Options: virchow2, uni2, gigapath
-    slide_embedding_method="percentile",  # Options: percentile, bob, ot
-    
-    top_k=10
+    patch_model="virchow2",                # virchow2 | uni2 | gigapath
+    slide_embedding_method="percentile",   # percentile | bob | ot
 )
-
-# Initialize and run
 pipeline = ProsperPipeline(config)
 results = pipeline.run()
-
-# View results
-df = results.to_dataframe()
-print(df)
-
-# List available models and methods
-print(ProsperPipeline.list_available_models())
 ```
 
 ### Command Line
 
 ```bash
-# List available models and methods
-python -m prosper.cli --list-models
-
-# Run with default settings (Virchow2 + percentile)
+# Default pipeline (Virchow2 + percentile)
 python -m prosper.cli --slide-path /path/to/slides --output-dir ./output
 
-# Quick smoke test (processes only 5 slides)
-python -m prosper.cli --slide-path /path/to/slides --smoketest
-```
-
-#### Choosing Embedding Models
-
-```bash
-# Choose a patch embedding model: virchow2 (default), uni2, uni, gigapath
-python -m prosper.cli --slide-path /path/to/slides --patch-embedding uni2
-
-# Choose a slide embedding method: percentile (default), bob, ot
-python -m prosper.cli --slide-path /path/to/slides --slide-embedding ot
-
-# Combine: UNI2 patch model with OT slide embedding + visualization
+# Switch models and methods
 python -m prosper.cli --slide-path /path/to/slides \
-    --patch-embedding uni2 --slide-embedding ot --generate-visualizations
-```
+    --patch-embedding uni2 --slide-embedding ot
 
-#### ROI Search (Patch-Level)
+# Full pipeline with Bayesian probabilities + LLM summarization
+python -m prosper.cli --slide-path /path/to/slides --proba --llm
 
-```bash
-# Enable ROI-level search (searches by patch instead of whole-slide)
-python -m prosper.cli --slide-path /path/to/slides --roi-search
+# ROI search for a specific region
+python -m prosper.cli --slide-path /path/to/slides --roi-search --coords 1024,2048
 
-# Search for a specific 512×512 region by its upper-left corner coordinates
-python -m prosper.cli --slide-path /path/to/slides --coords 1024,2048
-```
-
-#### Bayesian Disease Probability & LLM Summarization
-
-```bash
-# Enable Bayesian disease probability estimation after search
-python -m prosper.cli --slide-path /path/to/slides --proba
-
-# Enable LLM-powered narrative summarization (requires API credentials)
-python -m prosper.cli --slide-path /path/to/slides --llm
-
-# Full pipeline: Virchow2 + percentile + Bayesian + LLM
-python -m prosper.cli --slide-path /path/to/slides \
-    --patch-embedding virchow2 --slide-embedding percentile \
-    --proba --llm
-
-# Tune Bayesian parameters
-python -m prosper.cli --slide-path /path/to/slides --proba \
-    --bayesian-neighbors 30 --bayesian-temperature 10.0
-```
-
-#### Running with a Config File
-
-```bash
-# Use a YAML config (see configs/config.example.yaml)
+# Use a YAML config file (CLI flags override config values)
 python -m prosper.cli --config configs/config.example.yaml
-
-# Config + CLI overrides (CLI flags take precedence)
-python -m prosper.cli --config configs/config.example.yaml --patch-embedding uni2 --proba
 ```
 
-#### Single Slide Mode
-
-```bash
-# Process a single slide against a pre-built reference database
-python -m prosper.cli --single-slide /path/to/slide.svs --reference-db /path/to/db
-```
-
-#### Running Individual Pipeline Steps
-
-```bash
-# Run only a specific step (useful for debugging or re-running)
-python -m prosper.cli --slide-path /path/to/slides --step mosaic
-python -m prosper.cli --slide-path /path/to/slides --step patch-embedding
-python -m prosper.cli --slide-path /path/to/slides --step slide-embedding
-python -m prosper.cli --slide-path /path/to/slides --step search
-python -m prosper.cli --slide-path /path/to/slides --step bayesian --metadata /path/to/meta.csv
-python -m prosper.cli --slide-path /path/to/slides --step llm
-```
-
-#### Full CLI Reference
+<details>
+<summary><b>Full CLI Reference</b></summary>
 
 | Argument | Default | Description |
 |----------|---------|-------------|
@@ -331,6 +293,10 @@ python -m prosper.cli --slide-path /path/to/slides --step llm
 | `--smoketest` | off | Quick test with limited slides |
 | `--force-recompute` | off | Recompute all steps from scratch |
 | `--config` | — | Path to YAML configuration file |
+| `--single-slide` | — | Process one slide against a pre-built reference DB |
+| `--step` | — | Run a single pipeline step: `mosaic`, `patch-embedding`, `slide-embedding`, `search`, `bayesian`, `llm` |
+
+</details>
 
 ## 📓 Demo
 
@@ -357,8 +323,10 @@ See [examples/demo.ipynb](examples/demo.ipynb) for the full walkthrough.
 ```
 output/
 ├── mosaic/                     # Tissue patches
-├── patch_embeddings/           # Patch-level features
-├── slide_embeddings/           # Aggregated slide features
+├── patch_embeddings/
+│   └── virchow2/              # Patch-level features (per model)
+├── slide_embeddings/
+│   └── percentile/            # Aggregated slide features (per method)
 ├── search_results/             # Search results
 │   └── ot_similarities/        # OT pairwise distances
 ├── visualizations/             # OT heatmap overlays
