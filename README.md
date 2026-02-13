@@ -30,7 +30,7 @@
 
 - 🔍 **Slide-level search**: Find morphologically similar whole slide images
 - 🎯 **ROI-level search**: Identify similar tissue regions across slides
-- 🧠 **Multiple foundation models**: Virchow2, UNI2, GigaPath
+- 🧠 **Multiple foundation models**: Virchow2, UNI2, UNI, GigaPath
 - 📊 **Multiple slide similarity formulations**: SAMPLER (percentile), Bag-of-Barcodes (BoB), Optimal Transport (OT)
 - 🎨 **Interpretable visualization**: Heatmap overlays showing patch-level similarity contributions
 - 📈 **Bayesian disease probabilities**: Exponential-weighted nearest-neighbor probability estimation
@@ -44,7 +44,7 @@
 │  Whole Slide    │─────▶│     Mosaic       │─────▶│     Patch       │─────▶│    Slide     │
 │  Images (.svs)  │      │   Generation     │      │   Embeddings    │      │  Embeddings  │
 └─────────────────┘      └──────────────────┘      │   (Virchow2/    │      │  (SAMPLER/   │
-                                                   │  UNI2/GigaPath) │      │   BoB/OT)    │
+                                                   │ UNI2/GigaPath)  │      │   BoB/OT)    │
                                                    └─────────────────┘      └──────────────┘
                                                                                     │
                                     ┌───────────────────────────────────────────────┘
@@ -73,6 +73,7 @@ Each WSI is tiled into 512×512 patches, and a pretrained pathology foundation m
 |-------|---------------|---------------|-------------|
 | **Virchow2** | 2560 | First 1280 (CLS token) | Paige AI pathology foundation model (default) |
 | **UNI2** | 1536 | 1536 | Mahmood Lab universal pathology model v2 |
+| **UNI** | 1024 | 1024 | Mahmood Lab universal pathology model v1 |
 | **GigaPath** | 1536 | 1536 | Providence large-scale pathology model |
 
 ### Slide Similarity Formulations
@@ -125,8 +126,8 @@ The output is a ≤200-word narrative that includes treatment status, concordanc
 
 ```bash
 # Clone the repository
-git clone https://github.com/stjude/prosper-search.git
-cd prosper-search
+git clone https://github.com/stjude/pepath-search.git
+cd pepath-search
 
 # Run the installation script
 chmod +x scripts/install.sh
@@ -189,6 +190,7 @@ python scripts/setup_models.py --all
 > **Note**: You need to accept model licenses on Hugging Face:
 > - [Virchow2](https://huggingface.co/paige-ai/Virchow2) - Uses first 1280 features (CLS token)
 > - [UNI2](https://huggingface.co/MahmoodLab/UNI2-h)
+> - [UNI](https://huggingface.co/MahmoodLab/UNI)
 > - [GigaPath](https://huggingface.co/prov-gigapath/prov-gigapath)
 
 ## 📦 Data Download
@@ -226,7 +228,7 @@ from prosper import ProsperPipeline, ProsperConfig
 config = ProsperConfig(
     slide_path="/path/to/slides",
     output_dir="./output",
-    patch_model="virchow2",                # virchow2 | uni2 | gigapath
+    patch_model="virchow2",                # virchow2 | uni2 | uni | gigapath
     slide_embedding_method="percentile",   # percentile | bob | ot
 )
 pipeline = ProsperPipeline(config)
@@ -300,20 +302,24 @@ See [examples/demo.ipynb](examples/demo.ipynb) for the full walkthrough.
 
 ```
 output/
-├── mosaic/                     # Tissue patches
+├── mosaic/                              # Tissue patches
 ├── patch_embeddings/
-│   └── virchow2/              # Patch-level features (per model)
+│   └── virchow2/                        # Patch-level features (per model)
 ├── slide_embeddings/
-│   └── percentile/            # Aggregated slide features (per method)
-├── search_results/             # Search results
-│   └── ot_similarities/        # OT pairwise distances
-├── visualizations/             # OT heatmap overlays
-├── bayesian/                   # Bayesian disease probabilities
-│   ├── disease_probs_{id}.json # Per-slide probability distributions
-│   └── disease_probs_{id}.csv  # Probability matrix
-└── llm/                        # LLM summarization outputs
-    ├── slide_{id}.json         # Structured payload with metadata + neighbors
-    └── summary_{id}.txt        # Grounded narrative summary
+│   └── virchow2_percentile/             # Slide features ({model}_{method})
+├── search_results/
+│   └── virchow2_percentile/             # Search results ({model}_{method})
+│       └── ot_similarities/             # OT pairwise distances (if using OT)
+├── visualizations/
+│   └── virchow2_ot/                     # OT heatmap overlays ({model}_{method})
+├── bayesian/
+│   └── virchow2_percentile/             # Bayesian disease probabilities
+│       └── disease_probabilities.csv    # Probability matrix
+├── llm/
+│   └── virchow2_percentile/             # LLM summarization outputs
+│       ├── slide_{id}.json              # Structured payload with metadata + neighbors
+│       └── summary_{id}.txt             # Grounded narrative summary
+└── logs/                                # Timestamped run logs
 ```
 
 ## 📖 Configuration
@@ -324,7 +330,7 @@ slide_path: "/path/to/slides"
 output_dir: "./output"
 
 # Model selection
-patch_model: "virchow2"           # virchow2, uni2, gigapath
+patch_model: "virchow2"           # virchow2, uni2, uni, gigapath
 slide_embedding_method: "percentile"  # percentile, bob, ot
 
 # Processing
