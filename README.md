@@ -109,7 +109,7 @@ Beyond returning a ranked list and probability, PROSPER shows *why* two slides m
 
 ### LLM Summarization
 
-PROSPER includes a **grounded LLM summarization** module that generates structured narratives from search results:
+PROSPER leverages a **grounded LLM summarization** module to generate structured narratives from search results:
 
 1. **Payload construction** — Assembles a structured JSON containing the query slide's demographics (age, sex, site, diagnosis, treatment, discrepant status) and top-*k* neighbor metadata with similarity scores and Bayesian probabilities
 2. **Grounded generation** — Sends the payload to a GPT model with a structured prompt requiring inline `[case_id]` citations and a `claims` array
