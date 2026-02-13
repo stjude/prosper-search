@@ -1,5 +1,5 @@
 """
-Tests for PePath pipeline.
+Tests for PROSPER pipeline.
 """
 
 import os
@@ -9,15 +9,15 @@ import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from pepath import PePathConfig, PePathPipeline
+from prosper import ProsperConfig, ProsperPipeline
 
 
-class TestPePathConfig:
-    """Tests for PePathConfig class."""
+class TestProsperConfig:
+    """Tests for ProsperConfig class."""
     
     def test_default_config(self):
         """Test default configuration values."""
-        config = PePathConfig()
+        config = ProsperConfig()
         assert config.base_patchsize == 512
         assert config.device in ['cuda', 'cpu']
         assert config.top_k == 10
@@ -29,13 +29,13 @@ class TestPePathConfig:
             'output_dir': '/test/output',
             'batch_size': 32
         }
-        config = PePathConfig.from_dict(config_dict)
+        config = ProsperConfig.from_dict(config_dict)
         assert config.slide_path == '/test/path'
         assert config.batch_size == 32
     
     def test_config_validation(self):
         """Test configuration validation."""
-        config = PePathConfig(
+        config = ProsperConfig(
             slide_path='/nonexistent/path',
             base_patchsize=-1
         )
@@ -44,24 +44,24 @@ class TestPePathConfig:
     
     def test_config_to_dict(self):
         """Test config serialization."""
-        config = PePathConfig(slide_path='/test')
+        config = ProsperConfig(slide_path='/test')
         config_dict = config.to_dict()
         assert isinstance(config_dict, dict)
         assert 'slide_path' in config_dict
 
 
 class TestPipeline:
-    """Tests for PePathPipeline class."""
+    """Tests for ProsperPipeline class."""
     
     def test_pipeline_initialization(self):
         """Test pipeline can be initialized."""
-        config = PePathConfig(slide_path='/test', output_dir='/test/output')
-        pipeline = PePathPipeline(config)
+        config = ProsperConfig(slide_path='/test', output_dir='/test/output')
+        pipeline = ProsperPipeline(config)
         assert pipeline.config.slide_path == '/test'
     
     def test_pipeline_from_dict(self):
         """Test pipeline can be initialized from dict."""
-        pipeline = PePathPipeline({
+        pipeline = ProsperPipeline({
             'slide_path': '/test',
             'output_dir': '/test/output'
         })
@@ -73,7 +73,7 @@ class TestUtils:
     
     def test_normalize_embeddings(self):
         """Test embedding normalization."""
-        from pepath.utils import normalize_embeddings
+        from prosper.utils import normalize_embeddings
         
         embeddings = np.random.randn(10, 128).astype(np.float32)
         
@@ -84,7 +84,7 @@ class TestUtils:
     
     def test_get_slide_id(self):
         """Test slide ID extraction."""
-        from pepath.utils import get_slide_id
+        from prosper.utils import get_slide_id
         
         assert get_slide_id('/path/to/slide.svs') == 'slide'
         assert get_slide_id('/path/to/sample.ndpi') == 'sample'

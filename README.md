@@ -1,8 +1,8 @@
 <div align="center">
 
-# 🔬 PePath
+# 🔬 PROSPER
 
-### Pediatric Pathology Slide Search Tool
+### Pediatric Retrieval for Oncology Slides, Pathology Evidence, and Reporting
 
 **A Production-Grade Pipeline for Whole Slide Image Embedding and Morphological Similarity Search**
 
@@ -22,13 +22,15 @@
 
 ## 📋 Overview
 
-**PePath** is a computational tool for extracting morphological embeddings from whole slide images (WSIs) and performing similarity-based search across pathology databases. Designed for **pediatric pathology** applications, PePath enables:
+**PROSPER** is a computational tool for extracting morphological embeddings from whole slide images (WSIs) and performing similarity-based search across pathology databases. Designed for **pediatric pathology** applications, PROSPER enables:
 
 - 🔍 **Slide-level search**: Find morphologically similar whole slide images
 - 🎯 **ROI-level search**: Identify similar tissue regions across slides
 - 🧠 **Multiple foundation models**: Virchow2, UNI2, GigaPath
 - 📊 **Multiple embedding methods**: SAMPLER (percentile), Bag-of-Barcodes (BoB), Optimal Transport (OT)
 - 🎨 **OT Visualization**: Heatmap overlays showing patch-level similarity contributions
+- 📈 **Bayesian disease probabilities**: Exponential-weighted nearest-neighbor probability estimation
+- 🤖 **LLM clinical summarization**: Grounded, citation-backed narrative reports via GPT
 - ⚡ **Efficient processing**: Optimized for large-scale datasets with GPU acceleration
 
 ## 🏗️ Pipeline Architecture
@@ -47,6 +49,13 @@
                               ┌────────────┐      ┌─────────────────┐
                               │   Search   │─────▶│   Results &     │
                               │   Engine   │      │  Visualization  │
+                              └────────────┘      └─────────────────┘
+                                    │                      │
+                                    ▼                      ▼
+                              ┌────────────┐      ┌─────────────────┐
+                              │  Bayesian  │─────▶│  LLM Clinical   │
+                              │  Disease   │      │  Summarization  │
+                              │  Probs     │      │  (Grounded)     │
                               └────────────┘      └─────────────────┘
 ```
 
@@ -70,14 +79,39 @@
 
 > **Note**: SAMPLER uses a percentile-based approach, computing statistical percentiles (5th, 15th, ..., 95th) across patch embeddings to create a robust slide-level signature.
 
+### Bayesian Disease Probability Estimation
+
+After retrieval, PROSPER converts raw distances into calibrated disease probabilities using **exponential-weighted nearest neighbors**:
+
+- Given a distance matrix and disease labels, the module selects the *k* closest reference slides
+- Distances are mapped to weights via an exponential kernel controlled by a **temperature** parameter
+- The resulting distribution answers: *"Given what the model retrieved, how likely is each disease?"*
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `n_neighbors` | 20 | Number of nearest neighbors to aggregate |
+| `temperature` | 20.0 | Smoothing factor — larger = softer probabilities |
+
+### LLM Clinical Summarization
+
+PROSPER includes a **grounded LLM summarization** module that generates clinician-friendly narratives from search results:
+
+1. **Payload construction** — Assembles a structured JSON containing the query slide's demographics (age, sex, site, diagnosis, treatment, discrepant status) and top-*k* neighbor metadata with similarity scores and Bayesian probabilities
+2. **Grounded generation** — Sends the payload to a GPT model with a structured prompt requiring inline `[case_id]` citations and a `claims` array
+3. **Post-hoc verification** — Every claim is checked against the source data: fabricated case IDs, unverified numbers, and mismatched field values are flagged
+
+The output is a ≤200-word narrative that includes treatment status, concordance flags, dominant diagnosis with vote counts, and Bayesian probability estimates — all with traceable citations.
+
+> **Requires:** Azure OpenAI or OpenAI API credentials set as environment variables.
+
 ## 🚀 Installation
 
 ### Quick Install (Recommended)
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/pepath.git
-cd pepath
+git clone https://github.com/stjude/prosper-search.git
+cd prosper-search
 
 # Run the installation script
 chmod +x scripts/install.sh
@@ -89,9 +123,9 @@ chmod +x scripts/install.sh
 ```bash
 # Create conda environment
 conda env create -f environment.yml
-conda activate pepath
+conda activate prosper
 
-# Install PePath
+# Install PROSPER
 pip install -e .
 ```
 
@@ -99,11 +133,11 @@ pip install -e .
 
 ```bash
 # Build image
-docker build -t pepath:latest .
+docker build -t prosper:latest .
 
 # Run
 docker run --gpus all -v /path/to/slides:/data -v /path/to/output:/output \
-    pepath:latest python -m pepath.cli --slide-path /data --output-dir /output
+    prosper:latest python -m prosper.cli --slide-path /data --output-dir /output
 ```
 
 ### Option 3: Pip
@@ -117,7 +151,7 @@ source venv/bin/activate
 # Ubuntu: sudo apt-get install openslide-tools python3-openslide
 # macOS: brew install openslide
 
-# Install PePath
+# Install PROSPER
 pip install -r requirements.txt
 pip install -e .
 ```
@@ -172,10 +206,10 @@ See [data/README.md](data/README.md) for detailed file descriptions.
 ### Python API
 
 ```python
-from pepath import PePathPipeline, PePathConfig
+from prosper import ProsperPipeline, ProsperConfig
 
 # Configure the pipeline
-config = PePathConfig(
+config = ProsperConfig(
     slide_path="/path/to/your/slides",
     output_dir="./output",
     device="cuda",
@@ -188,7 +222,7 @@ config = PePathConfig(
 )
 
 # Initialize and run
-pipeline = PePathPipeline(config)
+pipeline = ProsperPipeline(config)
 results = pipeline.run()
 
 # View results
@@ -196,26 +230,26 @@ df = results.to_dataframe()
 print(df)
 
 # List available models and methods
-print(PePathPipeline.list_available_models())
+print(ProsperPipeline.list_available_models())
 ```
 
 ### Command Line
 
 ```bash
 # Run with default settings
-python -m pepath.cli --slide-path /path/to/slides --output-dir ./output
+python -m prosper.cli --slide-path /path/to/slides --output-dir ./output
 
 # Use UNI2 model with OT embedding and visualization
-python -m pepath.cli --slide-path /path/to/slides \
+python -m prosper.cli --slide-path /path/to/slides \
     --patch-model uni2 \
     --slide-method ot \
     --generate-visualizations
 
 # Quick smoke test
-python -m pepath.cli --slide-path /path/to/slides --smoketest
+python -m prosper.cli --slide-path /path/to/slides --smoketest
 
 # List available models
-python -m pepath.cli --list-models
+python -m prosper.cli --list-models
 ```
 
 ## 📓 Demo
@@ -229,10 +263,12 @@ jupyter notebook examples/demo.ipynb
 
 The demo includes:
 - ✅ Environment verification
-- ✅ Processing 3 sample slides
-- ✅ Generating embeddings
-- ✅ Performing similarity search
-- ✅ Visualizing results
+- ✅ Processing a sample slide end-to-end
+- ✅ Generating patch and slide embeddings
+- ✅ Performing slide-level and ROI-level similarity search
+- ✅ OT (Optimal Transport) slide comparison with heatmaps
+- ✅ Bayesian disease probability estimation with visualization
+- ✅ LLM clinical summarization with grounded citations
 
 See [examples/demo.ipynb](examples/demo.ipynb) for the full walkthrough.
 
@@ -245,7 +281,13 @@ output/
 ├── slide_embeddings/           # Aggregated slide features
 ├── search_results/             # Search results
 │   └── ot_similarities/        # OT pairwise distances
-└── visualizations/             # OT heatmap overlays
+├── visualizations/             # OT heatmap overlays
+├── bayesian/                   # Bayesian disease probabilities
+│   ├── disease_probs_{id}.json # Per-slide probability distributions
+│   └── disease_probs_{id}.csv  # Probability matrix
+└── llm/                        # LLM summarization outputs
+    ├── slide_{id}.json         # Structured payload with metadata + neighbors
+    └── summary_{id}.txt        # Grounded clinical narrative
 ```
 
 ## 📖 Configuration
@@ -265,8 +307,25 @@ device: "cuda"
 batch_size: 64
 top_k: 10
 
+# Bayesian disease probabilities
+bayesian_n_neighbors: 20     # Number of nearest neighbors
+bayesian_temperature: 20.0   # Exponential weighting temperature
+
 # Visualization (for OT)
 generate_visualizations: false
+```
+
+### LLM Environment Variables
+
+```bash
+# Azure OpenAI (recommended)
+export AZURE_OPENAI_ENDPOINT="https://your-endpoint.openai.azure.com/"
+export AZURE_OPENAI_API_KEY="your-key"
+export AZURE_OPENAI_API_VERSION="2024-12-01-preview"
+export AZURE_OPENAI_DEPLOYMENT="gpt-5"
+
+# Or standard OpenAI
+export OPENAI_API_KEY="your-key"
 ```
 
 ## 🎯 Use Cases
@@ -279,11 +338,11 @@ generate_visualizations: false
 
 ## 📚 Citation
 
-If you use PePath in your research, please cite:
+If you use PROSPER in your research, please cite:
 
 ```bibtex
-@article{chen2024pepath,
-  title={PePath: Pediatric Pathology Slide Search Tool for Whole Slide Image Analysis},
+@article{chen2024prosper,
+  title={PROSPER: Pediatric Retrieval for Oncology Slides, Pathology Evidence, and Reporting},
   author={Chen, Haoran and others},
   journal={arXiv preprint arXiv:2024.XXXXX},
   year={2024}

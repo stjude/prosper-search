@@ -1,5 +1,5 @@
 """
-Test virchow2 + sampler (percentile) slide search using actual pepath modules.
+Test virchow2 + sampler (percentile) slide search using actual prosper modules.
 
 This test verifies the full pipeline integration without requiring openslide
 by using pre-computed embeddings.
@@ -13,10 +13,10 @@ import pandas as pd
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from pepath.search.slide_search import SlideSearchEngine, SlideSearchResult
-from pepath.embeddings.slide_embedding.percentile_embedding import PercentileSlideEmbeddingGenerator
-from pepath.embeddings.slide_embedding import get_slide_embedding_generator, list_slide_embedding_methods
-from pepath import PePathConfig
+from prosper.search.slide_search import SlideSearchEngine, SlideSearchResult
+from prosper.embeddings.slide_embedding.percentile_embedding import PercentileSlideEmbeddingGenerator
+from prosper.embeddings.slide_embedding import get_slide_embedding_generator, list_slide_embedding_methods
+from prosper import ProsperConfig
 
 # Paths to test data
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
@@ -24,13 +24,13 @@ MATRIX_PATH = os.path.join(DATA_DIR, "final_slides_sampler_matrix.npy")
 METADATA_PATH = os.path.join(DATA_DIR, "final_scan_id_disease_map.csv")
 
 
-def test_pepath_config():
-    """Test PePathConfig for virchow2 + percentile."""
+def test_prosper_config():
+    """Test ProsperConfig for virchow2 + percentile."""
     print("=" * 60)
-    print("Test 1: PePathConfig for virchow2 + percentile")
+    print("Test 1: ProsperConfig for virchow2 + percentile")
     print("=" * 60)
     
-    config = PePathConfig(
+    config = ProsperConfig(
         slide_path=DATA_DIR,
         output_dir="./output/test",
         patch_model="virchow2",
@@ -49,7 +49,7 @@ def test_pepath_config():
     assert config.feature_dim == 1280
     assert len(config.percentiles) == 10
     
-    print("PASSED: PePathConfig works correctly")
+    print("PASSED: ProsperConfig works correctly")
     return config
 
 
@@ -198,7 +198,7 @@ def main():
         return 1
     
     try:
-        test_pepath_config()
+        test_prosper_config()
         test_slide_embedding_factory()
         test_slide_search_with_precomputed()
         test_percentile_generator()

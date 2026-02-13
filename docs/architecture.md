@@ -1,8 +1,8 @@
-# COMET Documentation
+# PROSPER Documentation
 
 ## Overview
 
-COMET (Computational Morphology Embedding Tool) is a complete pipeline for:
+PROSPER (Pediatric Retrieval for Oncology Slides, Pathology Evidence, and Reporting) is a complete pipeline for:
 1. Processing whole slide images (WSIs)
 2. Extracting morphological embeddings using foundation models
 3. Performing similarity search across slide databases
@@ -10,7 +10,7 @@ COMET (Computational Morphology Embedding Tool) is a complete pipeline for:
 ## Architecture
 
 ```
-comet/
+prosper/
 ├── __init__.py           # Package exports
 ├── config.py             # Configuration management
 ├── pipeline.py           # Main pipeline orchestrator
@@ -75,10 +75,10 @@ comet/
 
 ## API Reference
 
-### COMETConfig
+### ProsperConfig
 Configuration dataclass with all pipeline parameters.
 
-### COMETPipeline
+### ProsperPipeline
 Main pipeline class with methods:
 - `run()`: Run complete pipeline
 - `generate_mosaics()`: Step 1

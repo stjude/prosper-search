@@ -1,0 +1,10 @@
+{
+  "current_case": {"site": "lung", "age": 55, "sex": "F"},
+  "neighbors": [    
+  {"case_id": "N1", "probability": 0.32, "tumor_type": "RMS", "diagnosis": "Metastatic rhabdomyosarcoma to lung", "site": "lung", "age": 60, "sex": "F"},
+  {"case_id": "N2", "probability": 0.24, "tumor_type": "RMS", "diagnosis": "Metastatic rhabdomyosarcoma to lung", "site": "lung", "age": 58, "sex": "M"},
+  {"case_id": "N3", "probability": 0.21, "tumor_type": "RMS", "diagnosis": "Metastatic rhabdomyosarcoma to lung", "site": "lung", "age": 62, "sex": "F"},
+  {"case_id": "N4", "probability": 0.10, "tumor_type": "WT", "diagnosis": "Metastatic Wilms tumor to lung", "site": "lung", "age": 59, "sex": "M"},
+  {"case_id": "N5", "probability": 0.13, "tumor_type": "MPNST", "diagnosis": "Metastatic malignant peripheral nerve sheath tumor to lung", "site": "lung", "age": 57, "sex": "F"}
+  ]
+}

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 """
-PePath Model Setup Script
+PROSPER Model Setup Script
 
-This script helps users set up the foundation models required by PePath.
+This script helps users set up the foundation models required by PROSPER.
 It handles Hugging Face authentication and model download.
 
 Usage:
@@ -44,7 +44,7 @@ MODELS = {
 
 def print_header():
     print("\n" + "=" * 60)
-    print("🔬 PePath Model Setup")
+    print("🔬 PROSPER Model Setup")
     print("=" * 60 + "\n")
 
 
@@ -144,7 +144,7 @@ def list_models():
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Setup foundation models for PePath"
+        description="Setup foundation models for PROSPER"
     )
     parser.add_argument(
         "--model", "-m",
@@ -215,7 +215,7 @@ def main():
     
     print("Next steps:")
     print("  1. Run the demo: jupyter notebook examples/demo.ipynb")
-    print("  2. Process slides: python -m pepath.cli --slide-path /path/to/slides")
+    print("  2. Process slides: python -m prosper.cli --slide-path /path/to/slides")
     print()
 
 

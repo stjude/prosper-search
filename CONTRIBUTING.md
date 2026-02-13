@@ -1,6 +1,6 @@
-# Contributing to COMET
+# Contributing to PROSPER
 
-Thank you for your interest in contributing to COMET! This document provides guidelines and information for contributors.
+Thank you for your interest in contributing to PROSPER! This document provides guidelines and information for contributors.
 
 ## Code of Conduct
 
@@ -10,7 +10,7 @@ By participating in this project, you agree to abide by our Code of Conduct. Ple
 
 ### Reporting Bugs
 
-1. Check if the bug has already been reported in the [Issues](https://github.com/yourusername/comet/issues)
+1. Check if the bug has already been reported in the [Issues](https://github.com/yourusername/prosper/issues)
 2. If not, create a new issue with:
    - A clear, descriptive title
    - Steps to reproduce the bug
@@ -32,7 +32,7 @@ By participating in this project, you agree to abide by our Code of Conduct. Ple
 3. Make your changes
 4. Add tests if applicable
 5. Ensure all tests pass (`pytest tests/`)
-6. Format code with black (`black comet/`)
+6. Format code with black (`black prosper/`)
 7. Commit with clear messages (`git commit -m 'Add amazing feature'`)
 8. Push to your fork (`git push origin feature/amazing-feature`)
 9. Open a Pull Request
@@ -41,8 +41,8 @@ By participating in this project, you agree to abide by our Code of Conduct. Ple
 
 ```bash
 # Clone your fork
-git clone https://github.com/yourusername/comet.git
-cd comet
+git clone https://github.com/yourusername/prosper.git
+cd prosper
 
 # Create virtual environment
 python -m venv venv

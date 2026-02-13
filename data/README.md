@@ -1,6 +1,6 @@
-# PePath Data Directory
+# PROSPER Data Directory
 
-This directory contains the data files required to run the PePath pipeline and demos.
+This directory contains the data files required to run the PROSPER pipeline and demos.
 
 ## Data Files Overview
 
@@ -92,16 +92,16 @@ A sample whole slide image for running the demo notebook.
 If you want to process your own slides:
 
 ```python
-from pepath import PePathPipeline, PePathConfig
+from prosper import ProsperPipeline, ProsperConfig
 
-config = PePathConfig(
+config = ProsperConfig(
     slide_path="/path/to/your/slides",
     output_dir="./output",
     patch_model="virchow2",
     slide_embedding_method="sampler"
 )
 
-pipeline = PePathPipeline(config)
+pipeline = ProsperPipeline(config)
 results = pipeline.run()
 ```
 

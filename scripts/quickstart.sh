@@ -1,11 +1,11 @@
 #!/bin/bash
-# COMET Quick Start Script
-# This script helps set up and run COMET
+# PROSPER Quick Start Script
+# This script helps set up and run PROSPER
 
 set -e
 
 echo "==========================================="
-echo "  COMET - Computational Morphology"
+echo "  PROSPER - Pediatric Retrieval for Oncology"
 echo "  Embedding Tool for WSI Analysis"
 echo "==========================================="
 echo ""
@@ -19,7 +19,7 @@ usage() {
     echo "Usage: $0 [command]"
     echo ""
     echo "Commands:"
-    echo "  install     Install COMET and dependencies"
+    echo "  install     Install PROSPER and dependencies"
     echo "  test        Run smoke test with sample data"
     echo "  run         Run the pipeline (requires config)"
     echo "  help        Show this help message"
@@ -31,8 +31,8 @@ usage() {
 }
 
 # Install command
-install_comet() {
-    echo "Installing COMET..."
+install_prosper() {
+    echo "Installing PROSPER..."
     echo ""
     
     # Check if venv exists
@@ -51,8 +51,8 @@ install_comet() {
     echo "Installing dependencies..."
     pip install -r requirements.txt
     
-    # Install COMET
-    echo "Installing COMET..."
+    # Install PROSPER
+    echo "Installing PROSPER..."
     pip install -e .
     
     echo ""
@@ -90,7 +90,7 @@ run_pipeline() {
 # Main
 case "${1:-help}" in
     install)
-        install_comet
+        install_prosper
         ;;
     test)
         run_test

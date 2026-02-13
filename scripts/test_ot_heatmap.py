@@ -14,8 +14,8 @@ from PIL import Image
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from pepath.embeddings.slide_embedding import OTSlideEmbeddingGenerator
-from pepath.visualization.ot_visualization import (
+from prosper.embeddings.slide_embedding import OTSlideEmbeddingGenerator
+from prosper.visualization.ot_visualization import (
     compute_per_patch_weighted_distance_scores,
     normalize_scores
 )

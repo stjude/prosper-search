@@ -149,6 +149,8 @@ checkpoints/
 config.local.yaml
 secrets.yaml
 *.secret
+credentials.sh
+credentials.py
 
 # Test data (except small samples)
 test_data/
@@ -161,6 +163,7 @@ test_data/
 data/.tmp/
 data/*.tmp
 data/*.bak
+data/thumbnails/
 
 # Logs
 *.log

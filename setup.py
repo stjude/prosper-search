@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-PePath - Pediatric Pathology Slide Search Tool
+PROSPER - Pediatric Retrieval for Oncology Slides, Pathology Evidence, and Reporting
 Setup script for installation
 """
 
@@ -24,18 +24,18 @@ def read_requirements():
     return []
 
 setup(
-    name="pepath",
+    name="prosper",
     version="1.0.0",
     author="Haoran Chen",
     author_email="haoran.chen@stjude.org",
-    description="PePath: Pediatric Pathology Slide Search Tool for Whole Slide Image Analysis",
+    description="PROSPER: Pediatric Retrieval for Oncology Slides, Pathology Evidence, and Reporting",
     long_description=read_readme(),
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/pepath",
+    url="https://github.com/stjude/prosper-search",
     project_urls={
-        "Bug Tracker": "https://github.com/yourusername/pepath/issues",
-        "Documentation": "https://github.com/yourusername/pepath#readme",
-        "Source Code": "https://github.com/yourusername/pepath",
+        "Bug Tracker": "https://github.com/stjude/prosper-search/issues",
+        "Documentation": "https://github.com/stjude/prosper-search#readme",
+        "Source Code": "https://github.com/stjude/prosper-search",
     },
     packages=find_packages(exclude=["tests", "tests.*", "examples", "docs"]),
     classifiers=[
@@ -89,12 +89,14 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "pepath=pepath.cli:main",
+            "prosper=prosper.cli:main",
+            # Backward compatibility
+            "pepath=prosper.cli:main",
         ],
     },
     include_package_data=True,
     package_data={
-        "pepath": ["*.yaml", "*.yml"],
+        "prosper": ["*.yaml", "*.yml"],
     },
     keywords=[
         "pathology",

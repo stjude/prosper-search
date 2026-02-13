@@ -1,10 +1,10 @@
-# PePath - Pediatric Pathology Search Tool
+# PROSPER - Pediatric Pathology Search Tool
 # Docker image for easy deployment
 
 FROM pytorch/pytorch:2.1.0-cuda12.1-cudnn8-runtime
 
 LABEL maintainer="Haoran Chen"
-LABEL description="PePath: Pediatric Pathology Slide Search Tool"
+LABEL description="PROSPER: Pediatric Retrieval for Oncology Slides, Pathology Evidence, and Reporting"
 LABEL version="1.1.0"
 
 # Set environment variables
@@ -44,16 +44,16 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # Copy the rest of the application
 COPY . .
 
-# Install PePath in development mode
+# Install PROSPER in development mode
 RUN pip install --no-cache-dir -e .
 
 # Create directories for data and output
 RUN mkdir -p /data /output
 
 # Set default command
-CMD ["python", "-m", "pepath.cli", "--help"]
+CMD ["python", "-m", "prosper.cli", "--help"]
 
 # Usage:
-# Build: docker build -t pepath:latest .
-# Run:   docker run --gpus all -v /path/to/slides:/data -v /path/to/output:/output pepath:latest \
-#        python -m pepath.cli --slide-path /data --output-dir /output
+# Build: docker build -t prosper:latest .
+# Run:   docker run --gpus all -v /path/to/slides:/data -v /path/to/output:/output prosper:latest \
+#        python -m prosper.cli --slide-path /data --output-dir /output

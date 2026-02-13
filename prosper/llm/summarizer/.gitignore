@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+*.pkl
+*.pickle
+*.npy
+*.npz
+.env
+.env/
+.venv/
+.mypy_cache/
+.pytest_cache/
+.DS_Store
+output/

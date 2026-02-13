@@ -19,11 +19,11 @@ import pandas as pd
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, PROJECT_ROOT)
 
-from pepath import PePathConfig, PePathPipeline
-from pepath.preprocessing.mosaic import process_slide, MosaicGenerator
-from pepath.embeddings.patch_embedding import get_patch_embedding_extractor
-from pepath.embeddings.slide_embedding import get_slide_embedding_generator
-from pepath.search.slide_search import SlideSearchEngine
+from prosper import ProsperConfig, ProsperPipeline
+from prosper.preprocessing.mosaic import process_slide, MosaicGenerator
+from prosper.embeddings.patch_embedding import get_patch_embedding_extractor
+from prosper.embeddings.slide_embedding import get_slide_embedding_generator
+from prosper.search.slide_search import SlideSearchEngine
 
 # Paths
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")

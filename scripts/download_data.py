@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Download script for PePath data files.
+Download script for PROSPER data files.
 
-This script downloads the required data files for running PePath demos and searches.
+This script downloads the required data files for running PROSPER demos and searches.
 Data can be downloaded from St. Jude internal servers or external hosting (Zenodo).
 
 Usage:
@@ -96,7 +96,7 @@ def list_files():
     data_dir = get_data_dir()
     internal_available = check_internal_access()
     
-    print("\n📁 PePath Data Files")
+    print("\n📁 PROSPER Data Files")
     print("=" * 80)
     print(f"{'File':<25} {'Size':>10} {'Essential':>10} {'Status':>15}")
     print("-" * 80)
@@ -255,7 +255,7 @@ def download_essential(source: str = "auto") -> bool:
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Download PePath data files",
+        description="Download PROSPER data files",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:

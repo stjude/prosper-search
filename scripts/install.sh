@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-# PePath Installation Script
+# PROSPER Installation Script
 # 
-# This script automates the installation of PePath and its dependencies.
+# This script automates the installation of PROSPER and its dependencies.
 # 
 # Usage:
 #   chmod +x scripts/install.sh
@@ -28,7 +28,7 @@ print_header() {
     echo -e "${BLUE}"
     echo "╔════════════════════════════════════════════════════════════╗"
     echo "║                                                            ║"
-    echo "║   🔬 PePath - Pediatric Pathology Slide Search Tool        ║"
+    echo "║   🔬 PROSPER - Pediatric Retrieval for Oncology Slides, Pathology Evidence, and Reporting        ║"
     echo "║                                                            ║"
     echo "╚════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
@@ -100,12 +100,12 @@ if [ "$USE_DOCKER" = true ]; then
         exit 1
     fi
     
-    docker build -t pepath:latest .
+    docker build -t prosper:latest .
     print_success "Docker image built successfully!"
     echo ""
     echo "Usage:"
-    echo "  docker run --gpus all -v /path/to/slides:/data -v /path/to/output:/output pepath:latest \\"
-    echo "      python -m pepath.cli --slide-path /data --output-dir /output"
+    echo "  docker run --gpus all -v /path/to/slides:/data -v /path/to/output:/output prosper:latest \\"
+    echo "      python -m prosper.cli --slide-path /data --output-dir /output"
     exit 0
 fi
 
@@ -120,20 +120,20 @@ if [ "$USE_CONDA" = true ]; then
     fi
     
     # Create conda environment
-    print_step "Creating conda environment 'pepath'..."
+    print_step "Creating conda environment 'prosper'..."
     conda env create -f environment.yml || conda env update -f environment.yml
     
     print_success "Conda environment created!"
     echo ""
-    echo "Activate with: conda activate pepath"
+    echo "Activate with: conda activate prosper"
     
     # Activate and install package
-    print_step "Installing PePath package..."
+    print_step "Installing PROSPER package..."
     eval "$(conda shell.bash hook)"
-    conda activate pepath
+    conda activate prosper
     pip install -e .
     
-    print_success "PePath installed successfully!"
+    print_success "PROSPER installed successfully!"
 fi
 
 # Check for pip
@@ -169,10 +169,10 @@ if [ "$USE_PIP" = true ]; then
     pip install -r requirements.txt
     
     # Install package
-    print_step "Installing PePath..."
+    print_step "Installing PROSPER..."
     pip install -e .
     
-    print_success "PePath installed successfully!"
+    print_success "PROSPER installed successfully!"
     echo ""
     echo "Activate with: source venv/bin/activate"
 fi
@@ -191,7 +191,7 @@ echo "2. Login to Hugging Face:"
 echo "   huggingface-cli login"
 echo ""
 echo "3. Verify installation:"
-echo "   python -c \"from pepath import PePathPipeline; print('✓ PePath ready!')\""
+echo "   python -c \"from prosper import ProsperPipeline; print('✓ PROSPER ready!')\""
 echo ""
 echo "4. Run demo:"
 echo "   jupyter notebook examples/demo.ipynb"

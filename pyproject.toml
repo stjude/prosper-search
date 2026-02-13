@@ -3,9 +3,9 @@ requires = ["setuptools>=45", "wheel", "setuptools-scm[toml]>=6.2"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "pepath"
+name = "prosper"
 version = "1.0.0"
-description = "PePath: Pediatric Pathology Slide Search Tool for Whole Slide Image Analysis"
+description = "PROSPER: Pediatric Retrieval for Oncology Slides, Pathology Evidence, and Reporting"
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
@@ -72,21 +72,21 @@ jupyter = [
     "colorcet>=3.0.0",
 ]
 all = [
-    "pepath[dev,jupyter]",
+    "prosper[dev,jupyter]",
 ]
 
 [project.scripts]
-pepath = "pepath.cli:main"
+prosper = "prosper.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/yourusername/pepath"
-Documentation = "https://github.com/yourusername/pepath#readme"
-Repository = "https://github.com/yourusername/pepath.git"
-Issues = "https://github.com/yourusername/pepath/issues"
+Homepage = "https://github.com/stjude/prosper-search"
+Documentation = "https://github.com/stjude/prosper-search#readme"
+Repository = "https://github.com/stjude/prosper-search.git"
+Issues = "https://github.com/stjude/prosper-search/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["pepath*"]
+include = ["prosper*"]
 exclude = ["tests*", "docs*", "examples*"]
 
 [tool.black]

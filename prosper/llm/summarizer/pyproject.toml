@@ -1,0 +1,24 @@
+[project]
+name = "patho-toy-summarizer"
+version = "0.1.0"
+description = "Minimal CLI to summarize pathologic neighbor cases"
+authors = [ { name = "Your Name", email = "you@example.com" } ]
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+keywords = ["pathology", "summary", "cli"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent"
+]
+
+[project.scripts]
+patho_summarize = "patho_toy_summarizer.cli:main"
+
+[project.optional-dependencies]
+llm = ["openai>=1.0.0"]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"

@@ -1,15 +1,15 @@
-# PePath - Conda Environment
+# PROSPER - Conda Environment
 # 
 # Create environment:
 #   conda env create -f environment.yml
 #
 # Activate:
-#   conda activate pepath
+#   conda activate prosper
 #
 # Update:
 #   conda env update -f environment.yml
 
-name: pepath
+name: prosper
 channels:
   - pytorch
   - nvidia

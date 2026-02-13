@@ -26,7 +26,7 @@ def test_ot_embedding():
     
     # Import OT embedding module
     try:
-        from pepath.embeddings.slide_embedding import OTSlideEmbeddingGenerator
+        from prosper.embeddings.slide_embedding import OTSlideEmbeddingGenerator
         print("✓ OTSlideEmbeddingGenerator imported successfully")
     except ImportError as e:
         print(f"✗ Failed to import OTSlideEmbeddingGenerator: {e}")
@@ -137,7 +137,7 @@ def test_ot_visualization(ot_result=None):
     
     # Import visualization functions
     try:
-        from pepath.visualization.ot_visualization import (
+        from prosper.visualization.ot_visualization import (
             transport_matrix_to_long_table,
             compute_per_patch_weighted_distance_scores,
             normalize_scores,
@@ -249,7 +249,7 @@ def test_ot_visualization(ot_result=None):
 
 def main():
     print("\n" + "=" * 60)
-    print("PePath OT Module Tests")
+    print("PROSPER OT Module Tests")
     print("=" * 60 + "\n")
     
     # Test OT embedding

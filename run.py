@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 """
-PePath - Pediatric Pathology Slide Search Tool
+PROSPER - Pediatric Retrieval for Oncology Slides, Pathology Evidence, and Reporting
 
-Quick-start script for running the PePath pipeline.
+Quick-start script for running the PROSPER pipeline.
 
 Usage:
     python run.py --config configs/config.example.yaml
@@ -16,7 +16,7 @@ import os
 # Ensure the package is importable
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from pepath.cli import main
+from prosper.cli import main
 
 if __name__ == "__main__":
     main()

@@ -1,4 +1,4 @@
-# COMET Quick Test Configuration
+# PROSPER Quick Test Configuration
 # Use this for testing the pipeline on a small subset
 
 slide_path: "./data/test_slides"

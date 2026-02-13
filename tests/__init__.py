@@ -1,3 +1,3 @@
 """
-COMET test suite initialization.
+PROSPER test suite initialization.
 """

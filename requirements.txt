@@ -1,4 +1,4 @@
-# COMET - Computational Morphology Embedding Tool
+# PROSPER - Pediatric Retrieval for Oncology Embedding Tool
 # Requirements for installation
 
 # Core dependencies
