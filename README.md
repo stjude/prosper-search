@@ -77,7 +77,7 @@ Each WSI is tiled into 512×512 patches, and a pretrained pathology foundation m
 
 ### Slide Similarity Formulations
 
-Patch embeddings are aggregated into a single slide-level representation, and pairwise distances between slides define the search ranking.
+PROSPER supports multiple strategies for computing slide-level similarity from patch embeddings, each with different trade-offs in speed, accuracy, and interpretability.
 
 | Method | Speed | Accuracy | Interpretability | Description |
 |--------|:-----:|:--------:|:----------------:|-------------|
