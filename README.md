@@ -96,10 +96,12 @@ After retrieval, PROSPER converts raw distances into calibrated disease probabil
 
 ### Interpretability Visualization
 
+Beyond returning a ranked list, PROSPER shows *why* two slides match by mapping similarity back to tissue morphology.
+
 | Visualization | Input | Output | Description |
 |---------------|-------|--------|-------------|
 | **Slide-to-Slide Similarity Heatmap** | OT transport matrix + WSI pair | Side-by-side heatmap comparison | Colors every patch by its transport-weighted similarity score, highlighting which regions drove the match |
-| **ROI-to-Slide Similarity Heatmap** | Patch embeddings + query ROI | Thumbnail heatmap overlay | Computes cosine similarity of every tile to a query patch and overlays the result on a slide thumbnail |
+| **ROI-to-Slide Similarity Heatmap** | Patch embeddings + query ROI | Whole-slide similarity heatmap | Computes cosine similarity of every tile to a query patch and overlays the result on a slide thumbnail |
 
 ### LLM Summarization
 
