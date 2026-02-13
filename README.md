@@ -2,7 +2,7 @@
 
 # 🔬 PROSPER
 
-### $\color{#E74C3C}{\textbf{P}}$ediatric $\color{#E67E22}{\textbf{R}}$etrieval for $\color{#F1C40F}{\textbf{O}}$ncology $\color{#2ECC71}{\textbf{S}}$lides, $\color{#3498DB}{\textbf{P}}$athology $\color{#9B59B6}{\textbf{E}}$vidence, and $\color{#1ABC9C}{\textbf{R}}$eporting
+### Pediatric Retrieval for Oncology Slides, Pathology Evidence, and Reporting
 
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -96,38 +96,10 @@ After retrieval, PROSPER converts raw distances into calibrated disease probabil
 
 ### Interpretability Visualization
 
-PROSPER provides two complementary visualization modes that make search results **explainable at the patch level**:
-
 | Visualization | Input | Output | Description |
 |---------------|-------|--------|-------------|
-| **OT Heatmap Overlay** | OT transport matrix + WSI | Whole-slide heatmap | Colors every patch by its transport-weighted similarity score, highlighting which regions drove the match |
-| **ROI Search Heatmap** | Patch embeddings + query ROI | Thumbnail heatmap overlay | Computes cosine similarity of every tile to a query patch and overlays the result on a slide thumbnail |
-
-**OT Heatmap Overlay** — After solving the optimal transport problem between two slides, the transport matrix \(T\) and cost matrix \(M\) are combined to produce per-patch weighted distance scores. These scores are normalized to \([0, 1]\) and rendered as a colormap overlay on the WSI, so clinicians can see *exactly* which tissue regions are most (or least) similar. An optional clustering step groups co-transported patches into discrete regions.
-
-**ROI Search Heatmap** — Given a query patch (identified by slide ID and patch index), PROSPER computes cosine similarities between the query embedding and all patch embeddings of a hit slide. The resulting similarity map is overlaid on a slide thumbnail using accurate coordinate mapping from `slide_dimensions.csv`, producing a publication-ready figure without requiring the original `.svs` file.
-
-```python
-# OT Visualization
-from prosper.visualization import OTVisualizer
-
-visualizer = OTVisualizer(patch_size=512, slide_level=2)
-results = visualizer.visualize_similarity(
-    slide_a_path, slide_b_path,
-    ot_result, mosaic_a, mosaic_b
-)
-
-# ROI Search Heatmap
-from prosper.visualization import generate_roi_search_heatmap
-
-output_path = generate_roi_search_heatmap(
-    embeddings_dir="data/patch_embeddings",
-    query_slide_id="4261",
-    query_patch_idx=860,
-    hit_slide_id="4264",
-    output_dir="output/heatmaps"
-)
-```
+| **Slide-to-Slide Similarity Heatmap** | OT transport matrix + WSI pair | Side-by-side heatmap comparison | Colors every patch by its transport-weighted similarity score, highlighting which regions drove the match |
+| **ROI-to-Slide Similarity Heatmap** | Patch embeddings + query ROI | Thumbnail heatmap overlay | Computes cosine similarity of every tile to a query patch and overlays the result on a slide thumbnail |
 
 ### LLM Summarization
 
