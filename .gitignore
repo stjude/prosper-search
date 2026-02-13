@@ -165,6 +165,18 @@ data/*.tmp
 data/*.bak
 data/thumbnails/
 
+# Sensitive metadata - do not push patient-level data
+data/metadata/
+data/final_scan_id_disease_map*.csv
+data/slide_dimensions.csv
+
+# Test output directories
+output_e2e_final2/
+
+# Personal test scripts/notebooks
+run_e2e_test.py
+tests/test.ipynb
+
 # Logs
 *.log
 logs/
