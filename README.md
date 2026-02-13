@@ -75,8 +75,6 @@
 | **BoB** | ★★★☆☆ | ★★★★☆ | ★★★★☆ | Bag-of-Barcodes binary hashing |
 | **OT** | ★★☆☆☆ | ★★★★★ | ★★★★★ | Optimal Transport with visualization |
 
-> **Note**: SAMPLER uses a percentile-based approach, computing statistical percentiles (5th, 15th, ..., 95th) across patch embeddings to create a robust slide-level signature.
-
 ### Bayesian Disease Probability Estimation
 
 After retrieval, PROSPER converts raw distances into calibrated disease probabilities using **exponential-weighted nearest neighbors**:
