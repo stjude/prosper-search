@@ -33,7 +33,7 @@ Examples:
   # Run with command line arguments
   python -m prosper.cli --slide-path /path/to/slides --output-dir ./output
 
-  # Use specific patch model and slide embedding method
+  # Use specific patch model and slide similarity formulation
   python -m prosper.cli --slide-path /path/to/slides --patch-model uni2 --slide-method ot
 
   # Run smoke test with GigaPath model
@@ -47,7 +47,7 @@ Examples:
 
 Available models and methods:
   Patch models: virchow2, uni2, uni, gigapath
-  Slide embedding methods: percentile, bob, ot
+  Slide similarity formulations: percentile, bob, ot
         """
     )
     
@@ -96,7 +96,7 @@ Available models and methods:
         type=str,
         default="percentile",
         choices=["percentile", "bob", "ot"],
-        help="Slide embedding method to use (default: percentile)"
+        help="Slide similarity formulation to use (default: percentile)"
     )
     
     # Processing options
@@ -216,7 +216,7 @@ Available models and methods:
     parser.add_argument(
         "--list-models",
         action="store_true",
-        help="List available patch models and slide embedding methods"
+        help="List available patch models and slide similarity formulations"
     )
     
     return parser.parse_args()
@@ -232,7 +232,7 @@ def main():
         print("\nPatch Embedding Models:")
         for model in list_patch_embedding_models():
             print(f"  • {model}")
-        print("\nSlide Embedding Methods:")
+        print("\nSlide Similarity Formulations:")
         for method in list_slide_embedding_methods():
             print(f"  • {method}")
         print()
@@ -291,7 +291,7 @@ def main():
     
     # Validate visualization requirements
     if config.generate_visualizations and config.slide_embedding_method != 'ot':
-        print("Warning: Visualizations are only generated for OT slide embedding method.")
+        print("Warning: Visualizations are only generated for the OT slide similarity formulation.")
         print("         Setting slide_embedding_method to 'ot'")
         config.slide_embedding_method = 'ot'
     

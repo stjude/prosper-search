@@ -35,7 +35,7 @@ class ProsperResults:
     roi_search_results: Optional[Dict] = None
     visualizations: Optional[Dict] = None
     disease_probabilities: Optional[Dict] = None  # Bayesian disease probability estimates
-    llm_summaries: Optional[Dict] = None  # LLM-generated clinical summaries per slide
+    llm_summaries: Optional[Dict] = None  # LLM-generated summaries per slide
     
     def to_dataframe(self, search_type: str = 'slide') -> pd.DataFrame:
         """Convert results to pandas DataFrame."""
@@ -88,7 +88,7 @@ class ProsperPipeline:
     to morphological similarity search results.
     
     Supports multiple patch embedding models (Virchow2, UNI2, GigaPath) and
-    slide embedding methods (Percentile, BoB, OT).
+    slide similarity formulations (Percentile, BoB, OT).
     
     Example usage:
         ```python
@@ -609,7 +609,7 @@ class ProsperPipeline:
         k_neighbors: int = 5,
     ) -> Dict[str, str]:
         """
-        Step 6: Generate LLM clinical summaries for query slides.
+        Step 6: Generate LLM summaries for query slides.
         
         Builds a structured JSON payload for each slide (with neighbor metadata
         and Bayesian probabilities) and sends it to the LLM for grounded
@@ -627,7 +627,7 @@ class ProsperPipeline:
         """
         if self.config.verbose:
             print("=" * 60)
-            print("Step 6: Generating LLM Clinical Summaries")
+            print("Step 6: Generating LLM Summaries")
             print("=" * 60)
         
         try:
@@ -760,7 +760,7 @@ class ProsperPipeline:
             if self.config.verbose:
                 print(f"  Warning: Bayesian disease probabilities skipped: {e}")
         
-        # Step 6: LLM clinical summarization
+        # Step 6: LLM summarization
         try:
             summaries = self.generate_llm_summary(disease_probs=disease_probs)
             if summaries:
@@ -822,7 +822,7 @@ class ProsperPipeline:
     
     @staticmethod
     def list_available_models() -> Dict[str, List[str]]:
-        """List available patch models and slide embedding methods."""
+        """List available patch models and slide similarity formulations."""
         return {
             'patch_models': list_patch_embedding_models(),
             'slide_embedding_methods': list_slide_embedding_methods()

@@ -6,7 +6,7 @@ specifically designed for pediatric pathology applications.
 
 Features:
 - Multiple patch embedding models: Virchow2, UNI2, UNI, GigaPath
-- Multiple slide embedding methods: Percentile, BoB (Bag of Barcodes), OT (Optimal Transport)
+- Multiple slide similarity formulations: Percentile, BoB (Bag of Barcodes), OT (Optimal Transport)
 - Slide-level and ROI-level similarity search
 - OT-based visualization of patch-level similarity
 

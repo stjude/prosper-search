@@ -4,8 +4,6 @@
 
 ### Pediatric Retrieval for Oncology Slides, Pathology Evidence, and Reporting
 
-**A Production-Grade Pipeline for Whole Slide Image Embedding and Morphological Similarity Search**
-
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![arXiv](https://img.shields.io/badge/arXiv-2024.XXXXX-b31b1b.svg)](https://arxiv.org/)
@@ -27,10 +25,10 @@
 - 🔍 **Slide-level search**: Find morphologically similar whole slide images
 - 🎯 **ROI-level search**: Identify similar tissue regions across slides
 - 🧠 **Multiple foundation models**: Virchow2, UNI2, GigaPath
-- 📊 **Multiple embedding methods**: SAMPLER (percentile), Bag-of-Barcodes (BoB), Optimal Transport (OT)
-- 🎨 **OT Visualization**: Heatmap overlays showing patch-level similarity contributions
+- 📊 **Multiple slide similarity formulations**: SAMPLER (percentile), Bag-of-Barcodes (BoB), Optimal Transport (OT)
+- 🎨 **Interpretable visualization**: Heatmap overlays showing patch-level similarity contributions
 - 📈 **Bayesian disease probabilities**: Exponential-weighted nearest-neighbor probability estimation
-- 🤖 **LLM clinical summarization**: Grounded, citation-backed narrative reports via GPT
+- 🤖 **LLM summarization**: Grounded, citation-backed narrative reports via GPT
 - ⚡ **Efficient processing**: Optimized for large-scale datasets with GPU acceleration
 
 ## 🏗️ Pipeline Architecture
@@ -53,7 +51,7 @@
                                     │                      │
                                     ▼                      ▼
                               ┌────────────┐      ┌─────────────────┐
-                              │  Bayesian  │─────▶│  LLM Clinical   │
+                              │  Bayesian  │─────▶│     LLM         │
                               │  Disease   │      │  Summarization  │
                               │  Probs     │      │  (Grounded)     │
                               └────────────┘      └─────────────────┘
@@ -69,7 +67,7 @@
 | **UNI2** | 1536 | 1536 | Mahmood Lab universal pathology model v2 |
 | **GigaPath** | 1536 | 1536 | Providence large-scale pathology model |
 
-### Slide Embedding Methods
+### Slide Similarity Formulations
 
 | Method | Speed | Accuracy | Interpretability | Description |
 |--------|:-----:|:--------:|:----------------:|-------------|
@@ -92,9 +90,9 @@ After retrieval, PROSPER converts raw distances into calibrated disease probabil
 | `n_neighbors` | 20 | Number of nearest neighbors to aggregate |
 | `temperature` | 20.0 | Smoothing factor — larger = softer probabilities |
 
-### LLM Clinical Summarization
+### LLM Summarization
 
-PROSPER includes a **grounded LLM summarization** module that generates clinician-friendly narratives from search results:
+PROSPER includes a **grounded LLM summarization** module that generates structured narratives from search results:
 
 1. **Payload construction** — Assembles a structured JSON containing the query slide's demographics (age, sex, site, diagnosis, treatment, discrepant status) and top-*k* neighbor metadata with similarity scores and Bayesian probabilities
 2. **Grounded generation** — Sends the payload to a GPT model with a structured prompt requiring inline `[case_id]` citations and a `claims` array
@@ -268,7 +266,7 @@ The demo includes:
 - ✅ Performing slide-level and ROI-level similarity search
 - ✅ OT (Optimal Transport) slide comparison with heatmaps
 - ✅ Bayesian disease probability estimation with visualization
-- ✅ LLM clinical summarization with grounded citations
+- ✅ LLM summarization with grounded citations
 
 See [examples/demo.ipynb](examples/demo.ipynb) for the full walkthrough.
 
@@ -287,7 +285,7 @@ output/
 │   └── disease_probs_{id}.csv  # Probability matrix
 └── llm/                        # LLM summarization outputs
     ├── slide_{id}.json         # Structured payload with metadata + neighbors
-    └── summary_{id}.txt        # Grounded clinical narrative
+    └── summary_{id}.txt        # Grounded narrative summary
 ```
 
 ## 📖 Configuration

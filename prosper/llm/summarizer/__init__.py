@@ -1,7 +1,7 @@
 """
 LLM Summarizer for PROSPER.
 
-Provides LLM-powered clinical summarization with grounded citations
+Provides LLM-powered summarization with grounded citations
 and provenance verification.
 
 Quick usage (fake mode, no API key needed):

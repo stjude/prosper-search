@@ -3,7 +3,7 @@ LLM integration module for PROSPER.
 
 Submodules:
     - search:      Generate LLM-ready JSON from slide search results
-    - summarizer:  LLM-powered clinical summarization with grounded citations
+    - summarizer:  LLM-powered summarization with grounded citations
 
 Usage (library):
     from prosper.llm import (
