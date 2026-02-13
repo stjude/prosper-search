@@ -265,6 +265,101 @@ def build_json_for_slide(
     }
 
 
+def build_json_from_search_results(
+    search_results: list,
+    metadata: pd.DataFrame,
+    query_slide_id: str,
+    disease_col: str = 'tumor_group',
+) -> dict:
+    """Build LLM JSON payload from pre-computed search results (no sim matrix needed).
+
+    This avoids the expensive pairwise distance computation by using the
+    already-computed top-k search results.
+
+    Args:
+        search_results: List of search result dicts/objects with 'hit_slide_id' and 'distance'.
+        metadata: Metadata DataFrame with 'slide_id' and optional clinical columns.
+        query_slide_id: Query slide ID.
+        disease_col: Disease column name.
+
+    Returns:
+        Dictionary with 'current_case', 'neighbors', and 'schema_version' keys.
+    """
+    METADATA_COLUMN_MAP = {
+        'Comp.Bio.ID': 'comp_bio_id',
+        'Age.at.Collection': 'age',
+        'Sex': 'sex',
+        'Site': 'site',
+        'tumor_group': 'tumor_group',
+        'Evaluation': 'evaluation',
+        'Sample.Type': 'sample_type',
+        'Treatment': 'treatment',
+        'Discrepant': 'discrepant',
+        'Diagnosis': 'diagnosis',
+        'Met': 'met',
+        'PedAdult': 'ped_adult',
+    }
+
+    def clean_value(v):
+        if v is None:
+            return None
+        vs = str(v).strip()
+        try:
+            if pd.isna(v):
+                return None
+        except (TypeError, ValueError):
+            pass
+        if vs == '' or vs.lower().startswith('data not available') or vs.lower() == 'nan':
+            return None
+        return v
+
+    def standardize_row(row_dict: dict) -> dict:
+        std = {}
+        for source_col, target_key in METADATA_COLUMN_MAP.items():
+            if source_col in row_dict:
+                std[target_key] = clean_value(row_dict.get(source_col))
+            else:
+                std[target_key] = None
+        return std
+
+    # Extract neighbor IDs and distances from search results
+    neighbors = []
+    for r in search_results:
+        if isinstance(r, dict):
+            neighbors.append((str(r['hit_slide_id']), float(r['distance'])))
+        else:
+            neighbors.append((str(r.hit_slide_id), float(r.distance)))
+
+    all_ids = [str(query_slide_id)] + [n[0] for n in neighbors]
+    enriched = enrich_metadata(metadata, all_ids, disease_col=disease_col)
+
+    # Query slide metadata
+    query_row = enriched.get(str(query_slide_id), {})
+    query_std = standardize_row(query_row)
+    case_id = query_std.pop('comp_bio_id', None) or str(query_slide_id)
+    current_case = {'case_id': case_id}
+    current_case.update(query_std)
+
+    # Neighbor entries with metadata
+    neighbor_entries = []
+    for sid, score in neighbors:
+        row = enriched.get(str(sid), {})
+        nbr_std = standardize_row(row)
+        nbr_case_id = nbr_std.pop('comp_bio_id', None) or str(sid)
+        entry = {
+            'case_id': nbr_case_id,
+            'similarity': float(score),
+        }
+        entry.update(nbr_std)
+        neighbor_entries.append(entry)
+
+    return {
+        'current_case': current_case,
+        'neighbors': neighbor_entries,
+        'schema_version': 1,
+    }
+
+
 def filter_data_new(
     sim: pd.DataFrame,
     metadata: pd.DataFrame,

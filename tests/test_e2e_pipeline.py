@@ -29,8 +29,8 @@ from prosper.search.slide_search import SlideSearchEngine
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 OUTPUT_DIR = os.path.join(PROJECT_ROOT, "output")
 SLIDE_PATH = os.path.join(DATA_DIR, "4261.svs")
-MATRIX_PATH = os.path.join(DATA_DIR, "final_slides_sampler_matrix.pkl")  # Now a DataFrame with slide IDs as index
-METADATA_PATH = os.path.join(DATA_DIR, "final_scan_id_disease_map_rich_data.csv")
+MATRIX_PATH = os.path.join(DATA_DIR, "slide_embeddings", "virchow2_sampler.pkl")
+METADATA_PATH = os.path.join(DATA_DIR, "metadata", "final_scan_id_disease_map_rich_data.csv")
 
 
 def step1_generate_mosaic():

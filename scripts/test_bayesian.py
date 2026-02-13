@@ -25,9 +25,9 @@ from prosper.bayesian import compute_disease_probs
 def main():
     parser = argparse.ArgumentParser(description="Test Bayesian disease probabilities")
     parser.add_argument("--slide", default="4261", help="Query slide ID (default: 4261)")
-    parser.add_argument("--embedding", default="data/final_slides_sampler_matrix.pkl",
+    parser.add_argument("--embedding", default="data/slide_embeddings/virchow2_sampler.pkl",
                         help="Embedding matrix pickle")
-    parser.add_argument("--metadata", default="data/final_scan_id_disease_map_rich_data.csv",
+    parser.add_argument("--metadata", default="data/metadata/final_scan_id_disease_map_rich_data.csv",
                         help="Metadata CSV with slide_id and tumor_group columns")
     parser.add_argument("--n-neighbors", type=int, default=20,
                         help="Number of nearest neighbors (default: 20)")

@@ -6,15 +6,15 @@ includes Bayesian disease probabilities from the bayesian module output.
 
 Usage:
     python -m prosper.llm.search.slide_to_json \
-        --sim data/final_slides_sampler_matrix.pkl \
-        --metadata data/final_scan_id_disease_map_rich_data.csv \
+        --sim data/slide_embeddings/virchow2_sampler.pkl \
+        --metadata data/metadata/final_scan_id_disease_map_rich_data.csv \
         --slide 4261 \
         --out output/llm/slide_4261.json
 
     # With Bayesian probabilities:
     python -m prosper.llm.search.slide_to_json \
-        --sim data/final_slides_sampler_matrix.pkl \
-        --metadata data/final_scan_id_disease_map_rich_data.csv \
+        --sim data/slide_embeddings/virchow2_sampler.pkl \
+        --metadata data/metadata/final_scan_id_disease_map_rich_data.csv \
         --slide 4261 \
         --out output/llm/slide_4261.json \
         --bayesian output/bayesian/disease_probs_4261.json

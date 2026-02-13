@@ -376,14 +376,24 @@ class ProsperPipeline:
                 if self.config.slide_embedding_method == 'ot':
                     return self._ot_based_search()
                 else:
-                    matrix = np.stack([embeddings[sid]['int_array'] for sid in slide_ids])
+                    # BoB or other dict-based embeddings: use int_array for search
+                    matrix = np.stack([embeddings[sid]['int_array'].flatten() for sid in slide_ids])
             else:
                 matrix = np.stack([embeddings[sid].flatten() for sid in slide_ids])
             
             self.slide_search.reference_matrix = matrix
             self.slide_search.reference_slide_ids = slide_ids
         
-        results = self.slide_search.batch_search(self.slide_embeddings)
+        # Build query dict with flat arrays (handles dict-based embeddings like BoB)
+        if isinstance(list(self.slide_embeddings.values())[0], dict):
+            query_embeddings = {
+                sid: emb['int_array'].flatten()
+                for sid, emb in self.slide_embeddings.items()
+            }
+        else:
+            query_embeddings = self.slide_embeddings
+        
+        results = self.slide_search.batch_search(query_embeddings)
         
         output_path = os.path.join(
             self.config.search_results_dir,
@@ -472,7 +482,14 @@ class ProsperPipeline:
                                          desc="ROI search", 
                                          disable=not self.config.verbose):
             mosaic = self.mosaics.get(slide_id)
-            all_results[slide_id] = self.roi_search.search(embeddings, slide_id, mosaic)
+            # Convert mosaic list-of-dicts to numpy coords array
+            coords = None
+            if mosaic is not None:
+                try:
+                    coords = np.array([m['wsi_loc'] for m in mosaic], dtype=np.int32)
+                except (KeyError, TypeError):
+                    coords = None
+            all_results[slide_id] = self.roi_search.search(embeddings, slide_id, coords)
         
         output_path = os.path.join(
             self.config.search_results_dir,
@@ -526,36 +543,60 @@ class ProsperPipeline:
         
         # Build distance matrix from slide embeddings if not provided
         if distance_matrix is None:
+            # Load query slide embeddings
             if not self.slide_embeddings:
                 self.slide_embeddings = self.slide_generator.load_all_embeddings(
                     self.config.slide_embeddings_dir
                 )
             
-            slide_ids = sorted(self.slide_embeddings.keys())
+            query_slide_ids = sorted(self.slide_embeddings.keys())
             embeddings = self.slide_embeddings
             
             if isinstance(list(embeddings.values())[0], dict):
-                matrix = np.stack([embeddings[sid]['int_array'] for sid in slide_ids])
+                query_matrix = np.stack([embeddings[sid]['int_array'] for sid in query_slide_ids])
             else:
-                matrix = np.stack([embeddings[sid].flatten() for sid in slide_ids])
+                query_matrix = np.stack([embeddings[sid].flatten() for sid in query_slide_ids])
             
             metric_map = {'l1': 'cityblock', 'l2': 'euclidean', 'cosine': 'cosine'}
             metric = metric_map.get(self.config.distance_metric, 'cityblock')
             
-            if self.config.verbose:
-                print(f"  Computing pairwise distances ({metric})...")
-            distance_matrix = cdist(matrix, matrix, metric=metric)
+            # If a reference database is available, compute query-vs-reference distances
+            ref_path = self.config.reference_db_path
+            if ref_path:
+                if not hasattr(self.slide_search, 'reference_matrix') or self.slide_search.reference_matrix is None:
+                    self.slide_search.load_reference_database(embeddings_dir=ref_path)
+                ref_matrix = self.slide_search.reference_matrix
+                ref_slide_ids = self.slide_search.reference_slide_ids
+                
+                if self.config.verbose:
+                    print(f"  Computing query-vs-reference distances ({metric})...")
+                    print(f"  Query slides: {len(query_slide_ids)}, Reference slides: {len(ref_slide_ids)}")
+                distance_matrix = cdist(query_matrix, ref_matrix, metric=metric)
+                slide_ids = query_slide_ids  # test slide IDs (rows)
+                ref_ids = ref_slide_ids       # reference slide IDs (columns)
+            else:
+                if self.config.verbose:
+                    print(f"  Computing pairwise distances ({metric})...")
+                distance_matrix = cdist(query_matrix, query_matrix, metric=metric)
+                slide_ids = query_slide_ids
+                ref_ids = query_slide_ids
+        else:
+            ref_ids = slide_ids  # square matrix case
         
         if slide_ids is None:
             raise ValueError("slide_ids must be provided or derivable from slide_embeddings")
         
         # Load class labels from metadata if not provided
+        # class_labels correspond to the *columns* (reference slides)
         if class_labels is None:
             if metadata_path is None:
-                metadata_path = os.path.join(
-                    os.path.dirname(self.config.output_dir), "data",
-                    "final_scan_id_disease_map_rich_data.csv"
-                )
+                # Try new layout first, then fall back to old layout
+                base = os.path.dirname(self.config.output_dir)
+                candidates = [
+                    os.path.join(base, "data", "metadata", "final_scan_id_disease_map_rich_data.csv"),
+                    os.path.join(base, "data", "final_scan_id_disease_map_rich_data.csv"),
+                ]
+                metadata_path = next((p for p in candidates if os.path.exists(p)), candidates[0])
             
             if self.config.verbose:
                 print(f"  Loading metadata from: {metadata_path}")
@@ -568,9 +609,11 @@ class ProsperPipeline:
                 })
             meta['slide_id'] = meta['slide_id'].astype(int).astype(str)
             meta = meta.dropna(subset=['tumor_group']).set_index('slide_id')
+            # De-duplicate index so .loc always returns a scalar
+            meta = meta[~meta.index.duplicated(keep='first')]
             
-            class_labels = [meta.loc[sid, 'tumor_group'] if sid in meta.index else 'UNKNOWN'
-                          for sid in slide_ids]
+            class_labels = [str(meta.loc[sid, 'tumor_group']) if sid in meta.index else 'UNKNOWN'
+                          for sid in ref_ids]
         
         # Compute probabilities
         list_of_dicts, df = compute_disease_probs(
@@ -588,7 +631,7 @@ class ProsperPipeline:
             disease_probs[sid] = nonzero
         
         # Save to output
-        bayesian_dir = os.path.join(self.config.output_dir, "bayesian")
+        bayesian_dir = self.config.bayesian_dir
         os.makedirs(bayesian_dir, exist_ok=True)
         
         csv_path = os.path.join(bayesian_dir, "disease_probabilities.csv")
@@ -604,8 +647,8 @@ class ProsperPipeline:
         self,
         slide_ids: List[str] = None,
         disease_probs: Dict[str, Dict[str, float]] = None,
+        search_results: Dict = None,
         metadata_path: str = None,
-        sim_matrix_path: str = None,
         k_neighbors: int = 5,
     ) -> Dict[str, str]:
         """
@@ -615,11 +658,15 @@ class ProsperPipeline:
         and Bayesian probabilities) and sends it to the LLM for grounded
         summarization with inline citations.
         
+        Uses pre-computed search results (top-k neighbors) to avoid expensive
+        pairwise distance recomputation.
+        
         Args:
             slide_ids: Slide IDs to summarize. If None, uses all query slides.
             disease_probs: Bayesian probabilities dict (slide_id -> {disease: prob}).
+            search_results: Pre-computed search results dict (slide_id -> list of results).
+                If None, will be loaded from the search_results directory.
             metadata_path: Path to rich metadata CSV.
-            sim_matrix_path: Path to similarity/embedding matrix pickle.
             k_neighbors: Number of neighbors for the LLM payload.
         
         Returns:
@@ -632,7 +679,7 @@ class ProsperPipeline:
         
         try:
             from .llm import (
-                load_results_new, load_metadata, build_json_for_slide,
+                load_metadata, build_json_from_search_results,
                 attempt_llm_summary_from_payload, MEDICAL_DISCLAIMER,
             )
         except ImportError as e:
@@ -640,52 +687,62 @@ class ProsperPipeline:
                 print(f"  Warning: LLM dependencies not available: {e}")
             return {}
         
-        # Determine paths
-        if sim_matrix_path is None:
-            sim_matrix_path = os.path.join(
-                os.path.dirname(self.config.output_dir), "data",
-                "final_slides_sampler_matrix.pkl"
-            )
+        # Load metadata
         if metadata_path is None:
-            metadata_path = os.path.join(
-                os.path.dirname(self.config.output_dir), "data",
-                "final_scan_id_disease_map_rich_data.csv"
-            )
+            base = os.path.dirname(self.config.output_dir)
+            candidates = [
+                os.path.join(base, "data", "metadata", "final_scan_id_disease_map_rich_data.csv"),
+                os.path.join(base, "data", "final_scan_id_disease_map_rich_data.csv"),
+            ]
+            metadata_path = next((p for p in candidates if os.path.exists(p)), candidates[0])
         
-        # Load similarity matrix and metadata
-        if not os.path.exists(sim_matrix_path) or not os.path.exists(metadata_path):
+        if not os.path.exists(metadata_path):
             if self.config.verbose:
-                print(f"  Warning: Required files not found:")
-                if not os.path.exists(sim_matrix_path):
-                    print(f"    - {sim_matrix_path}")
-                if not os.path.exists(metadata_path):
-                    print(f"    - {metadata_path}")
+                print(f"  Warning: Metadata file not found: {metadata_path}")
             return {}
         
-        sim_matrix = load_results_new(sim_matrix_path)
         rich_metadata = load_metadata(metadata_path)
         
+        # Load search results if not provided
+        if search_results is None:
+            search_results_path = os.path.join(
+                self.config.search_results_dir, "slide_search_results.pkl"
+            )
+            if os.path.exists(search_results_path):
+                import pickle as _pkl
+                with open(search_results_path, 'rb') as f:
+                    search_results = _pkl.load(f)
+                if self.config.verbose:
+                    print(f"  Loaded search results from: {search_results_path}")
+            else:
+                if self.config.verbose:
+                    print(f"  Warning: No search results found at {search_results_path}")
+                    print(f"  Run the search step first.")
+                return {}
+        
         if slide_ids is None:
-            slide_ids = list(self.slide_embeddings.keys()) if self.slide_embeddings else []
+            slide_ids = list(search_results.keys())
         
         # Output directory
-        llm_dir = os.path.join(self.config.output_dir, "llm")
+        llm_dir = self.config.llm_dir
         os.makedirs(llm_dir, exist_ok=True)
         
         summaries = {}
         for sid in slide_ids:
-            if sid not in sim_matrix.index:
+            if sid not in search_results:
                 if self.config.verbose:
-                    print(f"  Skipping slide {sid}: not in similarity matrix")
+                    print(f"  Skipping slide {sid}: not in search results")
                 continue
             
             if self.config.verbose:
                 print(f"\n  Processing slide {sid}...")
             
-            # Build payload
+            # Build payload from search results (no sim matrix needed)
             try:
-                payload = build_json_for_slide(
-                    sim_matrix, rich_metadata, slide_id=sid, k=k_neighbors
+                slide_results = search_results[sid][:k_neighbors]
+                payload = build_json_from_search_results(
+                    slide_results, rich_metadata,
+                    query_slide_id=sid,
                 )
             except Exception as e:
                 if self.config.verbose:
@@ -788,9 +845,12 @@ class ProsperPipeline:
             if self.config.verbose:
                 print(f"  Warning: Bayesian disease probabilities skipped: {e}")
 
-        # Step 6: LLM summarization
+        # Step 6: LLM summarization (uses pre-computed search results)
         try:
-            summaries = self.generate_llm_summary(disease_probs=disease_probs)
+            summaries = self.generate_llm_summary(
+                disease_probs=disease_probs,
+                search_results=results.slide_search_results,
+            )
             if summaries:
                 results.llm_summaries = summaries
         except Exception as e:
@@ -827,6 +887,7 @@ class ProsperPipeline:
             print(f"Processing slide: {slide_id}")
             print(f"Using patch model: {self.config.patch_model}")
         
+        # Step 1: Mosaic
         from .preprocessing.mosaic import process_slide
         mosaic = process_slide(
             slide_path,
@@ -835,17 +896,37 @@ class ProsperPipeline:
             self.config.tissue_threshold
         )
         self.mosaics[slide_id] = mosaic
+        # Save mosaic to disk
+        mosaic_dir = os.path.join(self.config.output_dir, "mosaics")
+        os.makedirs(mosaic_dir, exist_ok=True)
+        mosaic_path = os.path.join(mosaic_dir, f"{slide_id}.pkl")
+        with open(mosaic_path, 'wb') as f:
+            pickle.dump(mosaic, f)
         
+        # Step 2: Patch embeddings
         embeddings = self.patch_extractor.extract_slide_embeddings(
             slide_path, mosaic, self.config.base_patchsize
         )
         self.patch_embeddings[slide_id] = embeddings
+        # Save patch embeddings to disk
+        patch_emb_dir = self.config.patch_embeddings_dir
+        os.makedirs(patch_emb_dir, exist_ok=True)
+        patch_emb_path = os.path.join(patch_emb_dir, f"{slide_id}.npz")
+        np.savez(patch_emb_path, embeddings=embeddings['embeddings'], coords=embeddings['coords'])
         
+        # Step 3: Slide embedding
         slide_embedding = self.slide_generator.process_single_slide(
             embeddings, slide_id, mosaic
         )
         self.slide_embeddings[slide_id] = slide_embedding
+        # Save slide embedding to disk
+        slide_emb_dir = self.config.slide_embeddings_dir
+        os.makedirs(slide_emb_dir, exist_ok=True)
+        slide_emb_path = os.path.join(slide_emb_dir, f"{slide_id}.pkl")
+        with open(slide_emb_path, 'wb') as f:
+            pickle.dump(slide_embedding, f)
         
+        # Step 4: Search
         return self.search(search_type=search_type, reference_db_path=reference_db_path)
     
     @staticmethod

@@ -133,8 +133,8 @@ class PercentileSlideEmbeddingGenerator:
 
 # Paths to test data
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
-MATRIX_PATH = os.path.join(DATA_DIR, "final_slides_sampler_matrix.pkl")
-METADATA_PATH = os.path.join(DATA_DIR, "final_scan_id_disease_map_rich_data.csv")
+MATRIX_PATH = os.path.join(DATA_DIR, "slide_embeddings", "virchow2_sampler.pkl")
+METADATA_PATH = os.path.join(DATA_DIR, "metadata", "final_scan_id_disease_map_rich_data.csv")
 
 
 def test_load_precomputed_embeddings():

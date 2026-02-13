@@ -11,14 +11,54 @@ Usage:
 """
 
 import argparse
+import logging
 import sys
 import os
+import time
+from datetime import datetime
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from prosper import ProsperPipeline, ProsperConfig
+from prosper.pipeline import ProsperResults
 from prosper.embeddings import list_patch_embedding_models, list_slide_embedding_methods
+
+# ── Logging setup ─────────────────────────────────────────────────────────────
+logger = logging.getLogger("prosper")
+
+
+def _setup_logging(output_dir: str, quiet: bool = False):
+    """Configure logging to both console and a timestamped log file.
+
+    Log files are written to ``<output_dir>/logs/``.
+    """
+    log_dir = os.path.join(output_dir, "logs")
+    os.makedirs(log_dir, exist_ok=True)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    log_path = os.path.join(log_dir, f"prosper_run_{timestamp}.log")
+
+    fmt = logging.Formatter(
+        "%(asctime)s [%(levelname)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+    )
+
+    # File handler — always verbose
+    fh = logging.FileHandler(log_path)
+    fh.setLevel(logging.DEBUG)
+    fh.setFormatter(fmt)
+
+    # Console handler — flush after every message so progress is visible
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(logging.WARNING if quiet else logging.INFO)
+    ch.setFormatter(fmt)
+    ch.flush = sys.stdout.flush  # ensure immediate output
+
+    logger.setLevel(logging.DEBUG)
+    logger.addHandler(fh)
+    logger.addHandler(ch)
+
+    logger.info(f"Log file: {log_path}")
+    return log_path
 
 
 def parse_args():
@@ -303,10 +343,29 @@ def _parse_coords(coords_str: str):
         sys.exit(1)
 
 
+def _step(msg):
+    """Log start of a pipeline step."""
+    logger.info(f">> {msg} ...")
+
+
+def _done(msg, elapsed=None):
+    """Log completion of a pipeline step."""
+    suffix = f" ({elapsed:.1f}s)" if elapsed is not None else ""
+    logger.info(f"   {msg}{suffix}")
+
+
+def _has_cached(path, label):
+    """Check if a cached result exists. Log and return True/False."""
+    if os.path.exists(path):
+        logger.info(f"   Found cached {label}: {path} -- skipping")
+        return True
+    return False
+
+
 def main():
     args = parse_args()
 
-    # Handle --list-models
+    # Handle --list-models (no logging needed)
     if args.list_models:
         print("\nPROSPER - Available Models and Methods")
         print("=" * 50)
@@ -319,7 +378,7 @@ def main():
         print()
         return
 
-    # Build configuration
+    # ── Build configuration ───────────────────────────────────────────────
     if args.config:
         config = ProsperConfig.from_yaml(args.config)
     else:
@@ -376,88 +435,216 @@ def main():
         print("         Setting slide_embedding_method to 'ot'")
         config.slide_embedding_method = 'ot'
 
-    # Initialize pipeline
-    pipeline = ProsperPipeline(config)
+    # ── Set up logging ────────────────────────────────────────────────────
+    log_path = _setup_logging(config.output_dir, quiet=args.quiet)
+    t_total = time.time()
+    force = config.force_recompute
 
-    # Handle single slide mode
+    logger.info("=" * 60)
+    logger.info("PROSPER Pipeline")
+    logger.info("=" * 60)
+    logger.info(f"  Slide path         : {config.slide_path}")
+    logger.info(f"  Output dir         : {config.output_dir}")
+    logger.info(f"  Patch model        : {config.patch_model}")
+    logger.info(f"  Slide embedding    : {config.slide_embedding_method}")
+    logger.info(f"  Distance metric    : {config.distance_metric}")
+    if args.reference_db:
+        logger.info(f"  Reference DB       : {args.reference_db}")
+    if args.metadata:
+        logger.info(f"  Metadata           : {args.metadata}")
+    logger.info(f"  Force recompute    : {force}")
+    logger.info(f"  Steps              : {args.step}"
+                + (" + bayesian" if args.proba else "")
+                + (" + llm" if args.llm else ""))
+    logger.info("=" * 60)
+
+    # ── Initialize pipeline ───────────────────────────────────────────────
+    _step("Initializing pipeline")
+    t0 = time.time()
+    pipeline = ProsperPipeline(config)
+    _done("Pipeline initialized", time.time() - t0)
+
+    # ── Single slide mode ─────────────────────────────────────────────────
     if args.single_slide:
         if not args.reference_db:
             print("Error: --reference-db is required for single slide mode")
             sys.exit(1)
-
+        _step("Processing single slide")
+        t0 = time.time()
         results = pipeline.process_single_slide(
             slide_path=args.single_slide,
             reference_db_path=args.reference_db,
             search_type=args.search_type,
         )
-
-        # Print results
+        _done("Single slide processed", time.time() - t0)
         df = results.to_dataframe(args.search_type)
         print("\nSearch Results:")
         print(df.to_string())
         return
 
-    # --- Run pipeline steps ---
-    if args.step == "all":
-        # Full pipeline: mosaic -> patch-embed -> slide-embed -> search
-        results = pipeline.run_core(search_type=args.search_type)
+    # ══════════════════════════════════════════════════════════════════════
+    # Full pipeline — each step checks for cached results
+    # ══════════════════════════════════════════════════════════════════════
 
-        # Optional: Bayesian disease probabilities (--proba)
-        if args.proba:
+    run_mosaic = args.step in ("all", "mosaic")
+    run_patch  = args.step in ("all", "patch-embedding")
+    run_slide  = args.step in ("all", "slide-embedding")
+    run_search = args.step in ("all", "search")
+    run_bayes  = args.step in ("all", "bayesian") or args.proba
+    run_llm    = args.step in ("all", "llm") or args.llm
+
+    # ── Step 1: Mosaic generation ─────────────────────────────────────────
+    if run_mosaic:
+        mosaic_file = config.mosaic_file
+        if not force and _has_cached(mosaic_file, "mosaics"):
+            from prosper.preprocessing import MosaicGenerator
+            pipeline.mosaics = MosaicGenerator.load_mosaics(mosaic_file)
+            _done(f"Loaded {len(pipeline.mosaics)} cached mosaics")
+        else:
+            _step("Generating mosaics from whole slide images")
+            t0 = time.time()
+            pipeline.generate_mosaics()
+            n = len(pipeline.mosaics)
+            _done(f"Mosaic generation complete — {n} slides", time.time() - t0)
+        if args.step == "mosaic":
+            _print_footer(t_total, log_path, config, args)
+            return
+
+    # ── Step 2: Patch embedding extraction ────────────────────────────────
+    if run_patch:
+        patch_tmp = os.path.join(config.patch_embeddings_dir, "tmp")
+        # Check if any cached patch embeddings already exist
+        cached_patches = [f for f in os.listdir(patch_tmp) if f.endswith('.pkl')] if os.path.isdir(patch_tmp) else []
+        if not force and cached_patches:
+            logger.info(f"   Found {len(cached_patches)} cached patch embeddings in {patch_tmp}")
+            # Load them so downstream steps can use them
+            if not pipeline.mosaics:
+                from prosper.preprocessing import MosaicGenerator
+                pipeline.mosaics = MosaicGenerator.load_mosaics(config.mosaic_file)
+            # The patch extractor's process_slides will skip already-cached files
+            _step(f"Extracting patch embeddings (model: {config.patch_model}) — {len(cached_patches)} already cached")
+            t0 = time.time()
+            pipeline.extract_patch_embeddings()
+            _done(f"Patch embedding extraction complete — {len(pipeline.patch_embeddings)} slides", time.time() - t0)
+        else:
+            _step(f"Extracting patch embeddings (model: {config.patch_model})")
+            t0 = time.time()
+            pipeline.extract_patch_embeddings()
+            _done(f"Patch embedding extraction complete — {len(pipeline.patch_embeddings)} slides", time.time() - t0)
+        if args.step == "patch-embedding":
+            _print_footer(t_total, log_path, config, args)
+            return
+
+    # ── Step 3: Slide embedding computation ───────────────────────────────
+    if run_slide:
+        slide_emb_dir = config.slide_embeddings_dir
+        cached_slide = [f for f in os.listdir(slide_emb_dir) if f.endswith('.pkl')] if os.path.isdir(slide_emb_dir) else []
+        if not force and cached_slide:
+            logger.info(f"   Found {len(cached_slide)} cached slide embeddings in {slide_emb_dir}")
+            _step(f"Computing slide embeddings (method: {config.slide_embedding_method}) — {len(cached_slide)} already cached")
+        else:
+            _step(f"Computing slide embeddings (method: {config.slide_embedding_method})")
+        t0 = time.time()
+        pipeline.generate_slide_embeddings()
+        _done(f"Slide embedding computation complete — {len(pipeline.slide_embeddings)} slides", time.time() - t0)
+        if args.step == "slide-embedding":
+            _print_footer(t_total, log_path, config, args)
+            return
+
+    # ── Step 4: Slide search ──────────────────────────────────────────────
+    if run_search:
+        search_pkl = os.path.join(config.search_results_dir, "slide_search_results.pkl")
+        if not force and _has_cached(search_pkl, "search results"):
+            import pickle as _pkl
+            with open(search_pkl, "rb") as f:
+                cached_sr = _pkl.load(f)
+            results = ProsperResults(
+                query_slide_ids=list(cached_sr.keys()),
+                slide_search_results=cached_sr,
+            )
+            _done(f"Loaded cached search results for {len(cached_sr)} slides")
+        else:
+            _step("Searching for similar slides")
+            t0 = time.time()
+            results = pipeline.search(search_type=args.search_type)
+            n_queries = len(results.slide_search_results) if results.slide_search_results else 0
+            _done(f"Slide search complete — {n_queries} query slides", time.time() - t0)
+        if args.step == "search":
+            df = results.to_dataframe(args.search_type)
+            print("\nSearch Results:")
+            print(df.head(20).to_string())
+            _print_footer(t_total, log_path, config, args)
+            return
+
+    # ── Step 5: Bayesian disease probabilities ────────────────────────────
+    if run_bayes:
+        bayes_csv = os.path.join(config.bayesian_dir, "disease_probabilities.csv")
+        if not force and _has_cached(bayes_csv, "Bayesian probabilities"):
+            import pandas as _pd
+            _df = _pd.read_csv(bayes_csv, index_col=0)
+            _done(f"Loaded cached Bayesian probabilities: {_df.shape}")
+        else:
+            _step("Computing Bayesian disease probabilities")
+            t0 = time.time()
             try:
                 disease_probs = pipeline.compute_disease_probabilities(
                     metadata_path=args.metadata,
                     n_neighbors=args.bayesian_neighbors,
                     temperature=args.bayesian_temperature,
                 )
-                results.disease_probabilities = disease_probs
+                if 'results' in dir() and hasattr(results, 'disease_probabilities'):
+                    results.disease_probabilities = disease_probs
+                _done(f"Bayesian probabilities computed for {len(disease_probs)} slides", time.time() - t0)
             except Exception as e:
-                if config.verbose:
-                    print(f"  Warning: Bayesian disease probabilities skipped: {e}")
+                logger.warning(f"Bayesian step failed: {e}")
+        if args.step == "bayesian":
+            _print_footer(t_total, log_path, config, args)
+            return
 
-        # Optional: LLM summarization (--llm)
-        if args.llm:
+    # ── Step 6: LLM summarization ─────────────────────────────────────────
+    if run_llm:
+        llm_dir = config.llm_dir
+        cached_summaries = [f for f in os.listdir(llm_dir) if f.startswith("summary_")] if os.path.isdir(llm_dir) else []
+        if not force and cached_summaries:
+            logger.info(f"   Found {len(cached_summaries)} cached LLM summaries in {llm_dir} -- skipping")
+        else:
+            _step("Generating LLM summaries")
+            t0 = time.time()
             try:
+                sr = results.slide_search_results if 'results' in dir() else None
+                dp = results.disease_probabilities if 'results' in dir() and hasattr(results, 'disease_probabilities') else None
                 summaries = pipeline.generate_llm_summary(
-                    disease_probs=results.disease_probabilities,
+                    disease_probs=dp,
+                    search_results=sr,
+                    metadata_path=args.metadata,
                 )
-                if summaries:
+                if 'results' in dir() and summaries:
                     results.llm_summaries = summaries
+                n = len(summaries) if summaries else 0
+                _done(f"LLM summaries generated for {n} slides", time.time() - t0)
             except Exception as e:
-                if config.verbose:
-                    print(f"  Warning: LLM summarization skipped: {e}")
+                logger.warning(f"LLM step failed: {e}")
+        if args.step == "llm":
+            _print_footer(t_total, log_path, config, args)
+            return
 
-    elif args.step == "mosaic":
-        pipeline.generate_mosaics()
-    elif args.step == "patch-embedding":
-        pipeline.extract_patch_embeddings()
-    elif args.step == "slide-embedding":
-        pipeline.generate_slide_embeddings()
-    elif args.step == "search":
-        results = pipeline.search(search_type=args.search_type)
-        df = results.to_dataframe(args.search_type)
-        print("\nSearch Results:")
-        print(df.head(20).to_string())
-    elif args.step == "bayesian":
-        disease_probs = pipeline.compute_disease_probabilities(
-            metadata_path=args.metadata,
-            n_neighbors=args.bayesian_neighbors,
-            temperature=args.bayesian_temperature,
-        )
-        print(f"\nBayesian disease probabilities computed for {len(disease_probs)} slides")
-    elif args.step == "llm":
-        summaries = pipeline.generate_llm_summary()
-        print(f"\nLLM summaries generated for {len(summaries)} slides")
+    _print_footer(t_total, log_path, config, args)
 
-    print("\n✓ Pipeline complete!")
-    print(f"  Patch embedding model: {config.patch_model}")
-    print(f"  Slide embedding method: {config.slide_embedding_method}")
+
+def _print_footer(t_total, log_path, config, args):
+    elapsed = time.time() - t_total
+    logger.info("=" * 60)
+    logger.info(f"Pipeline complete  ({elapsed:.1f}s total)")
+    logger.info(f"  Patch model      : {config.patch_model}")
+    logger.info(f"  Slide embedding  : {config.slide_embedding_method}")
     if args.proba:
-        print(f"  Bayesian probability: enabled")
+        logger.info(f"  Bayesian         : enabled")
     if args.llm:
-        print(f"  LLM summarization: enabled")
+        logger.info(f"  LLM              : enabled")
     if config.generate_visualizations:
-        print(f"  Visualizations saved to: {config.visualizations_dir}")
+        logger.info(f"  Visualizations   : {config.visualizations_dir}")
+    logger.info(f"  Log saved to     : {log_path}")
+    logger.info("=" * 60)
 
 
 if __name__ == "__main__":

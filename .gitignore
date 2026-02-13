@@ -151,6 +151,8 @@ secrets.yaml
 *.secret
 credentials.sh
 credentials.py
+examples/llm_env.local.sh
+examples/output/
 
 # Test data (except small samples)
 test_data/

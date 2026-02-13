@@ -78,16 +78,32 @@ class SlideSearchEngine:
         Load reference database for search.
         
         Args:
-            embeddings_dir: Directory containing individual embedding files
+            embeddings_dir: Directory containing individual embedding files,
+                OR a single pickle/csv file containing an embedding matrix.
             matrix_path: Path to pre-computed embedding matrix
             metadata_path: Optional path to metadata CSV
         """
+        # If embeddings_dir is actually a file, treat it as a matrix
+        if embeddings_dir and os.path.isfile(embeddings_dir):
+            matrix_path = embeddings_dir
+            embeddings_dir = None
+
         if matrix_path and os.path.exists(matrix_path):
-            # Load pre-computed matrix
+            # Load pre-computed matrix (supports dict or DataFrame)
             with open(matrix_path, 'rb') as f:
                 data = pickle.load(f)
-            self.reference_matrix = data['matrix']
-            self.reference_slide_ids = data['slide_ids']
+            if isinstance(data, dict):
+                self.reference_matrix = data['matrix']
+                self.reference_slide_ids = data['slide_ids']
+            elif hasattr(data, 'values'):
+                # pandas DataFrame — index = slide IDs, columns = features
+                self.reference_slide_ids = [str(s) for s in data.index.tolist()]
+                self.reference_matrix = data.values.astype(np.float64)
+            else:
+                raise ValueError(
+                    f"Unsupported matrix format: {type(data)}. "
+                    "Expected dict with 'matrix'/'slide_ids' or a DataFrame."
+                )
         elif embeddings_dir:
             # Build matrix from individual files
             embeddings = {}

@@ -14,8 +14,8 @@ Usage (library):
 Usage (CLI):
     # 1. Generate neighbor JSON
     python -m prosper.llm.search.slide_to_json \\
-        --sim data/final_slides_sampler_matrix.pkl \\
-        --metadata data/final_scan_id_disease_map_rich_data.csv \\
+        --sim data/slide_embeddings/virchow2_sampler.pkl \\
+        --metadata data/metadata/final_scan_id_disease_map_rich_data.csv \\
         --slide 4261 --out output/llm/slide_4261.json
 
     # 2. Summarize with LLM (fake mode for testing)
@@ -28,6 +28,7 @@ from .search import (
     load_results_new,
     load_metadata,
     build_json_for_slide,
+    build_json_from_search_results,
     top_k_neighbors,
     slide_to_json_main,
 )
@@ -46,6 +47,7 @@ __all__ = [
     "load_results_new",
     "load_metadata",
     "build_json_for_slide",
+    "build_json_from_search_results",
     "top_k_neighbors",
     "slide_to_json_main",
     # Summarizer

@@ -112,9 +112,10 @@ class ProsperConfig:
         if self.output_dir:
             os.makedirs(self.output_dir, exist_ok=True)
             os.makedirs(os.path.join(self.output_dir, "mosaic"), exist_ok=True)
-            os.makedirs(os.path.join(self.output_dir, "patch_embeddings"), exist_ok=True)
-            os.makedirs(os.path.join(self.output_dir, "slide_embeddings"), exist_ok=True)
-            os.makedirs(os.path.join(self.output_dir, "search_results"), exist_ok=True)
+            os.makedirs(os.path.join(self.output_dir, "patch_embeddings", self.patch_model), exist_ok=True)
+            combo = f"{self.patch_model}_{self.slide_embedding_method}"
+            os.makedirs(os.path.join(self.output_dir, "slide_embeddings", combo), exist_ok=True)
+            os.makedirs(os.path.join(self.output_dir, "search_results", combo), exist_ok=True)
             
             if self.generate_visualizations:
                 vis_dir = self.visualization_output_dir or os.path.join(self.output_dir, "visualizations")
@@ -142,19 +143,32 @@ class ProsperConfig:
     
     @property
     def patch_embeddings_dir(self) -> str:
-        return os.path.join(self.output_dir, "patch_embeddings")
+        return os.path.join(self.output_dir, "patch_embeddings", self.patch_model)
     
     @property
     def slide_embeddings_dir(self) -> str:
-        return os.path.join(self.output_dir, "slide_embeddings")
+        return os.path.join(self.output_dir, "slide_embeddings", self._combo_tag)
+    
+    @property
+    def _combo_tag(self) -> str:
+        """Short tag identifying the patch_model + slide_embedding_method combo."""
+        return f"{self.patch_model}_{self.slide_embedding_method}"
     
     @property
     def search_results_dir(self) -> str:
-        return os.path.join(self.output_dir, "search_results")
+        return os.path.join(self.output_dir, "search_results", self._combo_tag)
+    
+    @property
+    def bayesian_dir(self) -> str:
+        return os.path.join(self.output_dir, "bayesian", self._combo_tag)
+    
+    @property
+    def llm_dir(self) -> str:
+        return os.path.join(self.output_dir, "llm", self._combo_tag)
     
     @property
     def visualizations_dir(self) -> str:
-        return self.visualization_output_dir or os.path.join(self.output_dir, "visualizations")
+        return self.visualization_output_dir or os.path.join(self.output_dir, "visualizations", self._combo_tag)
     
     def to_dict(self) -> dict:
         """Convert config to dictionary."""
