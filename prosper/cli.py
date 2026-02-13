@@ -7,7 +7,7 @@ Run the PROSPER pipeline from the command line.
 Usage:
     python -m prosper.cli --config configs/config.yaml
     python -m prosper.cli --slide-path /path/to/slides --output-dir /path/to/output
-    python -m prosper.cli --slide-path /path/to/slides --patch-model uni2 --slide-method ot
+    python -m prosper.cli --slide-path /path/to/slides --patch-embedding uni2 --slide-embedding ot
 """
 
 import argparse
@@ -30,34 +30,50 @@ Examples:
   # Run with config file
   python -m prosper.cli --config configs/config.example.yaml
 
-  # Run with command line arguments
+  # Run with command line arguments (slide-level search, default models)
   python -m prosper.cli --slide-path /path/to/slides --output-dir ./output
 
-  # Use specific patch model and slide similarity formulation
-  python -m prosper.cli --slide-path /path/to/slides --patch-model uni2 --slide-method ot
+  # Choose patch and slide embedding methods
+  python -m prosper.cli --slide-path /path/to/slides \\
+      --patch-embedding uni2 --slide-embedding ot
+
+  # Run ROI search for a specific 512x512 region (upper-left corner at x=1024,y=2048)
+  python -m prosper.cli --slide-path /path/to/slides --roi-search --coords 1024,2048
+
+  # Enable Bayesian disease probability estimation
+  python -m prosper.cli --slide-path /path/to/slides --proba
+
+  # Enable LLM summarization (requires API credentials)
+  python -m prosper.cli --slide-path /path/to/slides --llm
+
+  # Full pipeline with all optional modules
+  python -m prosper.cli --slide-path /path/to/slides \\
+      --patch-embedding virchow2 --slide-embedding percentile \\
+      --proba --llm
 
   # Run smoke test with GigaPath model
-  python -m prosper.cli --slide-path /path/to/slides --patch-model gigapath --smoketest
+  python -m prosper.cli --slide-path /path/to/slides --patch-embedding gigapath --smoketest
 
   # Process single slide against reference database
   python -m prosper.cli --single-slide /path/to/slide.svs --reference-db /path/to/db
 
   # Generate OT visualizations
-  python -m prosper.cli --slide-path /path/to/slides --slide-method ot --generate-visualizations
+  python -m prosper.cli --slide-path /path/to/slides \\
+      --slide-embedding ot --generate-visualizations
 
 Available models and methods:
-  Patch models: virchow2, uni2, uni, gigapath
-  Slide similarity formulations: percentile, bob, ot
+  Patch embedding models: virchow2 (default), uni2, uni, gigapath
+  Slide embedding methods: percentile (default), bob, ot
         """
     )
-    
+
     # Config file option
     parser.add_argument(
         "--config", "-c",
         type=str,
         help="Path to YAML configuration file"
     )
-    
+
     # Basic paths
     parser.add_argument(
         "--slide-path",
@@ -75,30 +91,74 @@ Available models and methods:
         type=str,
         help="Path to reference database for search"
     )
-    
+
     # Single slide mode
     parser.add_argument(
         "--single-slide",
         type=str,
         help="Process a single slide file"
     )
-    
-    # Model selection
+
+    # --- Embedding selection (renamed for clarity) ---
     parser.add_argument(
-        "--patch-model",
+        "--patch-embedding",
         type=str,
         default="virchow2",
         choices=["virchow2", "uni2", "uni", "gigapath"],
-        help="Patch embedding model to use (default: virchow2)"
+        help="Patch embedding model (default: virchow2)"
+    )
+    # Keep old name as hidden alias for backward compatibility
+    parser.add_argument(
+        "--patch-model",
+        type=str,
+        dest="patch_embedding_compat",
+        choices=["virchow2", "uni2", "uni", "gigapath"],
+        help=argparse.SUPPRESS,
     )
     parser.add_argument(
-        "--slide-method",
+        "--slide-embedding",
         type=str,
         default="percentile",
         choices=["percentile", "bob", "ot"],
-        help="Slide similarity formulation to use (default: percentile)"
+        help="Slide embedding method (default: percentile)"
     )
-    
+    # Keep old name as hidden alias for backward compatibility
+    parser.add_argument(
+        "--slide-method",
+        type=str,
+        dest="slide_embedding_compat",
+        choices=["percentile", "bob", "ot"],
+        help=argparse.SUPPRESS,
+    )
+
+    # --- ROI search ---
+    parser.add_argument(
+        "--roi-search",
+        action="store_true",
+        help="Perform ROI-level (patch-level) similarity search instead of slide-level"
+    )
+    parser.add_argument(
+        "--coords",
+        type=str,
+        default=None,
+        help=(
+            "Upper-left corner coordinates (x,y) of a 512x512 patch for ROI "
+            "search. Implies --roi-search. Format: x,y (e.g. 1024,2048)"
+        ),
+    )
+
+    # --- Optional analysis modules ---
+    parser.add_argument(
+        "--proba",
+        action="store_true",
+        help="Compute Bayesian disease probability estimation after search"
+    )
+    parser.add_argument(
+        "--llm",
+        action="store_true",
+        help="Generate LLM-powered narrative summary (requires API credentials)"
+    )
+
     # Processing options
     parser.add_argument(
         "--base-patchsize",
@@ -131,15 +191,8 @@ Available models and methods:
         default=32,
         help="Number of CPUs for parallel processing (default: 32)"
     )
-    
+
     # Search options
-    parser.add_argument(
-        "--search-type",
-        type=str,
-        default="slide",
-        choices=["slide", "roi"],
-        help="Type of search: slide-level or ROI-level (default: slide)"
-    )
     parser.add_argument(
         "--top-k",
         type=int,
@@ -153,12 +206,12 @@ Available models and methods:
         choices=["l1", "l2", "cosine"],
         help="Distance metric for search (default: l1)"
     )
-    
+
     # Visualization options
     parser.add_argument(
         "--generate-visualizations",
         action="store_true",
-        help="Generate OT-based visualization heatmaps (requires --slide-method ot)"
+        help="Generate OT-based visualization heatmaps (requires --slide-embedding ot)"
     )
     parser.add_argument(
         "--visualization-level",
@@ -166,7 +219,7 @@ Available models and methods:
         default=2,
         help="OpenSlide level for visualization (default: 2)"
     )
-    
+
     # Runtime options
     parser.add_argument(
         "--smoketest",
@@ -183,13 +236,13 @@ Available models and methods:
         action="store_true",
         help="Suppress progress output"
     )
-    
-    # Bayesian options
+
+    # Bayesian options (fine-tuning; --proba enables the module)
     parser.add_argument(
         "--bayesian-neighbors",
         type=int,
         default=20,
-        help="Number of nearest neighbors for Bayesian disease probability (default: 20)"
+        help="Number of nearest neighbors for Bayesian probability (default: 20)"
     )
     parser.add_argument(
         "--bayesian-temperature",
@@ -200,44 +253,72 @@ Available models and methods:
     parser.add_argument(
         "--metadata",
         type=str,
-        help="Path to metadata CSV for Bayesian disease probabilities"
+        help="Path to metadata CSV for Bayesian disease probabilities and LLM"
     )
-    
-    # Individual steps
+
+    # Individual steps (advanced)
     parser.add_argument(
         "--step",
         type=str,
-        choices=["mosaic", "patch-embedding", "slide-embedding", "search", "bayesian", "all"],
+        choices=["mosaic", "patch-embedding", "slide-embedding", "search", "bayesian", "llm", "all"],
         default="all",
-        help="Run specific pipeline step (default: all)"
+        help="Run a specific pipeline step (default: all)"
     )
-    
+
     # List available models
     parser.add_argument(
         "--list-models",
         action="store_true",
-        help="List available patch models and slide similarity formulations"
+        help="List available patch embedding models and slide embedding methods"
     )
-    
-    return parser.parse_args()
+
+    args = parser.parse_args()
+
+    # Resolve backward-compat aliases: --patch-model -> --patch-embedding
+    if args.patch_embedding_compat is not None:
+        args.patch_embedding = args.patch_embedding_compat
+    # --slide-method -> --slide-embedding
+    if args.slide_embedding_compat is not None:
+        args.slide_embedding = args.slide_embedding_compat
+
+    # --coords implies --roi-search
+    if args.coords is not None:
+        args.roi_search = True
+
+    # Derive the effective search_type from the flags
+    args.search_type = "roi" if args.roi_search else "slide"
+
+    return args
+
+
+def _parse_coords(coords_str: str):
+    """Parse 'x,y' coordinate string into (x, y) integers."""
+    try:
+        parts = coords_str.split(",")
+        if len(parts) != 2:
+            raise ValueError
+        return int(parts[0].strip()), int(parts[1].strip())
+    except (ValueError, AttributeError):
+        print(f"Error: --coords must be in 'x,y' format (got '{coords_str}')")
+        sys.exit(1)
 
 
 def main():
     args = parse_args()
-    
+
     # Handle --list-models
     if args.list_models:
-        print("\n🔬 PROSPER - Available Models and Methods")
+        print("\nPROSPER - Available Models and Methods")
         print("=" * 50)
         print("\nPatch Embedding Models:")
         for model in list_patch_embedding_models():
-            print(f"  • {model}")
-        print("\nSlide Similarity Formulations:")
+            print(f"  - {model}")
+        print("\nSlide Embedding Methods:")
         for method in list_slide_embedding_methods():
-            print(f"  • {method}")
+            print(f"  - {method}")
         print()
         return
-    
+
     # Build configuration
     if args.config:
         config = ProsperConfig.from_yaml(args.config)
@@ -246,7 +327,7 @@ def main():
             print("Error: Either --config or --slide-path/--single-slide is required")
             print("Use --list-models to see available models and methods")
             sys.exit(1)
-        
+
         config = ProsperConfig(
             slide_path=args.slide_path or "",
             output_dir=args.output_dir,
@@ -258,24 +339,24 @@ def main():
             n_cpus=args.n_cpus,
             top_k=args.top_k,
             distance_metric=args.distance_metric,
-            patch_model=args.patch_model,
-            slide_embedding_method=args.slide_method,
+            patch_model=args.patch_embedding,
+            slide_embedding_method=args.slide_embedding,
             generate_visualizations=args.generate_visualizations,
             visualization_slide_level=args.visualization_level,
             smoketest=args.smoketest,
             force_recompute=args.force_recompute,
-            verbose=not args.quiet
+            verbose=not args.quiet,
         )
-    
-    # Override config with command line arguments
+
+    # Override config with explicit command-line arguments
     if args.slide_path:
         config.slide_path = args.slide_path
     if args.output_dir != "./output":
         config.output_dir = args.output_dir
-    if args.patch_model != "virchow2":
-        config.patch_model = args.patch_model
-    if args.slide_method != "percentile":
-        config.slide_embedding_method = args.slide_method
+    if args.patch_embedding != "virchow2":
+        config.patch_model = args.patch_embedding
+    if args.slide_embedding != "percentile":
+        config.slide_embedding_method = args.slide_embedding
     if args.smoketest:
         config.smoketest = True
     if args.force_recompute:
@@ -288,37 +369,64 @@ def main():
         config.bayesian_n_neighbors = args.bayesian_neighbors
     if args.bayesian_temperature != 20.0:
         config.bayesian_temperature = args.bayesian_temperature
-    
+
     # Validate visualization requirements
     if config.generate_visualizations and config.slide_embedding_method != 'ot':
-        print("Warning: Visualizations are only generated for the OT slide similarity formulation.")
+        print("Warning: Visualizations are only generated for the OT slide embedding method.")
         print("         Setting slide_embedding_method to 'ot'")
         config.slide_embedding_method = 'ot'
-    
+
     # Initialize pipeline
     pipeline = ProsperPipeline(config)
-    
+
     # Handle single slide mode
     if args.single_slide:
         if not args.reference_db:
             print("Error: --reference-db is required for single slide mode")
             sys.exit(1)
-        
+
         results = pipeline.process_single_slide(
             slide_path=args.single_slide,
             reference_db_path=args.reference_db,
-            search_type=args.search_type
+            search_type=args.search_type,
         )
-        
+
         # Print results
         df = results.to_dataframe(args.search_type)
         print("\nSearch Results:")
         print(df.to_string())
         return
-    
-    # Run pipeline steps
+
+    # --- Run pipeline steps ---
     if args.step == "all":
-        results = pipeline.run(search_type=args.search_type)
+        # Full pipeline: mosaic -> patch-embed -> slide-embed -> search
+        results = pipeline.run_core(search_type=args.search_type)
+
+        # Optional: Bayesian disease probabilities (--proba)
+        if args.proba:
+            try:
+                disease_probs = pipeline.compute_disease_probabilities(
+                    metadata_path=args.metadata,
+                    n_neighbors=args.bayesian_neighbors,
+                    temperature=args.bayesian_temperature,
+                )
+                results.disease_probabilities = disease_probs
+            except Exception as e:
+                if config.verbose:
+                    print(f"  Warning: Bayesian disease probabilities skipped: {e}")
+
+        # Optional: LLM summarization (--llm)
+        if args.llm:
+            try:
+                summaries = pipeline.generate_llm_summary(
+                    disease_probs=results.disease_probabilities,
+                )
+                if summaries:
+                    results.llm_summaries = summaries
+            except Exception as e:
+                if config.verbose:
+                    print(f"  Warning: LLM summarization skipped: {e}")
+
     elif args.step == "mosaic":
         pipeline.generate_mosaics()
     elif args.step == "patch-embedding":
@@ -337,10 +445,17 @@ def main():
             temperature=args.bayesian_temperature,
         )
         print(f"\nBayesian disease probabilities computed for {len(disease_probs)} slides")
-    
+    elif args.step == "llm":
+        summaries = pipeline.generate_llm_summary()
+        print(f"\nLLM summaries generated for {len(summaries)} slides")
+
     print("\n✓ Pipeline complete!")
-    print(f"  Patch model used: {config.patch_model}")
+    print(f"  Patch embedding model: {config.patch_model}")
     print(f"  Slide embedding method: {config.slide_embedding_method}")
+    if args.proba:
+        print(f"  Bayesian probability: enabled")
+    if args.llm:
+        print(f"  LLM summarization: enabled")
     if config.generate_visualizations:
         print(f"  Visualizations saved to: {config.visualizations_dir}")
 

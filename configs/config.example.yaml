@@ -68,6 +68,12 @@ visualization_slide_level: 2       # OpenSlide level (0=highest resolution)
 visualization_alpha: 100           # Heatmap transparency (0-255)
 
 # ============================================================================
+# Bayesian disease probability
+# ============================================================================
+bayesian_n_neighbors: 20      # Number of nearest neighbors
+bayesian_temperature: 20.0    # Exponential weighting temperature
+
+# ============================================================================
 # Runtime options
 # ============================================================================
 smoketest: false              # Set true for quick test with few slides

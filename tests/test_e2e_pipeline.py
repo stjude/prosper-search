@@ -30,7 +30,7 @@ DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 OUTPUT_DIR = os.path.join(PROJECT_ROOT, "output")
 SLIDE_PATH = os.path.join(DATA_DIR, "4261.svs")
 MATRIX_PATH = os.path.join(DATA_DIR, "final_slides_sampler_matrix.pkl")  # Now a DataFrame with slide IDs as index
-METADATA_PATH = os.path.join(DATA_DIR, "final_scan_id_disease_map.csv")
+METADATA_PATH = os.path.join(DATA_DIR, "final_scan_id_disease_map_rich_data.csv")
 
 
 def step1_generate_mosaic():
@@ -182,6 +182,10 @@ def step4_slide_search(slide_embedding, slide_id):
     
     # Load metadata for disease labels
     metadata = pd.read_csv(METADATA_PATH)
+    # Normalize column names (rich_data uses slide_id / tumor_group)
+    if 'Slide.Scan.File' in metadata.columns:
+        metadata = metadata.rename(columns={'Slide.Scan.File': 'slide_id', 'Tumor.group': 'tumor_group'})
+    metadata['slide_id'] = metadata['slide_id'].astype(int).astype(str)
     
     print(f"Reference database: {len(ref_slide_ids)} slides, dim {ref_matrix.shape[1]}")
     
@@ -222,7 +226,7 @@ def step4_slide_search(slide_embedding, slide_id):
     print("-" * 70)
     
     for r in results:
-        hit_disease = metadata[metadata['Slide.Scan.File'].astype(str) == r.hit_slide_id]['Tumor.group'].values
+        hit_disease = metadata[metadata['slide_id'] == r.hit_slide_id]['tumor_group'].values
         disease_str = hit_disease[0] if len(hit_disease) > 0 else "Unknown"
         print(f"{r.rank:<6}{r.hit_slide_id:<12}{disease_str:<12}{r.distance:<12.2f}")
     
@@ -250,7 +254,10 @@ def step5_save_results(results, slide_id):
     
     # Add disease labels
     metadata = pd.read_csv(METADATA_PATH)
-    disease_map = dict(zip(metadata['Slide.Scan.File'].astype(str), metadata['Tumor.group']))
+    if 'Slide.Scan.File' in metadata.columns:
+        metadata = metadata.rename(columns={'Slide.Scan.File': 'slide_id', 'Tumor.group': 'tumor_group'})
+    metadata['slide_id'] = metadata['slide_id'].astype(int).astype(str)
+    disease_map = dict(zip(metadata['slide_id'], metadata['tumor_group']))
     df['hit_disease'] = df['hit_slide_id'].map(disease_map)
     
     df.to_csv(csv_path, index=False)

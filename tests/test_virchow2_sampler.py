@@ -20,8 +20,8 @@ from prosper import ProsperConfig
 
 # Paths to test data
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
-MATRIX_PATH = os.path.join(DATA_DIR, "final_slides_sampler_matrix.npy")
-METADATA_PATH = os.path.join(DATA_DIR, "final_scan_id_disease_map.csv")
+MATRIX_PATH = os.path.join(DATA_DIR, "final_slides_sampler_matrix.pkl")
+METADATA_PATH = os.path.join(DATA_DIR, "final_scan_id_disease_map_rich_data.csv")
 
 
 def test_prosper_config():
@@ -88,10 +88,11 @@ def test_slide_search_with_precomputed():
     print("Test 3: Slide Search with Pre-computed Embeddings")
     print("=" * 60)
     
-    # Load pre-computed embeddings
-    matrix = np.load(MATRIX_PATH)
+    # Load pre-computed embeddings (DataFrame with slide IDs as index)
+    ref_df = pd.read_pickle(MATRIX_PATH)
+    slide_ids = [str(sid) for sid in ref_df.index.tolist()]
+    matrix = ref_df.values
     metadata = pd.read_csv(METADATA_PATH)
-    slide_ids = metadata['Slide.Scan.File'].astype(str).tolist()
     
     print(f"Loaded {len(slide_ids)} slides with embedding dim {matrix.shape[1]}")
     
@@ -113,7 +114,7 @@ def test_slide_search_with_precomputed():
         print(f"\nQuery: {query_id}")
         print(f"Top-5 results:")
         for r in results[:5]:
-            disease = metadata[metadata['Slide.Scan.File'].astype(str) == r.hit_slide_id]['Tumor.group'].values
+            disease = metadata[metadata['slide_id'].astype(str) == r.hit_slide_id]['tumor_group'].values
             disease_str = disease[0] if len(disease) > 0 else "?"
             print(f"  Rank {r.rank}: {r.hit_slide_id} ({disease_str}) - dist: {r.distance:.2f}")
         
@@ -166,8 +167,9 @@ def test_compare_with_precomputed():
     print("Test 5: Embedding Compatibility Check")
     print("=" * 60)
     
-    # Load pre-computed
-    matrix = np.load(MATRIX_PATH)
+    # Load pre-computed (DataFrame with slide IDs as index)
+    ref_df = pd.read_pickle(MATRIX_PATH)
+    matrix = ref_df.values
     
     print(f"Pre-computed matrix shape: {matrix.shape}")
     print(f"Expected: (2921 slides, 12800 features)")

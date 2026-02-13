@@ -6,7 +6,7 @@ This directory contains the data files required to run the PROSPER pipeline and 
 
 | File/Folder | Size | Required For | Included |
 |-------------|------|--------------|----------|
-| `final_scan_id_disease_map.csv` | ~128 KB | Disease labels for slides | ✅ Yes |
+| `final_scan_id_disease_map_rich_data.csv` | ~650 KB | Metadata, disease labels, clinical data | ✅ Yes |
 | `slide_dimensions.csv` | ~128 KB | Heatmap coordinate mapping | ✅ Yes |
 | `patch_embeddings/` | ~10 GB | ROI search, heatmaps | ❌ Download |
 | `final_slides_sampler_matrix.pkl` | ~286 MB | Slide-level search | ❌ Download |
@@ -81,8 +81,11 @@ JPEG thumbnails of all slides for visualization overlays.
 ### `slide_dimensions.csv` (Included)
 Original slide dimensions (width, height) for coordinate mapping.
 
-### `final_scan_id_disease_map.csv` (Included)
-Disease labels for slides, used for evaluating search accuracy.
+### `final_scan_id_disease_map_rich_data.csv` (Included)
+Metadata for all slides including disease labels (`tumor_group`), demographics
+(`Age.at.Collection`, `Sex`, `Site`), treatment status, diagnosis, and more.
+Used for Bayesian disease probability estimation, LLM summarization, and
+evaluating search accuracy.
 
 ### `4261.svs` (Sample slide for demo)
 A sample whole slide image for running the demo notebook.
@@ -98,7 +101,7 @@ config = ProsperConfig(
     slide_path="/path/to/your/slides",
     output_dir="./output",
     patch_model="virchow2",
-    slide_embedding_method="sampler"
+    slide_embedding_method="percentile"
 )
 
 pipeline = ProsperPipeline(config)

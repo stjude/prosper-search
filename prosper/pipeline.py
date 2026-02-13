@@ -554,7 +554,7 @@ class ProsperPipeline:
             if metadata_path is None:
                 metadata_path = os.path.join(
                     os.path.dirname(self.config.output_dir), "data",
-                    "final_scan_id_disease_map.csv"
+                    "final_scan_id_disease_map_rich_data.csv"
                 )
             
             if self.config.verbose:
@@ -723,15 +723,20 @@ class ProsperPipeline:
         
         return summaries
     
-    def run(self, search_type: str = 'slide') -> ProsperResults:
+    def run_core(self, search_type: str = 'slide') -> ProsperResults:
         """
-        Run the complete PROSPER pipeline.
-        
+        Run the core PROSPER pipeline (mosaic -> patch embed -> slide embed -> search).
+
+        This does NOT run the optional Bayesian or LLM steps.  Use
+        :meth:`run` for the full pipeline (backward compatible), or call
+        :meth:`compute_disease_probabilities` / :meth:`generate_llm_summary`
+        explicitly after this method.
+
         Args:
             search_type: Type of search to perform ('slide' or 'roi')
-        
+
         Returns:
-            ProsperResults object containing all results
+            ProsperResults object containing search results
         """
         if self.config.verbose:
             print("=" * 60)
@@ -740,17 +745,40 @@ class ProsperPipeline:
             print(f"Slide path: {self.config.slide_path}")
             print(f"Output directory: {self.config.output_dir}")
             print(f"Device: {self.config.device}")
-            print(f"Patch model: {self.config.patch_model}")
+            print(f"Patch embedding model: {self.config.patch_model}")
             print(f"Slide embedding method: {self.config.slide_embedding_method}")
             print("=" * 60)
-        
+
         self.config.validate()
-        
+
         self.generate_mosaics()
         self.extract_patch_embeddings()
         self.generate_slide_embeddings()
         results = self.search(search_type=search_type)
-        
+
+        if self.config.verbose:
+            print("=" * 60)
+            print("PROSPER Pipeline - Core steps complete")
+            print("=" * 60)
+
+        return results
+
+    def run(self, search_type: str = 'slide') -> ProsperResults:
+        """
+        Run the complete PROSPER pipeline including optional Bayesian and LLM steps.
+
+        This is the backward-compatible entry point that runs everything.
+        For finer control, use :meth:`run_core` and call the optional steps
+        individually.
+
+        Args:
+            search_type: Type of search to perform ('slide' or 'roi')
+
+        Returns:
+            ProsperResults object containing all results
+        """
+        results = self.run_core(search_type=search_type)
+
         # Step 5: Bayesian disease probabilities
         disease_probs = None
         try:
@@ -759,7 +787,7 @@ class ProsperPipeline:
         except Exception as e:
             if self.config.verbose:
                 print(f"  Warning: Bayesian disease probabilities skipped: {e}")
-        
+
         # Step 6: LLM summarization
         try:
             summaries = self.generate_llm_summary(disease_probs=disease_probs)
@@ -768,12 +796,12 @@ class ProsperPipeline:
         except Exception as e:
             if self.config.verbose:
                 print(f"  Warning: LLM summarization skipped: {e}")
-        
+
         if self.config.verbose:
             print("=" * 60)
             print("PROSPER Pipeline - Complete")
             print("=" * 60)
-        
+
         return results
     
     def process_single_slide(

@@ -212,7 +212,7 @@ config = ProsperConfig(
     
     # Model selection
     patch_model="virchow2",           # Options: virchow2, uni2, gigapath
-    slide_embedding_method="sampler",  # Options: sampler, bob, ot
+    slide_embedding_method="percentile",  # Options: percentile, bob, ot
     
     top_k=10
 )
@@ -232,21 +232,105 @@ print(ProsperPipeline.list_available_models())
 ### Command Line
 
 ```bash
-# Run with default settings
+# List available models and methods
+python -m prosper.cli --list-models
+
+# Run with default settings (Virchow2 + percentile)
 python -m prosper.cli --slide-path /path/to/slides --output-dir ./output
 
-# Use UNI2 model with OT embedding and visualization
-python -m prosper.cli --slide-path /path/to/slides \
-    --patch-model uni2 \
-    --slide-method ot \
-    --generate-visualizations
-
-# Quick smoke test
+# Quick smoke test (processes only 5 slides)
 python -m prosper.cli --slide-path /path/to/slides --smoketest
-
-# List available models
-python -m prosper.cli --list-models
 ```
+
+#### Choosing Embedding Models
+
+```bash
+# Choose a patch embedding model: virchow2 (default), uni2, uni, gigapath
+python -m prosper.cli --slide-path /path/to/slides --patch-embedding uni2
+
+# Choose a slide embedding method: percentile (default), bob, ot
+python -m prosper.cli --slide-path /path/to/slides --slide-embedding ot
+
+# Combine: UNI2 patch model with OT slide embedding + visualization
+python -m prosper.cli --slide-path /path/to/slides \
+    --patch-embedding uni2 --slide-embedding ot --generate-visualizations
+```
+
+#### ROI Search (Patch-Level)
+
+```bash
+# Enable ROI-level search (searches by patch instead of whole-slide)
+python -m prosper.cli --slide-path /path/to/slides --roi-search
+
+# Search for a specific 512×512 region by its upper-left corner coordinates
+python -m prosper.cli --slide-path /path/to/slides --coords 1024,2048
+```
+
+#### Bayesian Disease Probability & LLM Summarization
+
+```bash
+# Enable Bayesian disease probability estimation after search
+python -m prosper.cli --slide-path /path/to/slides --proba
+
+# Enable LLM-powered narrative summarization (requires API credentials)
+python -m prosper.cli --slide-path /path/to/slides --llm
+
+# Full pipeline: Virchow2 + percentile + Bayesian + LLM
+python -m prosper.cli --slide-path /path/to/slides \
+    --patch-embedding virchow2 --slide-embedding percentile \
+    --proba --llm
+
+# Tune Bayesian parameters
+python -m prosper.cli --slide-path /path/to/slides --proba \
+    --bayesian-neighbors 30 --bayesian-temperature 10.0
+```
+
+#### Running with a Config File
+
+```bash
+# Use a YAML config (see configs/config.example.yaml)
+python -m prosper.cli --config configs/config.example.yaml
+
+# Config + CLI overrides (CLI flags take precedence)
+python -m prosper.cli --config configs/config.example.yaml --patch-embedding uni2 --proba
+```
+
+#### Single Slide Mode
+
+```bash
+# Process a single slide against a pre-built reference database
+python -m prosper.cli --single-slide /path/to/slide.svs --reference-db /path/to/db
+```
+
+#### Running Individual Pipeline Steps
+
+```bash
+# Run only a specific step (useful for debugging or re-running)
+python -m prosper.cli --slide-path /path/to/slides --step mosaic
+python -m prosper.cli --slide-path /path/to/slides --step patch-embedding
+python -m prosper.cli --slide-path /path/to/slides --step slide-embedding
+python -m prosper.cli --slide-path /path/to/slides --step search
+python -m prosper.cli --slide-path /path/to/slides --step bayesian --metadata /path/to/meta.csv
+python -m prosper.cli --slide-path /path/to/slides --step llm
+```
+
+#### Full CLI Reference
+
+| Argument | Default | Description |
+|----------|---------|-------------|
+| `--patch-embedding` | `virchow2` | Patch embedding model: `virchow2`, `uni2`, `uni`, `gigapath` |
+| `--slide-embedding` | `percentile` | Slide embedding method: `percentile`, `bob`, `ot` |
+| `--roi-search` | off | Enable ROI (patch-level) similarity search |
+| `--coords X,Y` | — | Upper-left corner of 512×512 patch (implies `--roi-search`) |
+| `--proba` | off | Compute Bayesian disease probability estimation |
+| `--llm` | off | Generate LLM narrative summary (requires API key) |
+| `--top-k` | `10` | Number of similar slides to return |
+| `--distance-metric` | `l1` | Distance metric: `l1`, `l2`, `cosine` |
+| `--device` | `cuda` | Compute device: `cuda`, `cpu` |
+| `--batch-size` | `64` | Batch size for feature extraction |
+| `--smoketest` | off | Quick test with limited slides |
+| `--force-recompute` | off | Recompute all steps from scratch |
+| `--config` | — | Path to YAML configuration file |
 
 ## 📓 Demo
 
@@ -295,7 +379,7 @@ output_dir: "./output"
 
 # Model selection
 patch_model: "virchow2"           # virchow2, uni2, gigapath
-slide_embedding_method: "sampler"  # sampler, bob, ot
+slide_embedding_method: "percentile"  # percentile, bob, ot
 
 # Processing
 base_patchsize: 512

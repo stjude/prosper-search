@@ -133,8 +133,8 @@ class PercentileSlideEmbeddingGenerator:
 
 # Paths to test data
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
-MATRIX_PATH = os.path.join(DATA_DIR, "final_slides_sampler_matrix.npy")
-METADATA_PATH = os.path.join(DATA_DIR, "final_scan_id_disease_map.csv")
+MATRIX_PATH = os.path.join(DATA_DIR, "final_slides_sampler_matrix.pkl")
+METADATA_PATH = os.path.join(DATA_DIR, "final_scan_id_disease_map_rich_data.csv")
 
 
 def test_load_precomputed_embeddings():
@@ -143,22 +143,25 @@ def test_load_precomputed_embeddings():
     print("Test 1: Load Pre-computed Embeddings")
     print("=" * 60)
     
-    # Load the matrix
-    matrix = np.load(MATRIX_PATH)
+    # Load the matrix (now a DataFrame with slide IDs as index)
+    ref_df = pd.read_pickle(MATRIX_PATH)
+    slide_ids = [str(sid) for sid in ref_df.index.tolist()]
+    matrix = ref_df.values
     print(f"Matrix shape: {matrix.shape}")
     print(f"Matrix dtype: {matrix.dtype}")
-    
-    # Load metadata to get slide IDs
-    metadata = pd.read_csv(METADATA_PATH)
-    slide_ids = metadata['Slide.Scan.File'].astype(str).tolist()
     print(f"Number of slides: {len(slide_ids)}")
     print(f"Sample slide IDs: {slide_ids[:5]}")
+    
+    # Load metadata for disease labels
+    metadata = pd.read_csv(METADATA_PATH)
+    if 'Slide.Scan.File' in metadata.columns:
+        metadata = metadata.rename(columns={'Slide.Scan.File': 'slide_id', 'Tumor.group': 'tumor_group'})
+    metadata['slide_id'] = metadata['slide_id'].astype(int).astype(str)
     
     # Verify dimensions match expected percentile embedding
     # 10 percentiles × 1280 feature dim = 12800
     expected_dim = 10 * 1280
     assert matrix.shape[1] == expected_dim, f"Expected dim {expected_dim}, got {matrix.shape[1]}"
-    assert matrix.shape[0] == len(slide_ids), f"Matrix rows {matrix.shape[0]} != slides {len(slide_ids)}"
     
     print("PASSED: Pre-computed embeddings loaded successfully")
     return matrix, slide_ids, metadata
@@ -192,7 +195,7 @@ def test_slide_search_engine(matrix, slide_ids, metadata):
         print(f"\nQuery slide: {test_slide_id} (index {test_idx})")
         
         # Get disease label
-        test_disease = metadata[metadata['Slide.Scan.File'].astype(str) == test_slide_id]['Tumor.group'].values
+        test_disease = metadata[metadata['slide_id'] == test_slide_id]['tumor_group'].values
         if len(test_disease) > 0:
             print(f"Query disease: {test_disease[0]}")
     else:
@@ -212,7 +215,7 @@ def test_slide_search_engine(matrix, slide_ids, metadata):
     print(f"\nTop {len(results)} similar slides:")
     for r in results:
         # Get disease label for hit
-        hit_disease = metadata[metadata['Slide.Scan.File'].astype(str) == r.hit_slide_id]['Tumor.group'].values
+        hit_disease = metadata[metadata['slide_id'] == r.hit_slide_id]['tumor_group'].values
         disease_str = hit_disease[0] if len(hit_disease) > 0 else "Unknown"
         print(f"  Rank {r.rank}: {r.hit_slide_id} (distance: {r.distance:.4f}, disease: {disease_str})")
     
@@ -325,8 +328,8 @@ def test_disease_retrieval_accuracy(matrix, slide_ids, metadata):
     
     # Create slide_id to disease mapping
     disease_map = dict(zip(
-        metadata['Slide.Scan.File'].astype(str),
-        metadata['Tumor.group']
+        metadata['slide_id'],
+        metadata['tumor_group']
     ))
     
     # Sample 50 slides for analysis
