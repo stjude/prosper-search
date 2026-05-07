@@ -25,31 +25,26 @@ if [ ! -x "$PYTHON" ]; then
 fi
 
 # ─── Resolve paths ──────────────────────────────────────────────────────────
-CANONICAL_ROOT="REDACTED_INTERNAL_PATH/ImageAnalysis/Core/Haoran/comet-llm/patho-toy-summarizer"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SRC_DIR="$SCRIPT_DIR/src"
+SAMPLE_JSON="$SCRIPT_DIR/sample.json"
+NEIGHBORS_JSON="${SCRIPT_DIR}/../output/neighbors.json"
 
-# Use canonical root if the local src dir doesn't exist (worktree case)
-if [ -d "$SCRIPT_DIR/src/patho_toy_summarizer" ]; then
-  SRC_DIR="$SCRIPT_DIR/src"
-  SAMPLE_JSON="$SCRIPT_DIR/sample.json"
-  NEIGHBORS_JSON="${SCRIPT_DIR}/../output/neighbors.json"
-else
-  SRC_DIR="$CANONICAL_ROOT/src"
-  SAMPLE_JSON="$CANONICAL_ROOT/sample.json"
-  NEIGHBORS_JSON="REDACTED_INTERNAL_PATH/ImageAnalysis/Core/Haoran/comet-llm/output/neighbors.json"
+if [ ! -d "$SRC_DIR/patho_toy_summarizer" ]; then
+  echo "Error: Could not find local summarizer source at $SRC_DIR" >&2
+  exit 1
 fi
 
 # Ensure our local src is first on the path (avoids patho-search-llm-agent shadow)
 export PYTHONPATH="${SRC_DIR}:${PYTHONPATH:-}"
 
 # ─── Azure AI Foundry defaults ─────────────────────────────────────────────
-#   Fill in your API key here or pass it as an environment variable.
-#   These are stored in shell variables (not exported) so they don't leak
-#   into Stage 1/2.  Only Stage 3 exports them.
-_AZ_ENDPOINT="${AZURE_OPENAI_ENDPOINT:-https://REDACTED_INTERNAL_ENDPOINT}"
-_AZ_DEPLOYMENT="${AZURE_OPENAI_DEPLOYMENT:-gpt-5}"
-# >>> PUT YOUR KEY HERE (or export AZURE_OPENAI_API_KEY before running) <<<
-_AZ_API_KEY="${AZURE_OPENAI_API_KEY:-REDACTED_REMOVED_SECRET}"
+# Credentials must be set via environment variables before running.
+# These are stored in shell variables (not exported) so they don't leak
+# into Stage 1/2. Only Stage 3 exports them.
+_AZ_ENDPOINT="${AZURE_OPENAI_ENDPOINT:-}"
+_AZ_DEPLOYMENT="${AZURE_OPENAI_DEPLOYMENT:-}"
+_AZ_API_KEY="${AZURE_OPENAI_API_KEY:-}"
 
 # Unset Azure vars so they don't pollute Stages 1 & 2
 unset AZURE_OPENAI_ENDPOINT AZURE_OPENAI_API_KEY AZURE_OPENAI_DEPLOYMENT 2>/dev/null || true
@@ -80,7 +75,6 @@ if [ "$ONLY_REAL" = false ]; then
 
 banner "STAGE 1 / 3 — Unit tests (pytest)"
 TESTS_DIR="$SCRIPT_DIR/tests"
-[ ! -d "$TESTS_DIR" ] && TESTS_DIR="$CANONICAL_ROOT/tests"
 if "$PYTHON" -m pytest "$TESTS_DIR/" -v --tb=short 2>&1; then
   ok "All unit tests passed"
 else
@@ -178,13 +172,13 @@ export AZURE_OPENAI_ENDPOINT="$_AZ_ENDPOINT"
 export AZURE_OPENAI_DEPLOYMENT="$_AZ_DEPLOYMENT"
 export AZURE_OPENAI_API_KEY="$_AZ_API_KEY"
 
-if [ "$_AZ_API_KEY" = "REPLACE_ME_WITH_YOUR_KEY" ]; then
+if [ -z "$_AZ_ENDPOINT" ] || [ -z "$_AZ_DEPLOYMENT" ] || [ -z "$_AZ_API_KEY" ]; then
   echo ""
-  echo "  ⚠  AZURE_OPENAI_API_KEY is not set."
-  echo "     Either:"
-  echo "       1. Edit this script and replace REPLACE_ME_WITH_YOUR_KEY"
-  echo "       2. Export it before running:  export AZURE_OPENAI_API_KEY=<key>"
-  echo "       3. Pass it inline:  AZURE_OPENAI_API_KEY=<key> $0"
+  echo "  ⚠  Azure OpenAI credentials are not set."
+  echo "     Export the following variables before running:"
+  echo "       AZURE_OPENAI_ENDPOINT"
+  echo "       AZURE_OPENAI_DEPLOYMENT"
+  echo "       AZURE_OPENAI_API_KEY"
   echo ""
   fail "Real LLM test skipped — no API key"
 else

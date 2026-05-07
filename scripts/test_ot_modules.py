@@ -9,6 +9,7 @@ import numpy as np
 
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def test_ot_embedding():
     """Test the OT embedding module."""
@@ -46,7 +47,7 @@ def test_ot_embedding():
         return False
     
     # Load some patch embeddings
-    embeddings_dir = "REDACTED_INTERNAL_PATH/ImageAnalysis/Core/Haoran/comet-github/data/patch_embeddings"
+    embeddings_dir = os.path.join(PROJECT_ROOT, "data", "patch_embeddings")
     npz_files = sorted([f for f in os.listdir(embeddings_dir) if f.endswith('.npz')])[:2]
     
     if len(npz_files) < 2:
@@ -235,7 +236,7 @@ def test_ot_visualization(ot_result=None):
             patch_size=512,
             slide_level=2,
             alpha=100,
-            output_dir="REDACTED_INTERNAL_PATH/ImageAnalysis/Core/Haoran/comet-github/output/ot_visualizations"
+            output_dir=os.path.join(PROJECT_ROOT, "output", "ot_visualizations")
         )
         print(f"✓ OTVisualizer initialized")
         print(f"  Output directory: {visualizer.output_dir}")

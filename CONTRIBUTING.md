@@ -10,7 +10,7 @@ By participating in this project, you agree to abide by our Code of Conduct. Ple
 
 ### Reporting Bugs
 
-1. Check if the bug has already been reported in the [Issues](https://github.com/yourusername/prosper/issues)
+1. Check if the bug has already been reported in the [Issues](https://github.com/stjude/prosper-search/issues)
 2. If not, create a new issue with:
    - A clear, descriptive title
    - Steps to reproduce the bug
@@ -41,8 +41,8 @@ By participating in this project, you agree to abide by our Code of Conduct. Ple
 
 ```bash
 # Clone your fork
-git clone https://github.com/yourusername/prosper.git
-cd prosper
+git clone https://github.com/<your-username>/prosper-search.git
+cd prosper-search
 
 # Create virtual environment
 python -m venv venv

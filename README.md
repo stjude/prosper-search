@@ -211,7 +211,7 @@ python scripts/download_data.py --sample-slide      # For demo
 ```
 
 **Data sources:**
-- **St. Jude internal**: Auto-detected from `REDACTED_INTERNAL_PATH/DNB_Core_Public/`
+- **Internal mirror (optional)**: Set `PROSPER_INTERNAL_DATA_SOURCE` to use your organization's internal data mirror.
 - **Git LFS**: Large files tracked with Git LFS (run `git lfs pull` after cloning)
 
 See [data/README.md](data/README.md) for detailed file descriptions.
@@ -298,6 +298,8 @@ See [examples/demo.ipynb](examples/demo.ipynb) for the full walkthrough.
 
 ## 📁 Output Structure
 
+Generated output artifacts are runtime results and should not be committed to git.
+
 ```
 output/
 ├── mosaic/                              # Tissue patches
@@ -382,6 +384,11 @@ If you use PROSPER in your research, please cite:
 ## 🤝 Contributing
 
 We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+## 🛡️ Community and Security
+
+- Please review our [Code of Conduct](CODE_OF_CONDUCT.md) before participating.
+- For vulnerability reporting, see [SECURITY.md](SECURITY.md).
 
 ## 📄 License
 

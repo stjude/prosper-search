@@ -52,8 +52,9 @@ def get_slide_dimensions(slide_path):
 
 def main():
     # Configuration
-    slides_dir = "REDACTED_INTERNAL_PATH/ImageAnalysis/Core/Haoran/data/comet_final_DNB"
-    output_csv = "REDACTED_INTERNAL_PATH/ImageAnalysis/Core/Haoran/comet-github/data/slide_dimensions.csv"
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    slides_dir = os.environ.get("PROSPER_SLIDES_DIR", "./slides")
+    output_csv = os.path.join(project_root, "data", "slide_dimensions.csv")
     num_workers = 10
     
     if not HAS_OPENSLIDE:

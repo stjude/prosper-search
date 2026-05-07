@@ -3,7 +3,7 @@
 Download script for PROSPER data files.
 
 This script downloads the required data files for running PROSPER demos and searches.
-Data can be downloaded from St. Jude internal servers or external hosting (Zenodo).
+Data can be downloaded from an optional internal mirror or external hosting (Git LFS).
 
 Usage:
     python scripts/download_data.py --all           # Download everything (~14 GB)
@@ -20,7 +20,7 @@ from pathlib import Path
 from typing import Dict, Optional
 
 # Data source configurations
-INTERNAL_SOURCE = "REDACTED_INTERNAL_PATH/DNB_Core_Public/COMET_portal_files"
+INTERNAL_SOURCE = os.environ.get("PROSPER_INTERNAL_DATA_SOURCE", "")
 USE_GIT_LFS = True  # Large files are tracked with Git LFS
 
 # File manifest with sizes (in MB)
@@ -81,7 +81,7 @@ def get_data_dir() -> Path:
 
 def check_internal_access() -> bool:
     """Check if internal data source is accessible."""
-    return os.path.exists(INTERNAL_SOURCE)
+    return bool(INTERNAL_SOURCE) and os.path.exists(INTERNAL_SOURCE)
 
 
 def format_size(size_mb: float) -> str:
@@ -123,7 +123,8 @@ def list_files():
     if internal_available:
         print(f"\n✅ Internal source available: {INTERNAL_SOURCE}")
     else:
-        print(f"\n⚠️  Internal source not available. Use Zenodo for external access.")
+        print("\n⚠️  Internal source not configured or not available.")
+        print("   Set PROSPER_INTERNAL_DATA_SOURCE to use an internal mirror.")
     
     print()
 
@@ -274,7 +275,7 @@ Examples:
                         help="Download essential files only (~10 GB)")
     parser.add_argument("--source", choices=["auto", "internal", "lfs"],
                         default="auto",
-                        help="Data source: auto (internal if available), internal, lfs (Git LFS)")
+                        help="Data source: auto (internal if available), internal, lfs (Git LFS).")
     parser.add_argument("--lfs", action="store_true",
                         help="Pull all large files using Git LFS")
     

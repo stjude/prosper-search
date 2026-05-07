@@ -22,16 +22,15 @@ if [ ! -x "$PYTHON" ]; then
 fi
 
 # ─── Resolve paths ──────────────────────────────────────────────────────────
-CANONICAL_ROOT="REDACTED_INTERNAL_PATH/ImageAnalysis/Core/Haoran/comet-llm/patho-toy-summarizer"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SRC_DIR="$SCRIPT_DIR/src"
 
-if [ -d "$SCRIPT_DIR/src/patho_toy_summarizer" ]; then
-  SRC_DIR="$SCRIPT_DIR/src"
-else
-  SRC_DIR="$CANONICAL_ROOT/src"
+if [ ! -d "$SRC_DIR/patho_toy_summarizer" ]; then
+  echo "Error: Could not find local summarizer source at $SRC_DIR" >&2
+  exit 1
 fi
 
-DEFAULT_INPUT="REDACTED_INTERNAL_PATH/ImageAnalysis/Core/Haoran/comet-llm/output/neighbors.json"
+DEFAULT_INPUT="${SCRIPT_DIR}/../output/neighbors.json"
 INPUT="${1:-$DEFAULT_INPUT}"
 
 if [ ! -f "$INPUT" ]; then
@@ -43,9 +42,16 @@ fi
 export PYTHONPATH="${SRC_DIR}:${PYTHONPATH:-}"
 
 # ─── Azure AI Foundry credentials (silent) ──────────────────────────────────
-export AZURE_OPENAI_ENDPOINT="${AZURE_OPENAI_ENDPOINT:-https://REDACTED_INTERNAL_ENDPOINT}"
-export AZURE_OPENAI_DEPLOYMENT="${AZURE_OPENAI_DEPLOYMENT:-gpt-5}"
-export AZURE_OPENAI_API_KEY="${AZURE_OPENAI_API_KEY:-REDACTED_REMOVED_SECRET}"
+# Credentials must be provided externally via environment variables.
+export AZURE_OPENAI_ENDPOINT="${AZURE_OPENAI_ENDPOINT:-}"
+export AZURE_OPENAI_DEPLOYMENT="${AZURE_OPENAI_DEPLOYMENT:-}"
+export AZURE_OPENAI_API_KEY="${AZURE_OPENAI_API_KEY:-}"
+
+if [ -z "$AZURE_OPENAI_ENDPOINT" ] || [ -z "$AZURE_OPENAI_DEPLOYMENT" ] || [ -z "$AZURE_OPENAI_API_KEY" ]; then
+  echo "Error: Missing Azure OpenAI credentials." >&2
+  echo "Set AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_DEPLOYMENT, and AZURE_OPENAI_API_KEY." >&2
+  exit 1
+fi
 
 # ─── Run summarizer ────────────────────────────────────────────────────────
 "$PYTHON" -m patho_toy_summarizer.cli "$INPUT" --llm --neighbors-json 2>/dev/null

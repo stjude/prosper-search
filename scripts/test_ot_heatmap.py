@@ -440,11 +440,12 @@ def main():
     print("=" * 60)
     
     # Paths
-    embeddings_dir = "REDACTED_INTERNAL_PATH/ImageAnalysis/Core/Haoran/comet-github/data/patch_embeddings"
-    mosaic_path = "REDACTED_INTERNAL_PATH/ImageAnalysis/Core/Haoran/comet-github/data/mosaic_metadata.pkl"
-    thumbnails_dir = "REDACTED_INTERNAL_PATH/ImageAnalysis/Core/Haoran/comet-github/data/thumbnails"
-    dimensions_csv = "REDACTED_INTERNAL_PATH/ImageAnalysis/Core/Haoran/comet-github/data/slide_dimensions.csv"
-    output_dir = "REDACTED_INTERNAL_PATH/ImageAnalysis/Core/Haoran/comet-github/output/ot_heatmaps"
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    embeddings_dir = os.path.join(project_root, "data", "patch_embeddings")
+    mosaic_path = os.path.join(project_root, "data", "mosaic_metadata.pkl")
+    thumbnails_dir = os.path.join(project_root, "data", "thumbnails")
+    dimensions_csv = os.path.join(project_root, "data", "slide_dimensions.csv")
+    output_dir = os.path.join(project_root, "output", "ot_heatmaps")
     
     os.makedirs(output_dir, exist_ok=True)
     

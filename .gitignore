@@ -152,6 +152,7 @@ secrets.yaml
 credentials.sh
 credentials.py
 examples/llm_env.local.sh
+examples/llm_foundry_credentials.sh
 examples/output/
 
 # Test data (except small samples)

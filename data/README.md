@@ -45,17 +45,20 @@ git lfs install
 git lfs pull
 ```
 
-### Option 3: Manual Download (St. Jude Internal)
+### Option 3: Manual Download (Internal Mirror)
 
-Data files are hosted at:
-- **St. Jude internal**: `REDACTED_INTERNAL_PATH/DNB_Core_Public/COMET_portal_files/`
+If your organization provides an internal mirror, set:
+
+```bash
+export PROSPER_INTERNAL_DATA_SOURCE=/path/to/internal/comet_portal_files
+```
 
 Copy files to this `data/` directory:
 
 ```bash
-# From St. Jude internal server
-cp -r REDACTED_INTERNAL_PATH/DNB_Core_Public/COMET_portal_files/patch_embeddings ./data/
-cp REDACTED_INTERNAL_PATH/DNB_Core_Public/COMET_portal_files/mosaic_metadata.pkl ./data/
+# From your internal mirror
+cp -r "$PROSPER_INTERNAL_DATA_SOURCE/patch_embeddings" ./data/
+cp "$PROSPER_INTERNAL_DATA_SOURCE/mosaic_metadata.pkl" ./data/
 # ... etc
 ```
 
