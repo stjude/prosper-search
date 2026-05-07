@@ -32,6 +32,7 @@ setup(
     long_description=read_readme(),
     long_description_content_type="text/markdown",
     url="https://github.com/stjude/prosper-search",
+    license="Apache-2.0",
     project_urls={
         "Bug Tracker": "https://github.com/stjude/prosper-search/issues",
         "Documentation": "https://github.com/stjude/prosper-search#readme",
@@ -42,7 +43,7 @@ setup(
         "Development Status :: 4 - Beta",
         "Intended Audience :: Science/Research",
         "Intended Audience :: Healthcare Industry",
-        "License :: OSI Approved :: MIT License",
+        "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.8",

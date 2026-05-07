@@ -7,7 +7,7 @@ name = "prosper"
 version = "1.0.0"
 description = "PROSPER: Pediatric Retrieval for Oncology Slides, Pathology Evidence, and Reporting"
 readme = "README.md"
-license = {text = "MIT"}
+license = {text = "Apache-2.0"}
 authors = [
     {name = "Haoran Chen", email = "haoran.chen@stjude.org"}
 ]
@@ -16,7 +16,7 @@ classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
     "Intended Audience :: Healthcare Industry",
-    "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
