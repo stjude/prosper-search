@@ -155,6 +155,9 @@ examples/llm_env.local.sh
 examples/llm_foundry_credentials.sh
 examples/output/
 
+# Internal SOP / process documents (do not publish)
+TechDocs-SOP*.pdf
+
 # Test data (except small samples)
 test_data/
 
