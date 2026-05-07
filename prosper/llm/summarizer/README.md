@@ -26,7 +26,7 @@ pip install -e .[llm]
 
 #### Option A — Azure AI Foundry (recommended)
 ```bash
-export AZURE_OPENAI_ENDPOINT=https://REDACTED_INTERNAL_ENDPOINT
+export AZURE_OPENAI_ENDPOINT=https://<your-azure-resource>.services.ai.azure.com
 export AZURE_OPENAI_API_KEY=<your-azure-api-key>
 export AZURE_OPENAI_DEPLOYMENT=o3-mini   # model name available on your endpoint
 patho_summarize sample.json --llm

@@ -1,3 +1,8 @@
-# Update this file with the correct GitHub team/user handles for your org.
-# Default ownership for all files:
-* @hchen19
+# Code owners for this repository.
+# Format: <pattern> <owner1> <owner2> ...
+# Owners can be GitHub usernames (@handle), team handles (@org/team),
+# or email addresses of users with explicit access to the repository.
+#
+# Maintainer: Haoran Chen <haoran.chen@stjude.org>
+
+* @hchen19 haoran.chen@stjude.org
