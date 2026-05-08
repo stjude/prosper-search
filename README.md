@@ -193,7 +193,7 @@ python scripts/setup_models.py --all
 
 ## 📦 Data Download
 
-> **Data access:** Large bundles and many assets are **not** self-serve public downloads. Release and sharing follow **St. Jude internal data-governance** (or your site’s approved process). The commands below apply **after** you have an authorized source (internal mirror, approved package, or org-managed Git LFS). For detail, see [data/README.md](data/README.md).
+> **Data access:** Data is **not** currently a **public self-serve** download. It follows **St. Jude institutional approval**. Use the commands below only **after** you have an authorized source. More detail: [data/README.md](data/README.md).
 
 The demo and pre-computed search need data files (~14 GB total when obtained through an approved channel). Small metadata files may ship with an approved bundle; larger assets require that same approval path—not anonymous bulk download.
 
