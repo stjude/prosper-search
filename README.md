@@ -193,7 +193,9 @@ python scripts/setup_models.py --all
 
 ## 📦 Data Download
 
-The demo and pre-computed search require data files (~14 GB total). Small metadata files are included; large files must be downloaded:
+> **Data access:** Large bundles and many assets are **not** self-serve public downloads. Release and sharing follow **St. Jude internal data-governance** (or your site’s approved process). The commands below apply **after** you have an authorized source (internal mirror, approved package, or org-managed Git LFS). For detail, see [data/README.md](data/README.md).
+
+The demo and pre-computed search need data files (~14 GB total when obtained through an approved channel). Small metadata files may ship with an approved bundle; larger assets require that same approval path—not anonymous bulk download.
 
 ```bash
 # List available files and status
