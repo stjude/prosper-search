@@ -2,11 +2,12 @@ name: gitleaks
 
 on:
   push:
-    branches: [main]
+    branches: [main, pub-dev]
   pull_request:
     branches: [main]
   schedule:
     - cron: "37 5 * * 1"
+  workflow_dispatch:
 
 permissions:
   contents: read
