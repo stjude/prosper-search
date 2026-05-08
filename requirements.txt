@@ -21,7 +21,7 @@ timm>=0.9.0
 
 # Hugging Face (for foundation models)
 huggingface-hub>=0.16.0
-safetensors>=0.3.0
+safetensors>=0.7.0
 
 # Optimal Transport (for OT slide embedding)
 POT>=0.9.0
