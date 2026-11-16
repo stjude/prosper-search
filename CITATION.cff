@@ -1,0 +1,41 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below. The accompanying manuscript is under review; no DOI is available yet."
+title: "PROSPER: An Interpretable Whole Slide Image Search System for Pediatric Cancer Pathology"
+type: software
+license: Apache-2.0
+repository-code: "https://github.com/stjude/prosper-search"
+authors:
+  - given-names: Haoran
+    family-names: Chen
+    affiliation: "St. Jude Children's Research Hospital"
+  - given-names: Ali
+    family-names: Foroughi pour
+    affiliation: "St. Jude Children's Research Hospital"
+  - given-names: Benjamin J.
+    family-names: Lansdell
+    affiliation: "St. Jude Children's Research Hospital"
+  - given-names: Mia
+    family-names: Panlilio
+    affiliation: "St. Jude Children's Research Hospital"
+  - given-names: Faryal
+    family-names: Saleem
+    affiliation: "St. Jude Children's Research Hospital"
+  - given-names: Shivani
+    family-names: Gupta
+    affiliation: "University of Tennessee Health Science Center"
+  - given-names: Jonathan
+    family-names: Sookdeo
+    affiliation: "University of Tennessee Health Science Center"
+  - given-names: Selene
+    family-names: Koo
+    affiliation: "St. Jude Children's Research Hospital"
+  - given-names: Faizan
+    family-names: Malik
+    affiliation: "St. Jude Children's Research Hospital"
+  - given-names: Brent A.
+    family-names: Orr
+    affiliation: "St. Jude Children's Research Hospital"
+  - given-names: Abbas
+    family-names: Shirinifard
+    affiliation: "St. Jude Children's Research Hospital"
+    email: abbas.shirinifard@stjude.org
