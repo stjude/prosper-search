@@ -15,9 +15,13 @@ from typing import Any, Dict, List, Optional
 from .grounding import (
     GROUNDED_SYSTEM_PROMPT_NEIGHBORS,
     MEDICAL_DISCLAIMER,
+    STYLE_REVISION_INSTRUCTION,
     extract_reference_values,
+    loads_lenient,
+    normalize_citations,
     parse_grounded_response,
     provenance_guard,
+    verify_citation_style,
 )
 
 
@@ -69,7 +73,8 @@ def _postprocess_probability_summary(stats: Dict[str, Any], text: str) -> str:
         top_score = stats.get("top_score")
         tumor_label = stats.get("top_tumor_type") or stats.get("top_diagnosis") or "unknown"
         if top_score is not None:
-            text = f"{text} Highest probability {float(top_score):.2f} for {tumor_label}."
+            cite = f" [{stats['top_case_id']}]" if stats.get("top_case_id") else ""
+            text = f"{text} Highest probability {float(top_score):.3f} for {tumor_label}{cite}."
     return text
 
 
@@ -383,27 +388,33 @@ def _build_fake_grounded(
     current = payload.get("current_case", {})
     better_phrase = "higher is better" if direction == "higher" else "lower is better"
 
-    # Group case_ids by diagnosis for inline citations
+    # Citation style v2: the diagnosis partition cites each group exactly
+    # once, set-level statistics are uncited, single-neighbour values cite
+    # one id, the query is never cited (see grounding.verify_citation_style).
     ids_by_dx: Dict[str, List[str]] = {}
     for n in neighbors:
         dx = n.get("diagnosis")
         cid = str(n.get("case_id", "?"))
         if dx:
-            ids_by_dx.setdefault(dx, []).append(cid)
+            ids_by_dx.setdefault(dx, []).append(cid)          # rank order kept
+    ordered = sorted(ids_by_dx.items(), key=lambda kv: (-len(kv[1]), neighbors.index(
+        next(n for n in neighbors if str(n.get("case_id", "?")) == kv[1][0]))))
+    k = len(neighbors)
 
-    supporting_ids = ids_by_dx.get(mode_dx, []) if mode_dx else []
-    all_ids = [str(n.get("case_id", "?")) for n in neighbors]
-
-    parts = [
-        f"Neighbors support {mode_dx or 'no clear diagnosis'} "
-        f"(votes: {dict(counts)}) [{', '.join(supporting_ids)}].",
-        f"{score_name.title()} mean {mean_score:.2f} range "
-        f"{min_score:.2f}-{max_score:.2f} ({better_phrase}) "
-        f"[{', '.join(all_ids)}].",
-        f"Current case: age={current.get('age')}, sex={current.get('sex')}, "
-        f"site={current.get('site')}, tumor_group={current.get('tumor_group')}, "
-        f"diagnosis={current.get('diagnosis')}, met={current.get('met')}.",
-    ]
+    cur_bits = [f"{key}={current.get(key)}" for key in
+                ("age", "sex", "site", "tumor_group", "diagnosis", "met", "treatment", "discrepant")
+                if current.get(key) not in (None, "")]
+    parts = ["Current case: " + ", ".join(cur_bits) + "." if cur_bits
+             else "Current case: no metadata provided."]
+    partition = "; ".join(
+        f"{len(ids)} {'are' if len(ids) > 1 else 'is'} {dx} [{', '.join(ids)}]"
+        for dx, ids in ordered)
+    parts.append(f"Of the {k} neighbors, {partition}." if partition
+                 else f"The {k} neighbors carry no diagnosis labels.")
+    parts.append(
+        f"{score_name.title()} mean {mean_score:.3f}, range "
+        f"{min_score:.3f}-{max_score:.3f} ({better_phrase})."
+    )
     if score_name == "probability" and top_case is not None:
         tumor_label = (
             top_case.get("tumor_type")
@@ -412,18 +423,17 @@ def _build_fake_grounded(
             or "unknown"
         )
         parts.append(
-            f"Highest probability {float(top_case.get('probability', 0.0)):.2f} "
+            f"Highest probability {float(top_case.get('probability', 0.0)):.3f} "
             f"for {tumor_label} [{top_case.get('case_id')}]."
         )
     if discrepants:
         key = "probability" if score_name == "probability" else "similarity"
         desc = "; ".join(
-            f"{d.get('case_id')}:{d.get('diagnosis')} "
-            f"{score_name}={float(d.get(key, 0.0)):.2f}"
+            f"{d.get('diagnosis')} ({score_name} {float(d.get(key, 0.0)):.3f}) "
+            f"[{d.get('case_id')}]"
             for d in discrepants
         )
-        disc_ids = [str(d.get("case_id")) for d in discrepants]
-        parts.append(f"Discrepant neighbors: {desc} [{', '.join(disc_ids)}].")
+        parts.append(f"Discrepant neighbors: {desc}.")
     else:
         parts.append("No discrepant neighbors detected.")
 
@@ -456,10 +466,48 @@ def attempt_llm_summary_from_payload(payload: Dict[str, Any]) -> tuple[Optional[
     LLM output is rejected (returns ``None``) so the deterministic fallback
     is used instead.
 
-    Returns ``(text, accepted_flag)`` — same contract as ``attempt_llm_summary``.
+    Returns ``(text, accepted_flag)`` — same specification as ``attempt_llm_summary``.
     """
+    text, accepted, _tele = attempt_llm_summary_from_payload_ex(payload)
+    return (text, accepted)
+
+
+def _style_revision_enabled() -> bool:
+    return os.getenv("PATHO_STYLE_REVISION", "1").strip().lower() not in ("0", "false", "no", "off")
+
+
+def attempt_llm_summary_from_payload_ex(
+    payload: Dict[str, Any],
+) -> tuple[Optional[str], bool, Optional[Dict[str, Any]]]:
+    """Grounded single-shot summary with telemetry.
+
+    Same specification as :func:`attempt_llm_summary_from_payload` plus a third
+    element, a telemetry dict::
+
+        framework, model, calls, revision_applied, revision_rejected,
+        grounding_warnings, style_warnings_first, style_warnings_final,
+        claims (verified), word_count, fake
+
+    Pipeline (citation style v2):
+
+    1. one schema-guided call -> ``{summary, claims}``;
+    2. grounding verification (claims, fabricated ids, provenance guard);
+    3. citation-style verification (placement rules). If there are style
+       issues and ``PATHO_STYLE_REVISION`` is not ``0``, ONE revision call
+       returns the corrected JSON; it is adopted only if it parses and does
+       not exceed the grounding-warning threshold;
+    4. deterministic citation normalisation (syntax only);
+    5. rejection on grounding warnings > ``_MAX_GROUNDING_WARNINGS`` exactly
+       as before -- style warnings never cause rejection.
+    """
+    tele: Dict[str, Any] = {
+        "framework": "single_shot", "model": None, "calls": 0,
+        "revision_applied": False, "revision_rejected": None,
+        "grounding_warnings": [], "style_warnings_first": None,
+        "style_warnings_final": None, "claims": [], "word_count": 0, "fake": False,
+    }
     if not _has_api_key() and not os.getenv("PATHO_LLM_FAKE"):
-        return (None, False)
+        return (None, False, tele)
 
     # -- Derive stats --------------------------------------------------------
     (derived, score_name, direction, mean_score, min_score, max_score,
@@ -468,17 +516,23 @@ def attempt_llm_summary_from_payload(payload: Dict[str, Any]) -> tuple[Optional[
 
     # -- Fake mode (no network) ----------------------------------------------
     if os.getenv("PATHO_LLM_FAKE"):
-        return _build_fake_grounded(
+        text, accepted = _build_fake_grounded(
             payload, mode_dx, counts, score_name, direction,
             mean_score, min_score, max_score, top_case, discrepants,
         )
+        text = normalize_citations(text, payload)
+        tele.update({"fake": True, "model": "fake", "calls": 0,
+                     "style_warnings_final": verify_citation_style(text, payload),
+                     "word_count": len(text.split())})
+        return (text, accepted, tele)
 
     # -- Real LLM call -------------------------------------------------------
     ClientCls = _safe_import_openai()
     if ClientCls is None:
-        return ("ERROR: openai library missing", False)
+        return ("ERROR: openai library missing", False, tele)
 
     model = _resolve_model()
+    tele["model"] = model
     org_id = os.getenv("OPENAI_ORG_ID") or os.getenv("PATHO_OPENAI_ORG")
 
     user_payload = {
@@ -495,34 +549,84 @@ def attempt_llm_summary_from_payload(payload: Dict[str, Any]) -> tuple[Optional[
             model=model,
             organization=org_id,
         )
+        tele["calls"] = 1
     except Exception as e:  # noqa: BLE001
         return (
             f"ERROR: {getattr(e, '__class__', type(e)).__name__}: "
             f"{getattr(e, 'message', str(e))[:120]}",
-            False,
+            False, tele,
         )
 
     # -- Parse & verify structured response -----------------------------------
     text, verified_claims, warnings, is_grounded = parse_grounded_response(
         raw, payload, derived,
     )
-
     if not text:
-        return (None, False)
+        tele["grounding_warnings"] = warnings
+        return (None, False, tele)
+
+    # -- Citation style: verify, then at most ONE revision call ---------------
+    style = verify_citation_style(text, payload)
+    tele["style_warnings_first"] = style
+    tele["text_first"] = text
+    if style and _style_revision_enabled():
+        prev = loads_lenient(raw)
+        if not isinstance(prev, dict):
+            prev = {"summary": text}
+        revision_payload = {
+            **user_payload,
+            "previous_response": prev,
+            "style_issues": style,
+            "instruction": STYLE_REVISION_INSTRUCTION,
+        }
+        raw2: Optional[str] = None
+        try:
+            raw2 = _call_openai(
+                ClientCls,
+                GROUNDED_SYSTEM_PROMPT_NEIGHBORS,
+                json.dumps(revision_payload),
+                model=model,
+                organization=org_id,
+            )
+            tele["calls"] = 2
+        except Exception as e:  # noqa: BLE001
+            tele["revision_rejected"] = f"call failed: {type(e).__name__}"
+        if raw2:
+            text2, claims2, warnings2, grounded2 = parse_grounded_response(
+                raw2, payload, derived,
+            )
+            if (text2 and len(warnings2) <= _MAX_GROUNDING_WARNINGS
+                    and len(text2.split()) <= 400):
+                text, verified_claims, warnings, is_grounded = text2, claims2, warnings2, grounded2
+                tele["revision_applied"] = True
+            else:
+                tele["revision_rejected"] = (
+                    "unparseable" if not text2 else
+                    f"{len(warnings2)} grounding warnings / {len(text2.split())} words"
+                )
 
     # Word-count limits
     words = text.split()
     if len(words) > 400:
-        return (f"ERROR: output too long ({len(words)} words)", False)
+        tele["grounding_warnings"] = warnings
+        return (f"ERROR: output too long ({len(words)} words)", False, tele)
     accepted = len(words) <= 200
     if not accepted:
         text = " ".join(words[:200]) + "…"
 
-    # Probability post-processing
+    # Probability post-processing, then deterministic citation syntax
     text = _postprocess_probability_summary(derived, text)
+    text = normalize_citations(text, payload)
+
+    tele.update({
+        "grounding_warnings": warnings,
+        "style_warnings_final": verify_citation_style(text, payload),
+        "claims": verified_claims,
+        "word_count": len(text.split()),
+    })
 
     # -- Reject if too many grounding issues ----------------------------------
     if len(warnings) > _MAX_GROUNDING_WARNINGS:
-        return (None, False)
+        return (None, False, tele)
 
-    return (text, accepted)
+    return (text, accepted, tele)

@@ -153,6 +153,17 @@ credentials.sh
 credentials.py
 examples/llm_env.local.sh
 examples/llm_foundry_credentials.sh
+
+# Populated runtime configs. ProsperConfig's intended workflow is to copy
+# config.example.yaml to config.yaml and fill in local paths/credentials, so the
+# populated file must never be committable. Only the templates are tracked.
+configs/config.yaml
+configs/config.*.yaml
+# ...but the frozen evaluation protocol is a versioned specification, not local
+# state, and the templates stay tracked.
+!configs/config.paper.yaml
+!configs/config.example.yaml
+!configs/config.test.yaml
 examples/output/
 
 # Internal SOP / process documents (do not publish)
@@ -193,3 +204,7 @@ logs/
 *.bak
 *.swp
 *~
+
+# Stray output root created by paths.py's cwd fallback when PROSPER_OUT is unset.
+# The real output root is $PROSPER_OUT.
+revision_output/

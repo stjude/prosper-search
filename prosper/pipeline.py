@@ -187,7 +187,9 @@ class ProsperPipeline:
             if method == 'percentile':
                 kwargs['percentiles'] = self.config.percentiles
             elif method == 'bob':
-                kwargs['barcode_dim'] = self.config.bob_barcode_dim
+                # BoB takes no extra parameters: the barcode length is derived
+                # from feature_dim (one bit per adjacent-dimension difference).
+                pass
             elif method == 'ot':
                 kwargs['metric'] = self.config.ot_metric
                 kwargs['reg'] = self.config.ot_reg
@@ -361,6 +363,11 @@ class ProsperPipeline:
     
     def _slide_level_search(self, reference_db_path: str = None) -> ProsperResults:
         """Perform slide-level search."""
+        if getattr(self.slide_generator, 'PRODUCES_SIMILARITY', False):
+            # Set-valued representations (OT, BoB) define a pairwise distance and
+            # have no fixed-length slide vector to stack into a search matrix.
+            return self._similarity_based_search()
+
         if reference_db_path:
             self.slide_search.load_reference_database(embeddings_dir=reference_db_path)
         else:
@@ -373,25 +380,21 @@ class ProsperPipeline:
             embeddings = self.slide_embeddings
             
             if isinstance(list(embeddings.values())[0], dict):
-                if self.config.slide_embedding_method == 'ot':
-                    return self._ot_based_search()
-                else:
-                    # BoB or other dict-based embeddings: use int_array for search
-                    matrix = np.stack([embeddings[sid]['int_array'].flatten() for sid in slide_ids])
-            else:
-                matrix = np.stack([embeddings[sid].flatten() for sid in slide_ids])
+                raise TypeError(
+                    f"slide embedding method "
+                    f"'{self.config.slide_embedding_method}' returned dict-valued "
+                    "embeddings but does not declare PRODUCES_SIMILARITY, so there "
+                    "is no well-defined vector to search over. Either return a "
+                    "fixed-length array, or set PRODUCES_SIMILARITY = True and "
+                    "implement compute_pairwise_similarities()."
+                )
+            matrix = np.stack([embeddings[sid].flatten() for sid in slide_ids])
             
             self.slide_search.reference_matrix = matrix
             self.slide_search.reference_slide_ids = slide_ids
         
-        # Build query dict with flat arrays (handles dict-based embeddings like BoB)
-        if isinstance(list(self.slide_embeddings.values())[0], dict):
-            query_embeddings = {
-                sid: emb['int_array'].flatten()
-                for sid, emb in self.slide_embeddings.items()
-            }
-        else:
-            query_embeddings = self.slide_embeddings
+        # Only fixed-length embeddings reach here; set-valued methods returned above.
+        query_embeddings = self.slide_embeddings
         
         results = self.slide_search.batch_search(query_embeddings)
         
@@ -407,13 +410,28 @@ class ProsperPipeline:
         )
     
     def _ot_based_search(self) -> ProsperResults:
-        """Perform OT-based slide search."""
-        from .embeddings.slide_embedding import OTSlideEmbeddingGenerator
-        
-        if not isinstance(self.slide_generator, OTSlideEmbeddingGenerator):
-            raise ValueError("OT search requires OT slide embedding generator")
-        
-        output_dir = os.path.join(self.config.search_results_dir, "ot_similarities")
+        """Deprecated alias for :meth:`_similarity_based_search`."""
+        return self._similarity_based_search()
+
+    def _similarity_based_search(self) -> ProsperResults:
+        """
+        Slide search for methods that define a pairwise distance directly.
+
+        Covers any generator with ``PRODUCES_SIMILARITY = True`` -- currently OT
+        and BoB -- both of which represent a slide as a set (transport marginals,
+        or a bag of per-patch barcodes) with no fixed-length vector to index.
+        """
+        method = self.config.slide_embedding_method
+
+        if not hasattr(self.slide_generator, 'compute_pairwise_similarities'):
+            raise ValueError(
+                f"slide embedding method '{method}' declares PRODUCES_SIMILARITY "
+                "but does not implement compute_pairwise_similarities()"
+            )
+
+        output_dir = os.path.join(
+            self.config.search_results_dir, f"{method}_similarities"
+        )
         similarities = self.slide_generator.compute_pairwise_similarities(
             slide_data=self.slide_embeddings,
             output_dir=output_dir
@@ -428,7 +446,8 @@ class ProsperPipeline:
             ]
         
         visualizations = None
-        if self.config.generate_visualizations and self.visualizer:
+        if method == 'ot' and self.config.generate_visualizations and self.visualizer:
+            # Transport-plan visualisations are OT-specific.
             visualizations = self._generate_ot_visualizations(results)
         
         return ProsperResults(
@@ -553,9 +572,14 @@ class ProsperPipeline:
             embeddings = self.slide_embeddings
             
             if isinstance(list(embeddings.values())[0], dict):
-                query_matrix = np.stack([embeddings[sid]['int_array'] for sid in query_slide_ids])
-            else:
-                query_matrix = np.stack([embeddings[sid].flatten() for sid in query_slide_ids])
+                raise TypeError(
+                    f"slide embedding method "
+                    f"'{self.config.slide_embedding_method}' produces a set-valued "
+                    "representation, which has no vector form to compute pairwise "
+                    "distances from here. Pass a precomputed `distance_matrix` "
+                    "instead -- that is how the published results were produced."
+                )
+            query_matrix = np.stack([embeddings[sid].flatten() for sid in query_slide_ids])
             
             metric_map = {'l1': 'cityblock', 'l2': 'euclidean', 'cosine': 'cosine'}
             metric = metric_map.get(self.config.distance_metric, 'cityblock')

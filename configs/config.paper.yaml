@@ -1,0 +1,230 @@
+# PROSPER evaluation protocol -- FROZEN 2026-08-27 (execution spec G6)
+#
+# One protocol and one primary configuration, declared before the revision's
+# results were computed. A review comment flagged that the submitted manuscript used
+# two scoring rules and two bootstrap designs across panels without saying so;
+# this file exists so that cannot recur. Changing anything here requires an ADR.
+#
+# The fidelity condition on this file: driven through prosper.evaluation.cli it
+# must reproduce Supplementary Table S3's UNIv2+OT row exactly --
+# 0.769515 / 0.821829 / 0.791156 / 0.765022 at k = 1/3/5/10, n_slides = 2778.
+# Verified 2026-08-27 (G2, 8/8 including the tumour-only arm). Wired as a CI
+# test so protocol drift breaks the build rather than surfacing in a figure.
+
+protocol_version: "1.0-frozen-20260827"
+
+# ---------------------------------------------------------------------------
+# Population. THE most error-prone choice in this study: there are three
+# candidate populations and they were conflated once already, in this project's
+# own gate definition, before G2 caught it.
+# ---------------------------------------------------------------------------
+populations:
+  primary:
+    name: all_tissue
+    n_slides: 2778            # 2921 - 143 MISC
+    drop_labels: ["MISC"]
+    n_classes: 15             # 14 tumour groups + NORMAL
+    appears_in: "Supplementary Table S3 (all 132 rows)"
+    rationale: >
+      The submitted manuscript's headline benchmark is this population, so
+      keeping it primary makes every number in the revision directly comparable
+      to the version the reviewers read. Changing the primary population during
+      a revision would make each comparison ambiguous in exactly the way R4
+      objected to.
+  secondary:
+    name: tumour_only
+    n_slides: 2604            # 2778 - 174 NORMAL
+    drop_labels: ["MISC", "NORMAL"]
+    n_classes: 14
+    appears_in: "Supplementary Table S5"
+    rationale: >
+      Pre-declared, reported alongside the primary, and reproduced exactly in
+      G2. Both arms are reported for every headline claim so the choice cannot
+      look post hoc.
+  do_not_use:
+    name: tumour_only_matrix_rows
+    n_slides: 2766
+    note: >
+      This is the ROW COUNT of the tumour-only distance matrix, which retains
+      163 NORMAL slides. It is not an evaluation population. Tables S10-S13 are
+      indexed by it. Never assert it as n_slides in a gate or a claim.
+
+# ---------------------------------------------------------------------------
+# NORMAL's status -- G6 is required to declare this, because it moves the
+# headline and because the manuscript currently describes it three ways.
+# ---------------------------------------------------------------------------
+normal_class:
+  status: retained_in_primary
+  n_slides: 174
+  handled_three_ways_in_submission:
+    table_s3: 174             # retained, and averaged into the headline macro F1
+    tables_s10_s13: 163       # tumour-only matrix
+    table_s5: 0               # excluded entirely
+  decision: >
+    NORMAL is retained in the primary population (matching Table S3) and
+    excluded in the secondary. Both are reported. NORMAL is NOT a tumour group,
+    so it is described as a non-neoplastic reference class wherever it is
+    averaged in.
+  required_text_correction: >
+    The abstract's "15 tumor groups" counts NORMAL and is therefore wrong as
+    written. It becomes "14 pediatric tumour groups and one non-neoplastic
+    (normal tissue) class". This is a wording correction, not a number change --
+    but it is the kind of imprecision R4 was probing, so it is corrected rather
+    than defended. Claims-audit item.
+
+# ---------------------------------------------------------------------------
+# Patient-level independence (R4.a). Already applied in the submitted work but
+# never described; the Methods claim only self-match removal.
+# ---------------------------------------------------------------------------
+exclusion:
+  same_patient:
+    applied: true
+    mechanism: matrix_level_mask
+    patient_column: "UID.Subject"
+    sentinel: 1.0e6
+    detail: >
+      Same-patient off-diagonal cells are set to a 1e6 sentinel in the distance
+      matrix, upstream of the evaluator. Max real distance is 1.0088 and ranking
+      is ascending, so a sentinel sorts last among ~2,778 references and cannot
+      enter a top-k for k <= 10: formally a demotion, operationally exact at
+      these k. Verified: 1,949 within-patient pairs masked, 0 same-patient pairs
+      left unmasked, 0 non-same-patient cells wrongly masked.
+    evaluator_flag_is_dead_code: true
+    note: >
+      The archived CI JSONs record exclude_same_patient: false and are
+      nonetheless patient-excluded, because the masking is in the input matrix
+      and was signalled only by a filename token. That ambiguity is why this
+      config records resolved input paths.
+    patient_key_choice: >
+      UID.Subject yields 1,993 patients over 2,921 slides; parsing the
+      Comp.Bio.ID prefix yields 2,099. UID.Subject merges more, so the masking
+      used the MORE aggressive key. State this in the response rather than
+      leaving a reviewer to find it.
+  self:
+    applied: true
+    mechanism: "np.fill_diagonal(distance_matrix, 1e6)"
+
+# ---------------------------------------------------------------------------
+# Metrics. R4.b's mandate: report what the retrieval literature reports.
+# ---------------------------------------------------------------------------
+metrics:
+  # AMENDED 2026-08-27, hours after freezing, by measurement rather than
+  # preference -- see [decision record] "Amendment 1". The original freeze named
+  # macro_recall_at_5 primary. The C2 canary then measured textbook macro
+  # recall@5 = 0.0297 on the primary configuration, because textbook recall@k is
+  # bounded by ~k/|class| and class sizes here run to several hundred. A 3%
+  # headline would be a true number that misrepresents the system, and it would
+  # have been frozen into the paper's primary metric.
+  #
+  # hit@5 is the quantity the clinical claim actually rests on -- is the correct
+  # diagnosis in the returned shortlist -- and it is reported under its own name,
+  # never as "recall@5", which is the ambiguity that produced this error.
+  primary:
+    - macro_hit_at_5
+    - macro_precision_at_5
+  reported_in_full_but_not_primary:
+    - name: macro_recall_at_5
+      measured_on_primary_config: 0.0297
+      must_state: >
+        the denominator (all same-class, different-patient slides in the library)
+        alongside the value, every time it appears
+  secondary_for_continuity:
+    - name: macro_f1_generous_majority
+      label_as: >
+        "voting-based macro F1 (plurality, credited when the true label is in
+        the tied argmax set)" -- always named this way, never as plain macro F1,
+        because it is not the standard object a reader assumes.
+  also_reported:
+    - hit_at_k
+    - precision_at_k
+    - recall_at_k
+    - mrr
+    - map_at_k
+    - ndcg_at_k
+  k_grid: [1, 3, 5, 10]
+  bayesian_k_grid: [1, 3, 5, 10, 18]
+  tie_break_rules_swept: ["generous_majority", "absolute"]
+  tie_break_rules_dropped: ["closest"]
+  never_report_again:
+    - claim: "shortlist accuracy > 0.98"
+      because: "it is hit@k under another name, presented as accuracy"
+    - claim: "any_hit macro F1"
+      because: >
+        the prediction is overwritten with the ground truth before scoring, so
+        the F1 wrapper is not a defensible object. Report it as hit@k.
+  reporting_rules:
+    - >
+      Textbook recall@k is bounded by ~k/|class| and will be ~0.01-0.02 here.
+      It is reported WITH its denominator stated, never as a bare number, or it
+      will be misread as failure.
+    - >
+      hit@k is monotone non-decreasing in k by construction; generous_majority
+      is not (it peaks at k=3). Never present the two side by side without
+      saying so.
+
+# ---------------------------------------------------------------------------
+# Uncertainty. The submitted work used two different bootstrap designs across
+# panels; this is now one design everywhere.
+# ---------------------------------------------------------------------------
+bootstrap:
+  B: 5000
+  seed: 123
+  mode: pps_cluster_one_slide
+  interval: percentile
+  alpha: 0.05
+  unit_of_analysis: patient_clustered_query_slides
+  detail: >
+    Within each class, S_c patients are resampled with replacement with
+    probability proportional to slide count, then one random slide from each --
+    preserving per-class slide counts while making the patient the resampling
+    unit.
+  stated_scope_limit: >
+    The bootstrap resamples QUERIES only. The reference library is held fixed,
+    so library-side variability is not in the interval. This must be stated in
+    Methods; it is a real limit and cheap to disclose.
+  paired_comparisons: >
+    Ablation rungs are compared with PAIRED bootstrap CIs over the same
+    queries. Independent CIs would overstate uncertainty on comparisons the
+    reviewers explicitly asked for.
+
+# ---------------------------------------------------------------------------
+# The one primary PROSPER configuration (R3.1). Declared PROVISIONALLY under
+# decision D2 so that G6 and C5 cannot deadlock on each other.
+# ---------------------------------------------------------------------------
+primary_configuration:
+  encoder: uni2                 # UNI2-h, 1536-d
+  aggregation: ot_cosine        # exact OT (EMD), cosine ground cost
+  tile_size: 512
+  magnification: "40x (~0.25 um/px)"
+  mosaic_fraction: 0.15
+  status: provisional
+  reopening_condition: >
+    C5 may reopen this ONCE, and only if the matched-tiling CONCH re-run happens
+    under D2's condition and changes the ranking. Any other change needs an ADR.
+  known_confound_to_disclose: >
+    CONCH+TITAN scores higher than UNI2+OT in Table S3 (0.8153 vs 0.7912 at
+    k=5) but is confounded with a different tiling pipeline: CLAM 1024 px tiles
+    with no mosaic selection. Under D2 the de-confounding re-run is conditional
+    on GPU availability, so if it does not happen this confound is DISCLOSED in
+    the Results, not left implicit. Presenting the comparison without the
+    disclosure is the one unacceptable branch.
+  ground_cost_note: >
+    The word "cosine" does not appear in the submitted manuscript although the
+    matrix is named ot_cosine. Add a Methods sentence naming the OT ground cost.
+
+# ---------------------------------------------------------------------------
+# Provenance. Every artifact carries this; no filename-encoded provenance.
+# ---------------------------------------------------------------------------
+provenance:
+  record_with_every_result:
+    - resolved input similarity matrix path
+    - resolved input metadata path
+    - same_patient_masked_input (bool)
+    - dropped_labels
+    - tie_break
+    - bootstrap mode, B, seed
+    - prosper git commit
+  persist_ranked_lists: true
+  reason: >
+    The published CI pipeline discarded its per-query df_pred, so C6 and C10
+    would each have had to recompute ranks. Persist once.

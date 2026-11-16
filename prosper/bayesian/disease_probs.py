@@ -44,11 +44,20 @@ def _disease_probs_from_neighbors(
     probs = np.zeros((n_classes,), dtype=np.float64)
     for j in range(n):
         clab = nn_labs[j]
-        cdist = nn_dists[j]
+        # Weight relative to the nearest neighbour, so the weight scale runs from
+        # 1 at d_min to 1/T at d_scale. The offset cancels under the
+        # normalisation below, but computing exp(-tau * d) on absolute distances
+        # underflows at realistic scales: OT-cosine distances are ~0.5 with
+        # tau ~ 1e2, giving exp(-50) ~ 1e-21 for every neighbour. The sum then
+        # trips the `total < 1e-15` guard and the posterior is silently replaced
+        # by a uniform one.
+        cdist = nn_dists[j] - d_min
         probs[clab] += np.exp(-tau * cdist)
 
     total = np.sum(probs)
     if total < 1e-15:
+        # Defensive only, and unreachable: the nearest neighbour contributes
+        # exp(0) == 1, so total >= 1 whenever n >= 1.
         probs = np.ones(n_classes) / n_classes
     else:
         probs = probs / total

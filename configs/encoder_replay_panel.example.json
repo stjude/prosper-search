@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "run_id": "illustrative_two_slide_panel",
+  "stage0": {
+    "review": "accepted-stage0/review.json",
+    "review_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "complete": "accepted-stage0/attempt/COMPLETE.json"
+  },
+  "stage1a": {
+    "review": "accepted-stage1a/review.json",
+    "review_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "complete": "accepted-stage1a/attempt/COMPLETE.json"
+  },
+  "metadata": {
+    "path": "inputs/metadata.csv",
+    "id_col": "scan_id",
+    "patient_col": "patient_id",
+    "label_col": "diagnostic_group"
+  },
+  "panel": [
+    {
+      "slide_id": "slide-a",
+      "patient_id": "patient-a",
+      "group": "NORMAL",
+      "virchow_stratum": "older_float16",
+      "annotation_classes": [1, 2, 3, 4, 5],
+      "control_tags": ["annotation_array", "main_array", "recovery_a"]
+    },
+    {
+      "slide_id": "slide-b",
+      "patient_id": "patient-b",
+      "group": "MISC",
+      "virchow_stratum": "round3_float32",
+      "annotation_classes": [],
+      "control_tags": ["auxiliary_canary", "main_canary", "recovery_b"]
+    }
+  ],
+  "banks": [
+    {"name": "uni2", "universe": "main", "path": "inputs/main/uni2", "feature_dim": 1536, "dtypes": ["float32"]},
+    {"name": "virchow2", "universe": "main", "path": "inputs/main/virchow2", "feature_dim": 1280, "dtypes": ["float16", "float32"]},
+    {"name": "h_optimus_1", "universe": "main", "path": "inputs/main/h_optimus_1", "feature_dim": 1536, "dtypes": ["float32"]},
+    {"name": "uni2", "universe": "annotation", "path": "inputs/annotation/uni2", "feature_dim": 1536, "dtypes": ["float32"]},
+    {"name": "virchow2", "universe": "annotation", "path": "inputs/annotation/virchow2", "feature_dim": 2560, "dtypes": ["float32"]},
+    {"name": "h_optimus_1", "universe": "annotation", "path": "inputs/annotation/h_optimus_1", "feature_dim": 1536, "dtypes": ["float32"]}
+  ],
+  "auxiliary": {
+    "slide_id": "slide-b",
+    "path": "inputs/auxiliary/slide-b.pkl",
+    "csv": "inputs/auxiliary/slide-b.csv",
+    "csv_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "feature_dim": 1536,
+    "dtype": "float32"
+  },
+  "wsi": [
+    {"slide_id": "slide-a", "path": "inputs/wsi/slide-a.svs", "resolved_path": "/replace-with-absolute-resolved/slide-a.svs", "size_bytes": 1},
+    {"slide_id": "slide-b", "path": "inputs/wsi/slide-b.svs", "resolved_path": "/replace-with-absolute-resolved/slide-b.svs", "size_bytes": 1}
+  ],
+  "models": [
+    {"name": "uni2", "model_id": "example/uni2", "revision": "replace-with-snapshot", "config_path": "inputs/models/uni2.json", "config_sha256": "0000000000000000000000000000000000000000000000000000000000000000", "weight_path": "inputs/models/uni2.bin", "resolved_weight_path": "/replace-with-absolute-resolved/uni2.bin", "weight_size_bytes": 1, "expected_weight_sha256": null, "digest_basis": "observed_only"},
+    {"name": "virchow2", "model_id": "example/virchow2", "revision": "replace-with-snapshot", "config_path": "inputs/models/virchow2.json", "config_sha256": "0000000000000000000000000000000000000000000000000000000000000000", "weight_path": "inputs/models/virchow2.bin", "resolved_weight_path": "/replace-with-absolute-resolved/virchow2.bin", "weight_size_bytes": 1, "expected_weight_sha256": null, "digest_basis": "observed_only"},
+    {"name": "h_optimus_1", "model_id": "example/h_optimus_1", "revision": "replace-with-snapshot", "config_path": "inputs/models/h_optimus_1.json", "config_sha256": "0000000000000000000000000000000000000000000000000000000000000000", "weight_path": "inputs/models/h_optimus_1.bin", "resolved_weight_path": "/replace-with-absolute-resolved/h_optimus_1.bin", "weight_size_bytes": 1, "expected_weight_sha256": null, "digest_basis": "observed_only"}
+  ],
+  "virchow_candidates": [
+    {"name": "O", "path": "inputs/candidates/O", "expected_root_presence": false, "files": [{"slide_id": "slide-a", "present": false, "size_bytes": null, "expected_sha256": null}, {"slide_id": "slide-b", "present": false, "size_bytes": null, "expected_sha256": null}]},
+    {"name": "F3", "path": "inputs/candidates/F3", "expected_root_presence": false, "files": [{"slide_id": "slide-a", "present": false, "size_bytes": null, "expected_sha256": null}, {"slide_id": "slide-b", "present": false, "size_bytes": null, "expected_sha256": null}]},
+    {"name": "F4", "path": "inputs/candidates/F4", "expected_root_presence": false, "files": [{"slide_id": "slide-a", "present": false, "size_bytes": null, "expected_sha256": null}, {"slide_id": "slide-b", "present": false, "size_bytes": null, "expected_sha256": null}]},
+    {"name": "P3", "path": "inputs/candidates/P3", "expected_root_presence": false, "files": [{"slide_id": "slide-a", "present": false, "size_bytes": null, "expected_sha256": null}, {"slide_id": "slide-b", "present": false, "size_bytes": null, "expected_sha256": null}]},
+    {"name": "P4", "path": "inputs/candidates/P4", "expected_root_presence": false, "files": [{"slide_id": "slide-a", "present": false, "size_bytes": null, "expected_sha256": null}, {"slide_id": "slide-b", "present": false, "size_bytes": null, "expected_sha256": null}]},
+    {"name": "C", "path": "inputs/candidates/C", "expected_root_presence": true, "files": [{"slide_id": "slide-a", "present": true, "size_bytes": 1, "expected_sha256": null}, {"slide_id": "slide-b", "present": true, "size_bytes": 1, "expected_sha256": null}]},
+    {"name": "T", "path": "inputs/candidates/T", "expected_root_presence": false, "files": [{"slide_id": "slide-a", "present": false, "size_bytes": null, "expected_sha256": null}, {"slide_id": "slide-b", "present": false, "size_bytes": null, "expected_sha256": null}]}
+  ],
+  "lineage_pairs": [
+    {"pair_id": "C__main__slide-a", "left_source_id": "candidate/C/slide-a", "right_source_id": "feature/main/virchow2/slide-a", "relation": "candidate_copy"},
+    {"pair_id": "C__main__slide-b", "left_source_id": "candidate/C/slide-b", "right_source_id": "feature/main/virchow2/slide-b", "relation": "candidate_copy"}
+  ],
+  "log_controls": [
+    {"tag": "annotation_array", "slide_id": "slide-a", "path": "inputs/logs/annotation_array.txt", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "write_line": 1},
+    {"tag": "auxiliary_canary", "slide_id": "slide-b", "path": "inputs/logs/auxiliary_canary.txt", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "write_line": 1},
+    {"tag": "main_array", "slide_id": "slide-a", "path": "inputs/logs/main_array.txt", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "write_line": 1},
+    {"tag": "main_canary", "slide_id": "slide-b", "path": "inputs/logs/main_canary.txt", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "write_line": 1},
+    {"tag": "recovery_a", "slide_id": "slide-a", "path": "inputs/logs/recovery_a.txt", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "write_line": 1},
+    {"tag": "recovery_b", "slide_id": "slide-b", "path": "inputs/logs/recovery_b.txt", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "write_line": 1}
+  ],
+  "code_files": [
+    {"name": "declared-implementation", "path": "inputs/code/producer.py", "sha256": "0000000000000000000000000000000000000000000000000000000000000000"}
+  ],
+  "expected": {
+    "panel_sha256": "03a630fdaca0c88dd795f3cf8c7689d0e56ed1c266637e9ba8ce23734d970ff0",
+    "slides": 2,
+    "patients": 2,
+    "universes": 4,
+    "tile_rows": 32,
+    "feature_rows": 80,
+    "feature_files": 10,
+    "array_files": 8,
+    "candidate_files_present": 2,
+    "candidate_files_absent": 12,
+    "lineage_pairs": 2,
+    "array_payload_bytes": 487424
+  }
+}

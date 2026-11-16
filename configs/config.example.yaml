@@ -53,7 +53,6 @@ percentiles: [5, 15, 25, 35, 45, 55, 65, 75, 85, 95]
 feature_dim: 1280             # Dimension of features to use
 
 # For BoB method
-bob_barcode_dim: 64           # Binary barcode dimension
 
 # For OT method
 ot_metric: "cosine"           # Distance metric: 'cosine' or 'euclidean'

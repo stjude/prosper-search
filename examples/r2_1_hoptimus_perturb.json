@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "run_id": "example_replace_all_placeholder_bindings_before_use",
+  "task": "hoptimus_perturb_manifest",
+  "sources": {
+    "metadata": {
+      "path": "inputs/metadata.csv",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "size": 0
+    },
+    "stage0_review": {
+      "path": "inputs/stage0/review.json",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "size": 0
+    },
+    "stage0_complete": {
+      "path": "inputs/stage0/attempt/COMPLETE.json",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "size": 0
+    },
+    "stage0_inventory": {
+      "path": "inputs/stage0/attempt/inventory.csv",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "size": 0
+    },
+    "stage0_summary": {
+      "path": "inputs/stage0/attempt/summary.json",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "size": 0
+    },
+    "kernel_review": {
+      "path": "inputs/kernel_review.json",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "size": 0
+    },
+    "template": {
+      "path": "inputs/template.bin",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "size": 0
+    }
+  },
+  "code_files": {
+    "runner": {
+      "path": "../prosper/evaluation/r2_1_hoptimus_perturb_cli.py",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "size": 0
+    },
+    "kernel": {
+      "path": "../prosper/evaluation/r2_1_hoptimus_perturb.py",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "size": 0
+    },
+    "io": {
+      "path": "../prosper/evaluation/r2_1_hoptimus_io.py",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "size": 0
+    },
+    "legacy_io": {
+      "path": "../prosper/evaluation/feature_bank_audit.py",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "size": 0
+    },
+    "package_init": {
+      "path": "../prosper/__init__.py",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "size": 0
+    },
+    "evaluation_init": {
+      "path": "../prosper/evaluation/__init__.py",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "size": 0
+    }
+  },
+  "parameters": {
+    "metadata": {
+      "id_col": "Slide.Scan.File",
+      "patient_col": "UID.Subject",
+      "label_col": "Tumor.group"
+    }
+  },
+  "expected": {
+    "raw_slides": 2921,
+    "target_slides": 2778,
+    "patients": 1876,
+    "groups": 15,
+    "cross_label_patients": 45,
+    "stimulus_records": 33336,
+    "feature_dim": 1536
+  }
+}

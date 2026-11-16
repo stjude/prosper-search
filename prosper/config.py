@@ -73,8 +73,6 @@ class ProsperConfig:
     ot_metric: str = "cosine"  # Distance metric for OT computation
     ot_reg: float = 0.0  # Regularization for entropic OT (0 = exact EMD)
     
-    # BoB-specific parameters
-    bob_barcode_dim: int = 64  # Dimension of binary barcodes
     
     # Bayesian disease probability parameters
     bayesian_n_neighbors: int = 20  # Number of nearest neighbors for probability estimation

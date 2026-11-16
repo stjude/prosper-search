@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "run_id": "EXAMPLE_UNBOUND_REPLACE_EVERY_PATH_HASH_SIZE_AND_FULL_POPULATION_FEATURE_LIST",
+  "task": "hoptimus_mosaic_predictions",
+  "sources": {
+    "stage0_review": {"path": "/REPLACE/stage0_independent_review.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "stage0_complete": {"path": "/REPLACE/stage0_attempt_001/COMPLETE.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "stage0_inventory": {"path": "/REPLACE/stage0_attempt_001/inventory.csv", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "stage0_summary": {"path": "/REPLACE/stage0_attempt_001/summary.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "cpu_review": {"path": "/REPLACE/cpu/actual_outputs_independent_review.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "cpu_complete": {"path": "/REPLACE/cpu/filter_attempt_001/COMPLETE.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "cpu_input_bindings": {"path": "/REPLACE/cpu/filter_attempt_001/input_bindings.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "retrieval_population": {"path": "/REPLACE/cpu/filter_attempt_001/retrieval_population.csv", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "patient_folds": {"path": "/REPLACE/cpu/filter_attempt_001/patient_folds.csv", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "cpu_summary": {"path": "/REPLACE/cpu/filter_attempt_001/summary.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "head_plan": {"path": "/REPLACE/cpu/filter_attempt_001/head_plan.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "head_acceptance": {"path": "/REPLACE/heads/actual_outputs_independent_review.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "head_registry": {"path": "/REPLACE/heads/lead_actual_output_reconciliation.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "pilot_acceptance": {"path": "/REPLACE/pilots/actual_outputs_independent_review.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"}
+  },
+  "code_files": {
+    "runner": {"path": "/REPLACE/prosper/evaluation/r2_1_hoptimus_mosaic_cli.py", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "head_reader": {"path": "/REPLACE/prosper/evaluation/r2_1_hoptimus_head_reader.py", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "fit": {"path": "/REPLACE/prosper/evaluation/r2_1_hoptimus_fit.py", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "asset_io": {"path": "/REPLACE/prosper/evaluation/r2_1_hoptimus_asset_io.py", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "head_cli": {"path": "/REPLACE/prosper/evaluation/r2_1_hoptimus_head_cli.py", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "filter_kernel": {"path": "/REPLACE/prosper/evaluation/r2_1_hoptimus_filter.py", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "filter_cli": {"path": "/REPLACE/prosper/evaluation/r2_1_hoptimus_filter_cli.py", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "cpu_io": {"path": "/REPLACE/prosper/evaluation/r2_1_hoptimus_io.py", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "legacy_io": {"path": "/REPLACE/prosper/evaluation/feature_bank_audit.py", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "package_init": {"path": "/REPLACE/prosper/__init__.py", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "evaluation_init": {"path": "/REPLACE/prosper/evaluation/__init__.py", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "inherited:prosper.config": {"path": "/REPLACE/prosper/config.py", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "inherited:prosper.pipeline": {"path": "/REPLACE/prosper/pipeline.py", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "inherited:prosper.embeddings": {"path": "/REPLACE/prosper/embeddings/__init__.py", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "inherited:prosper.embeddings.patch_embedding": {"path": "/REPLACE/prosper/embeddings/patch_embedding/__init__.py", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "inherited:prosper.embeddings.patch_embedding.base": {"path": "/REPLACE/prosper/embeddings/patch_embedding/base.py", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "inherited:prosper.embeddings.patch_embedding.gigapath_embedding": {"path": "/REPLACE/prosper/embeddings/patch_embedding/gigapath_embedding.py", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "inherited:prosper.embeddings.patch_embedding.uni2_embedding": {"path": "/REPLACE/prosper/embeddings/patch_embedding/uni2_embedding.py", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "inherited:prosper.embeddings.patch_embedding.virchow2_embeddings": {"path": "/REPLACE/prosper/embeddings/patch_embedding/virchow2_embeddings.py", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "inherited:prosper.embeddings.slide_embedding": {"path": "/REPLACE/prosper/embeddings/slide_embedding/__init__.py", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "inherited:prosper.embeddings.slide_embedding.base": {"path": "/REPLACE/prosper/embeddings/slide_embedding/base.py", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "inherited:prosper.embeddings.slide_embedding.bob_embedding": {"path": "/REPLACE/prosper/embeddings/slide_embedding/bob_embedding.py", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "inherited:prosper.embeddings.slide_embedding.ot_embedding": {"path": "/REPLACE/prosper/embeddings/slide_embedding/ot_embedding.py", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "inherited:prosper.embeddings.slide_embedding.percentile_embedding": {"path": "/REPLACE/prosper/embeddings/slide_embedding/percentile_embedding.py", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "inherited:prosper.evaluation.metrics": {"path": "/REPLACE/prosper/evaluation/metrics.py", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "inherited:prosper.evaluation.paths": {"path": "/REPLACE/prosper/evaluation/paths.py", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "inherited:prosper.evaluation.slide_headers": {"path": "/REPLACE/prosper/evaluation/slide_headers.py", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "inherited:prosper.preprocessing": {"path": "/REPLACE/prosper/preprocessing/__init__.py", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "inherited:prosper.preprocessing.mosaic": {"path": "/REPLACE/prosper/preprocessing/mosaic.py", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "inherited:prosper.search": {"path": "/REPLACE/prosper/search/__init__.py", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "inherited:prosper.search.roi_search": {"path": "/REPLACE/prosper/search/roi_search.py", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "inherited:prosper.search.slide_search": {"path": "/REPLACE/prosper/search/slide_search.py", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"}
+  },
+  "features": [
+    {"slide_id": "REPLACE_FULL_ORDERED_2604_SLIDE_LIST", "path": "/REPLACE/h_optimus_1/SLIDE.pkl", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "rows": 1, "dtype": "float32", "columns": 1536}
+  ],
+  "heads": [
+    {
+      "held_out_fold": 0, "budget_percent": 5,
+      "assets": {
+        "complete": {"path": "/REPLACE/fold0_budget5/COMPLETE.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "spec": {"path": "/REPLACE/fold0_budget5_spec.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "input_bindings": {"path": "/REPLACE/fold0_budget5/input_bindings.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "summary": {"path": "/REPLACE/fold0_budget5/summary.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "diagnostics": {"path": "/REPLACE/fold0_budget5/fit_diagnostics.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "model": {"path": "/REPLACE/fold0_budget5/head.pkl", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"}
+      },
+      "registry_keys": {"complete": "/REPLACE_HISTORICAL/fold0_budget5/COMPLETE.json", "head.pkl": "/REPLACE_HISTORICAL/fold0_budget5/head.pkl", "fit_diagnostics.json": "/REPLACE_HISTORICAL/fold0_budget5/fit_diagnostics.json", "input_bindings.json": "/REPLACE_HISTORICAL/fold0_budget5/input_bindings.json", "summary.json": "/REPLACE_HISTORICAL/fold0_budget5/summary.json"},
+      "producer_spec_path": "/REPLACE_HISTORICAL/fold0_budget5_spec.json"
+    },
+    {
+      "held_out_fold": 0, "budget_percent": 100,
+      "assets": {
+        "complete": {"path": "/REPLACE/fold0_budget100/COMPLETE.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "spec": {"path": "/REPLACE/fold0_budget100_spec.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "input_bindings": {"path": "/REPLACE/fold0_budget100/input_bindings.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "summary": {"path": "/REPLACE/fold0_budget100/summary.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "diagnostics": {"path": "/REPLACE/fold0_budget100/fit_diagnostics.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "model": {"path": "/REPLACE/fold0_budget100/head.pkl", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"}
+      },
+      "registry_keys": {"complete": "/REPLACE_HISTORICAL/fold0_budget100/COMPLETE.json", "head.pkl": "/REPLACE_HISTORICAL/fold0_budget100/head.pkl", "fit_diagnostics.json": "/REPLACE_HISTORICAL/fold0_budget100/fit_diagnostics.json", "input_bindings.json": "/REPLACE_HISTORICAL/fold0_budget100/input_bindings.json", "summary.json": "/REPLACE_HISTORICAL/fold0_budget100/summary.json"},
+      "producer_spec_path": "/REPLACE_HISTORICAL/fold0_budget100_spec.json"
+    },
+    {
+      "held_out_fold": 1, "budget_percent": 5,
+      "assets": {
+        "complete": {"path": "/REPLACE/fold1_budget5/COMPLETE.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "spec": {"path": "/REPLACE/fold1_budget5_spec.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "input_bindings": {"path": "/REPLACE/fold1_budget5/input_bindings.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "summary": {"path": "/REPLACE/fold1_budget5/summary.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "diagnostics": {"path": "/REPLACE/fold1_budget5/fit_diagnostics.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "model": {"path": "/REPLACE/fold1_budget5/head.pkl", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"}
+      },
+      "registry_keys": {"complete": "/REPLACE_HISTORICAL/fold1_budget5/COMPLETE.json", "head.pkl": "/REPLACE_HISTORICAL/fold1_budget5/head.pkl", "fit_diagnostics.json": "/REPLACE_HISTORICAL/fold1_budget5/fit_diagnostics.json", "input_bindings.json": "/REPLACE_HISTORICAL/fold1_budget5/input_bindings.json", "summary.json": "/REPLACE_HISTORICAL/fold1_budget5/summary.json"},
+      "producer_spec_path": "/REPLACE_HISTORICAL/fold1_budget5_spec.json"
+    },
+    {
+      "held_out_fold": 1, "budget_percent": 100,
+      "assets": {
+        "complete": {"path": "/REPLACE/fold1_budget100/COMPLETE.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "spec": {"path": "/REPLACE/fold1_budget100_spec.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "input_bindings": {"path": "/REPLACE/fold1_budget100/input_bindings.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "summary": {"path": "/REPLACE/fold1_budget100/summary.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "diagnostics": {"path": "/REPLACE/fold1_budget100/fit_diagnostics.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "model": {"path": "/REPLACE/fold1_budget100/head.pkl", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"}
+      },
+      "registry_keys": {"complete": "/REPLACE_HISTORICAL/fold1_budget100/COMPLETE.json", "head.pkl": "/REPLACE_HISTORICAL/fold1_budget100/head.pkl", "fit_diagnostics.json": "/REPLACE_HISTORICAL/fold1_budget100/fit_diagnostics.json", "input_bindings.json": "/REPLACE_HISTORICAL/fold1_budget100/input_bindings.json", "summary.json": "/REPLACE_HISTORICAL/fold1_budget100/summary.json"},
+      "producer_spec_path": "/REPLACE_HISTORICAL/fold1_budget100_spec.json"
+    },
+    {
+      "held_out_fold": 2, "budget_percent": 5,
+      "assets": {
+        "complete": {"path": "/REPLACE/fold2_budget5/COMPLETE.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "spec": {"path": "/REPLACE/fold2_budget5_spec.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "input_bindings": {"path": "/REPLACE/fold2_budget5/input_bindings.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "summary": {"path": "/REPLACE/fold2_budget5/summary.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "diagnostics": {"path": "/REPLACE/fold2_budget5/fit_diagnostics.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "model": {"path": "/REPLACE/fold2_budget5/head.pkl", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"}
+      },
+      "registry_keys": {"complete": "/REPLACE_HISTORICAL/fold2_budget5/COMPLETE.json", "head.pkl": "/REPLACE_HISTORICAL/fold2_budget5/head.pkl", "fit_diagnostics.json": "/REPLACE_HISTORICAL/fold2_budget5/fit_diagnostics.json", "input_bindings.json": "/REPLACE_HISTORICAL/fold2_budget5/input_bindings.json", "summary.json": "/REPLACE_HISTORICAL/fold2_budget5/summary.json"},
+      "producer_spec_path": "/REPLACE_HISTORICAL/fold2_budget5_spec.json"
+    },
+    {
+      "held_out_fold": 2, "budget_percent": 100,
+      "assets": {
+        "complete": {"path": "/REPLACE/fold2_budget100/COMPLETE.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "spec": {"path": "/REPLACE/fold2_budget100_spec.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "input_bindings": {"path": "/REPLACE/fold2_budget100/input_bindings.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "summary": {"path": "/REPLACE/fold2_budget100/summary.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "diagnostics": {"path": "/REPLACE/fold2_budget100/fit_diagnostics.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "model": {"path": "/REPLACE/fold2_budget100/head.pkl", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"}
+      },
+      "registry_keys": {"complete": "/REPLACE_HISTORICAL/fold2_budget100/COMPLETE.json", "head.pkl": "/REPLACE_HISTORICAL/fold2_budget100/head.pkl", "fit_diagnostics.json": "/REPLACE_HISTORICAL/fold2_budget100/fit_diagnostics.json", "input_bindings.json": "/REPLACE_HISTORICAL/fold2_budget100/input_bindings.json", "summary.json": "/REPLACE_HISTORICAL/fold2_budget100/summary.json"},
+      "producer_spec_path": "/REPLACE_HISTORICAL/fold2_budget100_spec.json"
+    },
+    {
+      "held_out_fold": 3, "budget_percent": 5,
+      "assets": {
+        "complete": {"path": "/REPLACE/fold3_budget5/COMPLETE.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "spec": {"path": "/REPLACE/fold3_budget5_spec.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "input_bindings": {"path": "/REPLACE/fold3_budget5/input_bindings.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "summary": {"path": "/REPLACE/fold3_budget5/summary.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "diagnostics": {"path": "/REPLACE/fold3_budget5/fit_diagnostics.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "model": {"path": "/REPLACE/fold3_budget5/head.pkl", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"}
+      },
+      "registry_keys": {"complete": "/REPLACE_HISTORICAL/fold3_budget5/COMPLETE.json", "head.pkl": "/REPLACE_HISTORICAL/fold3_budget5/head.pkl", "fit_diagnostics.json": "/REPLACE_HISTORICAL/fold3_budget5/fit_diagnostics.json", "input_bindings.json": "/REPLACE_HISTORICAL/fold3_budget5/input_bindings.json", "summary.json": "/REPLACE_HISTORICAL/fold3_budget5/summary.json"},
+      "producer_spec_path": "/REPLACE_HISTORICAL/fold3_budget5_spec.json"
+    },
+    {
+      "held_out_fold": 3, "budget_percent": 100,
+      "assets": {
+        "complete": {"path": "/REPLACE/fold3_budget100/COMPLETE.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "spec": {"path": "/REPLACE/fold3_budget100_spec.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "input_bindings": {"path": "/REPLACE/fold3_budget100/input_bindings.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "summary": {"path": "/REPLACE/fold3_budget100/summary.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "diagnostics": {"path": "/REPLACE/fold3_budget100/fit_diagnostics.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "model": {"path": "/REPLACE/fold3_budget100/head.pkl", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"}
+      },
+      "registry_keys": {"complete": "/REPLACE_HISTORICAL/fold3_budget100/COMPLETE.json", "head.pkl": "/REPLACE_HISTORICAL/fold3_budget100/head.pkl", "fit_diagnostics.json": "/REPLACE_HISTORICAL/fold3_budget100/fit_diagnostics.json", "input_bindings.json": "/REPLACE_HISTORICAL/fold3_budget100/input_bindings.json", "summary.json": "/REPLACE_HISTORICAL/fold3_budget100/summary.json"},
+      "producer_spec_path": "/REPLACE_HISTORICAL/fold3_budget100_spec.json"
+    },
+    {
+      "held_out_fold": 4, "budget_percent": 5,
+      "assets": {
+        "complete": {"path": "/REPLACE/fold4_budget5/COMPLETE.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "spec": {"path": "/REPLACE/fold4_budget5_spec.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "input_bindings": {"path": "/REPLACE/fold4_budget5/input_bindings.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "summary": {"path": "/REPLACE/fold4_budget5/summary.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "diagnostics": {"path": "/REPLACE/fold4_budget5/fit_diagnostics.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "model": {"path": "/REPLACE/fold4_budget5/head.pkl", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"}
+      },
+      "registry_keys": {"complete": "/REPLACE_HISTORICAL/fold4_budget5/COMPLETE.json", "head.pkl": "/REPLACE_HISTORICAL/fold4_budget5/head.pkl", "fit_diagnostics.json": "/REPLACE_HISTORICAL/fold4_budget5/fit_diagnostics.json", "input_bindings.json": "/REPLACE_HISTORICAL/fold4_budget5/input_bindings.json", "summary.json": "/REPLACE_HISTORICAL/fold4_budget5/summary.json"},
+      "producer_spec_path": "/REPLACE_HISTORICAL/fold4_budget5_spec.json"
+    },
+    {
+      "held_out_fold": 4, "budget_percent": 100,
+      "assets": {
+        "complete": {"path": "/REPLACE/fold4_budget100/COMPLETE.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "spec": {"path": "/REPLACE/fold4_budget100_spec.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "input_bindings": {"path": "/REPLACE/fold4_budget100/input_bindings.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "summary": {"path": "/REPLACE/fold4_budget100/summary.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "diagnostics": {"path": "/REPLACE/fold4_budget100/fit_diagnostics.json", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+        "model": {"path": "/REPLACE/fold4_budget100/head.pkl", "size": 0, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"}
+      },
+      "registry_keys": {"complete": "/REPLACE_HISTORICAL/fold4_budget100/COMPLETE.json", "head.pkl": "/REPLACE_HISTORICAL/fold4_budget100/head.pkl", "fit_diagnostics.json": "/REPLACE_HISTORICAL/fold4_budget100/fit_diagnostics.json", "input_bindings.json": "/REPLACE_HISTORICAL/fold4_budget100/input_bindings.json", "summary.json": "/REPLACE_HISTORICAL/fold4_budget100/summary.json"},
+      "producer_spec_path": "/REPLACE_HISTORICAL/fold4_budget100_spec.json"
+    }
+  ],
+  "parameters": {"prediction_batch_rows": 4096},
+  "expected": {
+    "slides": 2604, "patients": 1800, "diagnostic_groups": 14, "union_patients": 1826,
+    "feature_files": 2604, "original_tiles": 3635673, "heads": 10,
+    "slide_head_cells": 26040, "tile_head_predictions": 36356730
+  }
+}

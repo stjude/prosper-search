@@ -3,6 +3,25 @@ Mosaic generation module for whole slide images.
 
 This module handles the extraction and clustering of tissue patches from WSIs
 to create representative mosaics for downstream feature extraction.
+
+Reproducibility note
+--------------------
+The KMeans calls below use ``random_state=3``, matching the reference
+implementation. This makes mosaic generation deterministic *going forward*, but
+it does **not** regenerate the mosaics behind the published results: those were
+produced on 2025-07-09, before the seed was pinned in the reference code
+(2025-07-23), so their tile selection is not recoverable from any version of this
+code. The published tile coordinates are only available as data, distributed
+alongside the feature files -- treat that artifact, not this module, as the
+authoritative record of which tiles were used.
+
+Because the mosaic is a 15% sample drawn to cover the same colour and spatial
+clusters, a freshly generated mosaic supports the same conclusions but will not
+reproduce per-slide numbers exactly.
+
+Note also that ``n_init`` is pinned explicitly here. The reference implementation
+omits it and therefore inherits the scikit-learn default, which changed from 10
+to ``"auto"`` in scikit-learn 1.4; the two agree only on earlier versions.
 """
 
 import os
@@ -188,7 +207,7 @@ def process_slide(
         return None
     
     kmeans_clusters = min(9, len(features))
-    kmeans = KMeans(n_clusters=kmeans_clusters, random_state=42, n_init=10)
+    kmeans = KMeans(n_clusters=kmeans_clusters, random_state=3, n_init=10)
     kmeans.fit(features)
     
     for patch, label in zip(selected_patches, kmeans.labels_):
@@ -208,7 +227,7 @@ def process_slide(
         
         # Sub-cluster by spatial location
         loc_features = np.array([p['wsi_loc'] for p in cluster_patches])
-        km = KMeans(n_clusters=n_selected, random_state=42, n_init=10)
+        km = KMeans(n_clusters=n_selected, random_state=3, n_init=10)
         ds = km.fit_transform(loc_features)
         ds_labels = km.labels_
         

@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "task": "hoptimus_filter_retrieval_pilot",
+  "run_id": "SYNTHETIC_ONLY_UNBOUND_EXAMPLE",
+  "code_files": {},
+  "mosaic_bundle_assets": {
+    "review": {"asset_id": "mosaic:review105", "role": "mosaic_review", "path": "/SYNTHETIC_ONLY/REPLACE/review.json", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "size": 0},
+    "complete": {"asset_id": "mosaic:complete", "role": "mosaic_complete", "path": "/SYNTHETIC_ONLY/REPLACE/COMPLETE.json", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "size": 0},
+    "spec": {"asset_id": "mosaic:spec", "role": "mosaic_spec", "path": "/SYNTHETIC_ONLY/REPLACE/mosaic_spec.json", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "size": 0},
+    "summary": {"asset_id": "mosaic:summary", "role": "mosaic_summary", "path": "/SYNTHETIC_ONLY/REPLACE/summary.json", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "size": 0},
+    "input_bindings": {"asset_id": "mosaic:input_bindings", "role": "mosaic_input_bindings", "path": "/SYNTHETIC_ONLY/REPLACE/input_bindings.json", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "size": 0},
+    "population": {"asset_id": "mosaic:population", "role": "mosaic_population", "path": "/SYNTHETIC_ONLY/REPLACE/retrieval_population.csv", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "size": 0},
+    "offsets": {"asset_id": "mosaic:offsets", "role": "mosaic_offsets", "path": "/SYNTHETIC_ONLY/REPLACE/slide_offsets.csv", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "size": 0},
+    "mask_counts": {"asset_id": "mosaic:mask_counts", "role": "mosaic_mask_counts", "path": "/SYNTHETIC_ONLY/REPLACE/mask_counts.csv.gz", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "size": 0},
+    "coordinates": {"asset_id": "mosaic:coordinates", "role": "mosaic_coordinates", "path": "/SYNTHETIC_ONLY/REPLACE/coordinates.npy", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "size": 0},
+    "masks": [
+      {"view": {"held_out_fold": 0, "budget_percent": 5}, "asset": {"asset_id": "mosaic:mask:fold0:budget5", "role": "mosaic_mask", "path": "/SYNTHETIC_ONLY/REPLACE/fold0_budget5_mask.npy", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "size": 0}}
+    ],
+    "features": [
+      {"slide_index": 0, "asset": {"asset_id": "feature:synthetic-query", "role": "mosaic_feature", "path": "/SYNTHETIC_ONLY/REPLACE/query.pkl", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "size": 0}},
+      {"slide_index": 1, "asset": {"asset_id": "feature:synthetic-reference", "role": "mosaic_feature", "path": "/SYNTHETIC_ONLY/REPLACE/reference.pkl", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "size": 0}}
+    ]
+  },
+  "mosaic_expected": {
+    "review_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "complete_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "spec_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "run_id": "SYNTHETIC_ONLY_REPLACE_WITH_TRUSTED_FIXTURE",
+    "counts": {"slides": 2, "patients": 2, "diagnostic_groups": 1, "union_patients": 2, "feature_files": 2, "original_tiles": 4, "heads": 10, "slide_head_cells": 20, "tile_head_predictions": 40}
+  },
+  "baseline_assets": null,
+  "baseline_expected": null,
+  "runtime_assets": {
+    "expected_profile": {"asset_id": "runtime:expected", "role": "runtime_profile", "path": "/SYNTHETIC_ONLY/REPLACE/expected_profile.json", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "size": 0},
+    "implementations": []
+  },
+  "query_indices": [0],
+  "pair_requests": [
+    {"request_id": "SYNTHETIC_PAIR", "query_index": 0, "reference_index": 1, "query_fold": 0, "method": "ot_cosine", "selection": "filtered", "budget_percent": 5}
+  ],
+  "row_requests": [],
+  "limits": {"max_queries": 2, "max_pair_requests": 32, "max_row_requests": 12, "max_population_slides": 4096, "max_raw_rows_per_slide": 8192, "max_pair_cost_cells": 32000000, "max_accounted_working_bytes": 2147483648}
+}

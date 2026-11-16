@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "run_id": "EXAMPLE_REPLACE_ALL_BINDINGS_BEFORE_USE",
+  "task": "hoptimus_filter_manifest",
+  "parameters": {
+    "metadata": {
+      "id_col": "Slide.Scan.File",
+      "patient_col": "UID.Subject",
+      "label_col": "Tumor.group"
+    }
+  },
+  "expected": {
+    "raw_slides": 2921,
+    "target_slides": 2604,
+    "patients": 1800,
+    "groups": 14,
+    "cross_label_patients": 13,
+    "annotation_tiles": 468301,
+    "annotation_slides": 202,
+    "annotation_patients": 192,
+    "quarantine_tiles": 78609,
+    "quarantine_slides": 35
+  },
+  "sources": {
+    "metadata": {
+      "path": "inputs/metadata.csv",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "size": 0
+    },
+    "stage0_review": {
+      "path": "inputs/stage0/stage0_independent_review.json",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "size": 0
+    },
+    "stage0_complete": {
+      "path": "inputs/stage0/attempt/COMPLETE.json",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "size": 0
+    },
+    "stage0_inventory": {
+      "path": "inputs/stage0/attempt/inventory.csv",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "size": 0
+    },
+    "stage0_summary": {
+      "path": "inputs/stage0/attempt/summary.json",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "size": 0
+    },
+    "kernel_review": {
+      "path": "inputs/filter_kernel_independent_review.json",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "size": 0
+    },
+    "stage1a_review": {
+      "path": "inputs/stage1a/stage1a_independent_review.json",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "size": 0
+    },
+    "stage1a_complete": {
+      "path": "inputs/stage1a/attempt/COMPLETE.json",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "size": 0
+    },
+    "stage1a_eligible": {
+      "path": "inputs/stage1a/attempt/eligible_tiles.csv",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "size": 0
+    },
+    "stage1a_feature_inventory": {
+      "path": "inputs/stage1a/attempt/feature_inventory.csv",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "size": 0
+    },
+    "stage1a_summary": {
+      "path": "inputs/stage1a/attempt/summary.json",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "size": 0
+    }
+  },
+  "code_files": {
+    "runner": {
+      "path": "../prosper/evaluation/r2_1_hoptimus_filter_cli.py",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "size": 0
+    },
+    "kernel": {
+      "path": "../prosper/evaluation/r2_1_hoptimus_filter.py",
+      "sha256": "69ee54854c3abec718579ade529972d02db666df028f94d5cd2073921d24ab3c",
+      "size": 12201
+    },
+    "io": {
+      "path": "../prosper/evaluation/r2_1_hoptimus_io.py",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "size": 0
+    },
+    "legacy_io": {
+      "path": "../prosper/evaluation/feature_bank_audit.py",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "size": 0
+    },
+    "package_init": {
+      "path": "../prosper/__init__.py",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "size": 0
+    },
+    "evaluation_init": {
+      "path": "../prosper/evaluation/__init__.py",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "size": 0
+    }
+  }
+}

@@ -182,5 +182,6 @@ print(d)  # same as list_of_dicts[0] from compute_disease_probs
 
 - **Distance convention**: Smaller distance = more similar. The N **nearest** (smallest) distances are used.
 - **T**: τ is set so that the weight scale goes from 1 at the nearest neighbor to 1/T at the (N+1)-th distance (when available). Larger T → slower decay → farther neighbors matter more.
-- **Edge cases**: If the distance range is negligible, weights are effectively uniform. If total weight is zero, probabilities are set to uniform over classes.
+- **Numerical stability**: Weights are computed on distances measured *relative to the nearest neighbor* (`exp(-tau * (d - d_min))`), which realises the scale described above -- exactly 1 at the nearest neighbor. The offset cancels under normalization, but it is required in practice: on absolute distances the exponent underflows at realistic scales (OT-cosine distances ~0.5 with tau ~ 1e2), collapsing the posterior to uniform.
+- **Edge cases**: If the distance range is negligible (`gap < 1e-10`), tau = 0 and the every weight is 1, so the posterior reduces to the class frequencies among the k nearest neighbors -- the correct answer when all neighbors are equidistant. Note this is uniform *weighting*, not a uniform posterior. The zero-total branch is a defensive guard only and is unreachable, since the nearest neighbor always contributes `exp(0) == 1`.
 - **DataFrame columns**: Always sorted alphabetically by disease name.

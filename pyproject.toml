@@ -71,6 +71,7 @@ jupyter = [
     "seaborn>=0.11.0",
     "colorcet>=3.0.0",
 ]
+r21-reinhard = ["torchstain==1.4.1"]
 all = [
     "prosper[dev,jupyter]",
 ]

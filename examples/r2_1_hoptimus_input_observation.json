@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "run_id": "synthetic_observation_example",
+  "task": "hoptimus_encoded_input_observation",
+  "observer": {
+    "path": "/synthetic/input-observation/observer.py",
+    "size": 41176,
+    "sha256": "768e91414e43a86854c6e0088bdf91b2f10f1c1a3fc0a157c355b1bfa464071b"
+  },
+  "controls": {
+    "observer_review": {"path": "/synthetic/input-observation/observer_review.json", "size": 1, "sha256": "ee965236c79c9dd14de337f22670396d5c4553c5343cb20ea0f880467ddfe5a8"},
+    "metadata": {"path": "/synthetic/input-observation/metadata.csv", "size": 1, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "targets": {"path": "/synthetic/input-observation/targets.csv", "size": 1, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "cpu_review": {"path": "/synthetic/input-observation/cpu_review.json", "size": 1, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "cpu_complete": {"path": "/synthetic/input-observation/cpu_complete.json", "size": 1, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "cpu_spec": {"path": "/synthetic/input-observation/cpu_spec.json", "size": 1, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "cpu_input_bindings": {"path": "/synthetic/input-observation/cpu_input_bindings.json", "size": 1, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "stage1b_review": {"path": "/synthetic/input-observation/stage1b_review.json", "size": 1, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "stage1b_complete": {"path": "/synthetic/input-observation/stage1b_complete.json", "size": 1, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "stage1b_source_inventory": {"path": "/synthetic/input-observation/source_inventory.csv", "size": 1, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"}
+  },
+  "assets": {
+    "template": {"path": "/synthetic/input-observation/template.png", "size": 1, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "model_config": {"path": "/synthetic/input-observation/config.json", "size": 1, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "checkpoint": {"path": "/synthetic/input-observation/checkpoint.safetensors", "size": 1, "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "selected_wsi": {"path": "/PROSPER_WORKSPACE/data/comet_final_HPC/10003.svs", "size": 1, "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "slide_id": "10003"}
+  },
+  "lexical_root": "/PROSPER_WORKSPACE/data/comet_final_HPC",
+  "expected": {"raw_slides": 2921, "target_slides": 2778, "patients": 1876, "groups": 15, "cross_label_patients": 45, "tile_rows": 3835507},
+  "selection": {"selected_wsi_ids": ["10003"], "deferred_wsi_ids": ["16683"]},
+  "limits": {
+    "spec_bytes": 1048576, "source_bytes": 1048576,
+    "each_control_bytes": 8388608, "aggregate_control_bytes": 33554432,
+    "config_bytes": 65536, "config_nesting": 16,
+    "png_bytes": 1048576, "safetensors_header_bytes": 1048576,
+    "stream_block_bytes": 1048576, "each_large_asset_bytes": 6442450944,
+    "selected_two_pass_bytes": 21474836480, "stdout_packet_bytes": 16777216,
+    "issue_message_characters": 1024, "global_issue_records": 128,
+    "secondary_error_records": 32, "stderr_bytes": 65536
+  }
+}

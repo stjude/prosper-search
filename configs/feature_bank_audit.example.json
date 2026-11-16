@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "run_id": "example_trusted_local_bank_binding",
+  "metadata": {
+    "path": "../fixtures/metadata.csv",
+    "id_col": "Slide.Scan.File",
+    "patient_col": "UID.Subject",
+    "label_col": "Tumor.group"
+  },
+  "mosaic": {
+    "path": "../fixtures/mosaic.pkl",
+    "filename_suffix": ".svs",
+    "level": 0,
+    "patch_size": 512,
+    "expected_slides": 2,
+    "expected_tiles": 3
+  },
+  "banks": [
+    {
+      "name": "example_encoder_a",
+      "path": "../fixtures/features/a",
+      "feature_dim": 4,
+      "dtypes": ["float16", "float32"]
+    },
+    {
+      "name": "example_encoder_b",
+      "path": "../fixtures/features/b",
+      "feature_dim": 3,
+      "dtypes": ["float16", "float32"]
+    }
+  ],
+  "code_files": [
+    {
+      "name": "example_local_extraction_source",
+      "path": "../fixtures/extractor.py"
+    }
+  ]
+}

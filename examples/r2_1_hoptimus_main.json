@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "run_id": "example-not-a-production-declaration",
+  "task": "hoptimus_main",
+  "sources": {
+    "metadata": {"path": "BOUND_METADATA.csv", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "size": 0},
+    "stage0_review": {"path": "stage0/stage0_independent_review.json", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "size": 0},
+    "stage0_complete": {"path": "stage0/attempt/COMPLETE.json", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "size": 0},
+    "stage0_inventory": {"path": "stage0/attempt/inventory.csv", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "size": 0},
+    "stage0_summary": {"path": "stage0/attempt/summary.json", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "size": 0},
+    "kernel_review": {"path": "main_kernel_independent_review.json", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "size": 0},
+    "ranks_median_pooling": {"path": "ranked_lists_h_optimus_1_median_pooling.csv.gz", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "size": 0},
+    "ranks_sampler": {"path": "ranked_lists_h_optimus_1_sampler.csv.gz", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "size": 0},
+    "ranks_ot_cosine": {"path": "ranked_lists_h_optimus_1_ot_cosine.csv.gz", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "size": 0},
+    "ranks_yottixel": {"path": "ranked_lists_h_optimus_1_yottixel.csv.gz", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "size": 0},
+    "matrix_median_pooling": {"path": "combined_similarity_matrix_h_optimus_1_median_pooling_no_same_patient.pkl", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "size": 0},
+    "matrix_sampler": {"path": "combined_similarity_matrix_h_optimus_1_sampler_no_same_patient.pkl", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "size": 0},
+    "matrix_ot_cosine": {"path": "combined_similarity_matrix_h_optimus_1_ot_cosine_no_same_patient.pkl", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "size": 0},
+    "matrix_yottixel": {"path": "combined_similarity_matrix_h_optimus_1_yottixel_no_same_patient.pkl", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "size": 0}
+  },
+  "code_files": {
+    "runner": {"path": "../prosper/evaluation/r2_1_hoptimus_main_cli.py", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "size": 0},
+    "kernel": {"path": "../prosper/evaluation/r2_1_hoptimus_main.py", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "size": 0},
+    "io": {"path": "../prosper/evaluation/r2_1_hoptimus_io.py", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "size": 0},
+    "legacy_io": {"path": "../prosper/evaluation/feature_bank_audit.py", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "size": 0},
+    "package_init": {"path": "../prosper/__init__.py", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "size": 0},
+    "evaluation_init": {"path": "../prosper/evaluation/__init__.py", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "size": 0}
+  },
+  "parameters": {"metadata": {"id_col": "Slide.Scan.File", "patient_col": "UID.Subject", "label_col": "Tumor.group"}},
+  "expected": {"raw_slides": 2921, "target_slides": 2778, "patients": 1876, "groups": 15, "cross_label_patients": 45}
+}
