@@ -208,3 +208,7 @@ logs/
 # Stray output root created by paths.py's cwd fallback when PROSPER_OUT is unset.
 # The real output root is $PROSPER_OUT.
 revision_output/
+
+# Local configuration with personal or case-level data (see revision/config/README.md)
+revision/config/readers.local.json
+revision/config/figure_ids.local.json

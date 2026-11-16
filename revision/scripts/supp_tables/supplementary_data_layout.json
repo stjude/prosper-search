@@ -1,0 +1,370 @@
+{
+  "_comment": [
+    "Layout of the submitted supplementary tables (lead decision, 2026-11-10; Haoran: 'do what you recommended and go further toward the guideline').",
+    "npj Digital Medicine: supplementary tables are either reproduced in the single merged Supplementary Information PDF or, when too large,",
+    "supplied as Excel files labelled 'Supplementary Data N' whose title and legend appear in the PDF. The 47 Supplementary Tables keep their",
+    "S-numbers (captions, notes and manuscript citations unchanged); every table's full workbook content is shipped in one of six themed",
+    "Excel files (data_files), and the tables listed under pdf_tables are additionally reproduced as real tables in the PDF (display sheets only).",
+    "Sheet names in the Supplementary Data files are prefixed with the table number (S8_...). pdf_tables[...].columns = subset of header",
+    "names shown (None = all); decimals = float printing (default 3); landscape = page orientation (default: landscape when >= 9 columns);",
+    "stop_at_blank = stop at the first empty row (notes written below a table in the same sheet are not rendered)."
+  ],
+  "data_files": [
+    {
+      "number": 1,
+      "title": "Encoders, aggregation methods and the internal COMET benchmark",
+      "tables": [
+        "S1",
+        "S2",
+        "S3",
+        "S4",
+        "S5",
+        "S6",
+        "S7",
+        "S8",
+        "S9",
+        "S10",
+        "S35",
+        "S36",
+        "S37"
+      ]
+    },
+    {
+      "number": 2,
+      "title": "Tumor-tile filtering, query perturbations and TITAN slide search",
+      "tables": [
+        "S11",
+        "S12",
+        "S13",
+        "S14",
+        "S34",
+        "S38"
+      ]
+    },
+    {
+      "number": 3,
+      "title": "Additional query collections (STV, KidRare, CCDI-MCI): cohorts, retrieval and diagnosis mapping",
+      "tables": [
+        "S15",
+        "S16",
+        "S17",
+        "S18",
+        "S19",
+        "S20",
+        "S21",
+        "S22",
+        "S23",
+        "S33"
+      ]
+    },
+    {
+      "number": 4,
+      "title": "Localization: Optimal Transport class decomposition and ROI heat-map studies",
+      "tables": [
+        "S24",
+        "S25"
+      ]
+    },
+    {
+      "number": 5,
+      "title": "Bayesian tumor-group probabilities and the summary pilot: model, neighbor labels, probability matrices and pilot endpoints",
+      "tables": [
+        "S26",
+        "S27",
+        "S28",
+        "S29",
+        "S30",
+        "S48"
+      ]
+    },
+    {
+      "number": 6,
+      "title": "Blinded before/after reader study",
+      "tables": [
+        "S31",
+        "S32",
+        "S39",
+        "S40",
+        "S41",
+        "S42",
+        "S43",
+        "S44",
+        "S45",
+        "S46",
+        "S47"
+      ]
+    }
+  ],
+  "pdf_tables": {
+    "S1": [
+      {
+        "sheet": "encoders",
+        "landscape": true
+      }
+    ],
+    "S2": [
+      {
+        "sheet": "Sheet1"
+      }
+    ],
+    "S5": [
+      {
+        "sheet": "Block_A",
+        "label": "Block A",
+        "columns": [
+          "row label (spec)",
+          "macro hit@5",
+          "micro hit@5",
+          "macro precision@5",
+          "micro precision@5",
+          "macro hit@10",
+          "notes"
+        ],
+        "landscape": true
+      },
+      {
+        "sheet": "Block_B",
+        "label": "Block B",
+        "columns": [
+          "row label (spec)",
+          "macro hit@5",
+          "micro hit@5",
+          "macro precision@5",
+          "micro precision@5",
+          "macro hit@10",
+          "notes"
+        ],
+        "landscape": true
+      },
+      {
+        "sheet": "Block_C",
+        "label": "Block C",
+        "columns": [
+          "row label (spec)",
+          "macro hit@5",
+          "micro hit@5",
+          "macro precision@5",
+          "micro precision@5",
+          "macro hit@10",
+          "notes"
+        ],
+        "landscape": true
+      }
+    ],
+    "S6": [
+      {
+        "sheet": "upper block",
+        "label": "Upper block: point estimates",
+        "landscape": true
+      },
+      {
+        "sheet": "lower block 95% CI",
+        "label": "Lower block: 95% whole-patient intervals",
+        "landscape": true
+      }
+    ],
+    "S7": [
+      {
+        "sheet": "S7 plurality@5",
+        "label": "(a) Plurality vote over the five nearest slides",
+        "landscape": true
+      },
+      {
+        "sheet": "S7b strict@5 + Abstain",
+        "label": "(b) Strict majority (at least 3 of 5) with abstention",
+        "landscape": true
+      },
+      {
+        "sheet": "S7c top-1 (optional)",
+        "label": "(c) Nearest slide (top-1)",
+        "landscape": true
+      }
+    ],
+    "S8": [
+      {
+        "sheet": "S8",
+        "label": "Retrieval metrics",
+        "columns": [
+          "Metric",
+          "Micro (slide queries) [95% CI]",
+          "Macro (15 labels) [95% CI]"
+        ]
+      },
+      {
+        "sheet": "S8b_paired",
+        "label": "Paired differences",
+        "columns": [
+          "Paired difference (same resampled patients)",
+          "Estimate [95% CI]"
+        ]
+      },
+      {
+        "sheet": "S8_F1_k5",
+        "label": "Vote rules at k = 5",
+        "columns": [
+          "Rule",
+          "Macro F1 (15 labels)",
+          "Micro F1",
+          "Note"
+        ]
+      }
+    ],
+    "S9": [
+      {
+        "sheet": "S9 body",
+        "landscape": true
+      }
+    ],
+    "S11": [
+      {
+        "sheet": "Sheet1_within_vs_slide_held",
+        "label": "Block A: submitted within-slide AUROC beside the slide-held-out re-evaluation (UNI2 classifier)"
+      },
+      {
+        "sheet": "Sheet2_TF2_cross_fitted",
+        "label": "Block B: patient-held-out linear tumor classifiers, tumor-versus-rest"
+      },
+      {
+        "sheet": "Sheet2b_TF2_AUROC_by_class",
+        "label": "Block B (continued): cross-fitted AUROC by class",
+        "landscape": true
+      }
+    ],
+    "S12": [
+      {
+        "sheet": "Part1",
+        "label": "Part 1: all 28 macro cells, primary handling (a non-returned query scored as a miss)",
+        "landscape": true
+      },
+      {
+        "sheet": "Part2",
+        "label": "Part 2: the same 28 cells, secondary handling (non-returned queries dropped)"
+      },
+      {
+        "sheet": "Part3",
+        "label": "Part 3: per-group table for the pre-named headline cell (UNI2, Optimal Transport, both-sided, 100% of labels)"
+      }
+    ],
+    "S13": [
+      {
+        "sheet": "Part1",
+        "label": "Part 1: filtered minus all-tissue, macro over 14 groups, k = 5",
+        "landscape": true
+      },
+      {
+        "sheet": "Part2",
+        "label": "Part 2: label budget, 5% minus 100%, within encoder, method and arm, k = 5"
+      },
+      {
+        "sheet": "Part3",
+        "label": "Part 3: arm, query-only minus both-sided, within encoder, method and budget, k = 5"
+      }
+    ],
+    "S17": [
+      {
+        "sheet": "S17 table"
+      }
+    ],
+    "S19": [
+      {
+        "sheet": "matrix",
+        "label": "Supplied diagnosis by top-five plurality group",
+        "landscape": true
+      },
+      {
+        "sheet": "cells",
+        "label": "Non-empty cells"
+      }
+    ],
+    "S26": [
+      {
+        "sheet": "S26_heldout2604",
+        "label": "Primary patient-held-out-filter analysis (2,604 tumor queries)",
+        "landscape": true,
+        "decimals": 3,
+        "font_pt": 7
+      },
+      {
+        "sheet": "model_comparison_2766",
+        "label": "Historical submitted-filter comparison (2,766 query slides)",
+        "landscape": true,
+        "stop_at_blank": true,
+        "decimals": 3,
+        "font_pt": 7
+      },
+      {
+        "sheet": "calibration_summary",
+        "label": "Calibration summary (2,778 all-tissue queries; k = 5 and 18)",
+        "decimals": 3
+      }
+    ],
+    "S31": [
+      {
+        "sheet": "reader_case_flow",
+        "landscape": true
+      },
+      {
+        "sheet": "case_composition",
+        "label": "Composition of the shared 80-case list"
+      }
+    ],
+    "S32": [
+      {
+        "sheet": "primary_endpoints",
+        "label": "Primary endpoints per reader (the three-step trajectory is in the workbook)",
+        "landscape": true,
+        "decimals": 3
+      }
+    ],
+    "S34": [
+      {
+        "sheet": "panel_A_points",
+        "label": "Panel A: point estimates by arm",
+        "landscape": true
+      },
+      {
+        "sheet": "panel_B_differences",
+        "label": "Panel B: paired differences [95% CI]; bold marks intervals excluding zero",
+        "landscape": true
+      },
+      {
+        "sheet": "panel_C_groups_excl_zero",
+        "label": "Panel C: per-group intervals excluding zero"
+      },
+      {
+        "sheet": "panel_D_not_encoded",
+        "label": "Panel D: slides not encoded, by arm"
+      }
+    ],
+    "S36": [
+      {
+        "sheet": "block_B_k1_3_10_points",
+        "label": "Block B: k = 1, 3 and 10 (Block A, k = 5 with intervals, is in the workbook)",
+        "columns": [
+          "rule",
+          "k",
+          "Excluded (published)",
+          "Left in",
+          "interval"
+        ]
+      }
+    ],
+    "S37": [
+      {
+        "sheet": "consistency",
+        "landscape": true,
+        "font_pt": 7
+      }
+    ],
+    "S38": [
+      {
+        "sheet": "panel_A_unannotated",
+        "label": "Panel A: queries from unannotated patients; bold marks intervals excluding zero"
+      },
+      {
+        "sheet": "panel_A_note_excl_zero",
+        "label": "Panel A (note): per-group intervals excluding zero"
+      }
+    ]
+  }
+}

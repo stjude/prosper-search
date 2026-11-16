@@ -1,0 +1,34 @@
+{
+  "_comment": "Synthetic example. Copy to figure_ids.local.json (git-ignored) and replace the values with the slide IDs from the restricted COMET metadata (Slide.Scan.File -> Comp.Bio.ID; scripts/figures/scan_to_slide_id.py re-verifies them), or point PROSPER_FIGURE_IDS at such a file.",
+  "scan_to_slide_id": {
+    "4288": "SJEXAMPLE000001_D1",
+    "4298": "SJEXAMPLE000002_D1",
+    "7292": "SJEXAMPLE000003_D1",
+    "7330": "SJEXAMPLE000004_D1",
+    "7333": "SJEXAMPLE000005_D1",
+    "7347": "SJEXAMPLE000006_D1",
+    "7443": "SJEXAMPLE000007_D1",
+    "7899": "SJEXAMPLE000008_D1",
+    "7965": "SJEXAMPLE000009_D1",
+    "7968": "SJEXAMPLE000010_D1",
+    "10108": "SJEXAMPLE000011_D1",
+    "10111": "SJEXAMPLE000012_D1",
+    "10113": "SJEXAMPLE000013_D1",
+    "12151": "SJEXAMPLE000014_D1",
+    "15155": "SJEXAMPLE000015_D1",
+    "15182": "SJEXAMPLE000016_D1",
+    "16039": "SJEXAMPLE000017_D1",
+    "16676": "SJEXAMPLE000018_D1",
+    "16867": "SJEXAMPLE000019_D1",
+    "16875": "SJEXAMPLE000020_D1",
+    "17284": "SJEXAMPLE000021_D1"
+  },
+  "fig3_example_patient": "EXAMPLEPT",
+  "fig5_expected_ids": {
+    "16875": "SJEXAMPLE000020_D1",
+    "16867": "SJEXAMPLE000019_D1",
+    "15155": "SJEXAMPLE000015_D1",
+    "7333": "SJEXAMPLE000005_D1",
+    "7330": "SJEXAMPLE000004_D1"
+  }
+}

@@ -1,0 +1,134 @@
+"""Write $PROSPER_OUT/s5c_pilot_round2_20261110/INSTRUCTION_DIFF.md: round-1 vs round-2 fixed
+instruction (unified diff of the exact prompt strings, one rule per line), plus the code diff of the
+vendored summariser (precomputed statistics and text templates). No model call; reads only."""
+from __future__ import annotations
+
+import difflib
+import hashlib
+import importlib.machinery
+import importlib.util
+import json
+import os
+import re
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+R1 = HERE / "summarizer_r2" / "round1_reference"
+R2 = HERE / "summarizer_r2" / "src" / "patho_toy_summarizer"
+OUT = Path(os.environ.get("PROSPER_OUT", HERE.parents[1] / "prosper_revision_output")) / "s5c_pilot_round2_20261110"
+ROUND1_META = OUT.parent / "s5b_pilot_20261009" / "run" / "meta.json"
+
+
+def sha(s: str) -> str:
+    return hashlib.sha256(s.encode("utf-8")).hexdigest()
+
+
+def fsha(p: Path) -> str:
+    return hashlib.sha256(p.read_bytes()).hexdigest()
+
+
+def load(path: Path, name: str):
+    spec = importlib.util.spec_from_loader(name, importlib.machinery.SourceFileLoader(name, str(path)))
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)          # grounding.py has no package-relative imports
+    return m
+
+
+def lines(prompt: str) -> list:
+    """One line per rule/paragraph: the prompt's own newlines (rules are newline-terminated)."""
+    return prompt.split("\n")
+
+
+def derived_stats_section() -> list:
+    """Round-2 derived_stats (vendored module) vs the derived_stats actually sent in round 1 (user message of
+    each round-1 A0 call), and the rest of the user message (payload, constraints) byte-equal."""
+    import sys
+    sys.path.insert(0, str(R2.parent))
+    from patho_toy_summarizer import llm as pll2          # noqa: WPS433
+    assert Path(pll2.__file__).resolve() == (R2 / "llm.py").resolve()
+    run1 = ROUND1_META.parent
+    rows, same_rest, same_other = [], 0, 0
+    for f in sorted(run1.glob("responses/*_a0_masked_posterior_0.json"), key=lambda p: int(p.name.split("_")[0])):
+        q = f.name.split("_")[0]
+        calls = json.loads(f.read_text())["calls"]
+        um = json.loads(calls[0]["request"]["messages"][1]["content"])
+        payload = json.loads((run1 / "payloads" / f.name).read_text())
+        d1 = um["derived_stats"]
+        d2 = pll2._derive_stats_from_payload(payload)[0]
+        other1 = {k: v for k, v in d1.items() if k != "discrepant_count"}
+        other2 = {k: v for k, v in d2.items() if k not in ("discrepant_count", "differing_count")}
+        same_other += other1 == other2
+        same_rest += (um["payload"] == payload and um["constraints"] == {"target_max_words": 200})
+        n_flag = sum(str(n.get("discrepant", "")).upper() == "Y" for n in payload["neighbors"])
+        rows.append(f"| {q} | {d1['discrepant_count']} | {d2['differing_count']} | {d2['discrepant_count']} | {n_flag} |")
+    n = len(rows)
+    return ["## derived_stats sent beside the payload: round 1 (captured) vs round 2 (vendored module)", "",
+            f"Over the {n} round-1 A0 requests: payload and constraints of the round-1 user message equal the "
+            f"payload file in {same_rest}/{n}; every derived_stats key other than the discrepant counts is equal "
+            f"in {same_other}/{n}. Round 2 adds `differing_count` and restricts `discrepant_count` to flag == 'Y'.",
+            "", "| query | round 1 discrepant_count (differing or Y) | round 2 differing_count | "
+            "round 2 discrepant_count (Y only) | neighbours with discrepant == 'Y' |", "|---|---|---|---|---|",
+            *rows, ""]
+
+
+def main() -> None:
+    g1 = load(R1 / "grounding.py.round1", "grounding_round1")
+    g2 = load(R2 / "grounding.py", "grounding_round2")
+    meta = json.loads(ROUND1_META.read_text())
+    p1, p2 = g1.GROUNDED_SYSTEM_PROMPT_NEIGHBORS, g2.GROUNDED_SYSTEM_PROMPT_NEIGHBORS
+    s1, s2 = g1.STYLE_REVISION_INSTRUCTION, g2.STYLE_REVISION_INSTRUCTION
+    rec1 = meta["prompt_sha256_module"]
+    assert sha(p1) == rec1["GROUNDED_SYSTEM_PROMPT_NEIGHBORS"], "round-1 reference prompt != executed"
+    assert sha(s1) == rec1["STYLE_REVISION_INSTRUCTION"] and s1 == s2, "style-revision instruction changed"
+    assert meta["sessions"][0]["captured_prompts_match_module"]["system_prompt"] is True
+    d = list(difflib.unified_diff(lines(p1), lines(p2), "round 1 (executed 2026-10-11)",
+                                  "round 2 (S5c, pass 031)", lineterm="", n=1))
+    code = []
+    for f in ("llm.py", "grounding.py"):
+        code += list(difflib.unified_diff((R1 / f"{f}.round1").read_text().splitlines(),
+                                          (R2 / f).read_text().splitlines(),
+                                          f"round1/{f}", f"round2/{f}", lineterm="", n=2))
+    n_rules1 = len(re.findall(r"^\d+\. ", p1, re.M))
+    n_rules2 = len(re.findall(r"^\d+\. ", p2, re.M))
+    L = ["# S5c round 2 -- fixed instruction, round 1 vs round 2", "",
+         "Generated by `scripts/llm_pilot_round2/make_instruction_diff.py` from the prompt strings themselves "
+         "(round 1: `summarizer_r2/round1_reference/grounding.py.round1`, a byte copy of the executed "
+         f"prosper-search `grounding.py` {fsha(R1 / 'grounding.py.round1')[:16]}…; round 2: the vendored "
+         f"`summarizer_r2/src/patho_toy_summarizer/grounding.py` {fsha(R2 / 'grounding.py')[:16]}…).", "",
+         "| string | round 1 sha256 | round 2 sha256 | changed |", "|---|---|---|---|",
+         f"| `GROUNDED_SYSTEM_PROMPT_NEIGHBORS` (developer message) | `{sha(p1)}` | `{sha(p2)}` | yes |",
+         f"| `STYLE_REVISION_INSTRUCTION` (revision call) | `{sha(s1)}` | `{sha(s2)}` | no |", "",
+         f"Round-1 hash equals `run/meta.json` `prompt_sha256_module` and the developer message captured in "
+         f"every round-1 call. Numbered rules: {n_rules1} → {n_rules2}.", "",
+         "What changed (everything else in the instruction is byte-identical):", "",
+         "1. **Fix (a), rule 13:** neighbours whose diagnosis or tumor group differs from the most frequent one "
+         "are called \"differing\"; \"discrepant\" only for a record with discrepant == 'Y'.",
+         "2. **Fix (b), new rule 18:** describe the neighbours and their probabilities; do not state or imply "
+         "the current case's diagnosis (no \"leading consideration\", \"supports X as the diagnosis\" or similar).",
+         "3. **Score-line rename, rule 15:** \"Bayesian disease probabilities\" → \"Bayesian tumor-group "
+         "probabilities\" (the only place the instruction names the score line).",
+         "4. **Consequential, rule 5:** its example phrase \"'supports ... as the leading consideration'\" is "
+         "removed (it is the conclusion rule 18 forbids); the rule itself is unchanged.",
+         "5. **Consequential, worked example:** \"The NB case is the only discrepant neighbor\" → \"… only "
+         "differing neighbor\" (the example gives no flag for the NB case, so under rule 13 it is differing).", "",
+         "## Unified diff of the instruction (one line per rule; developer message)", "", "```diff", *d, "```", "",
+         "## Code diff of the vendored summariser (statistics passed to the model and text templates)", "",
+         "`derived_stats` (sent to the model beside the payload; the payload itself is unchanged): the round-1 "
+         "`discrepant_count` counted differing OR flagged neighbours; round 2 sends `differing_count` (diagnosis "
+         "differs from the most frequent diagnosis, the round-1 computation without the flag clause) and "
+         "`discrepant_count` (flag == 'Y' only). Templates: the offline fake summary's \"Discrepant neighbors: "
+         "…\"/\"No discrepant neighbors detected.\" become \"Differing neighbors: …\"/\"No differing neighbors "
+         "detected.\" plus a flag-only sentence; the legacy stats-path fake sentence likewise. The \"Highest "
+         "probability … for …\" templates are unchanged: they report a neighbour-level `probability` field, not "
+         "the Bayesian score line, and never fire in A0 (A0 neighbours carry `similarity`). No verifier, "
+         "parser, citation or rejection rule changed.", "", "```diff", *code, "```", ""]
+    L += derived_stats_section()
+    OUT.mkdir(parents=True, exist_ok=True)
+    (OUT / "INSTRUCTION_DIFF.md").write_text("\n".join(L))
+    (OUT / "instruction_round2.txt").write_text(p2)
+    print(json.dumps({"round1_prompt_sha256": sha(p1), "round2_prompt_sha256": sha(p2),
+                      "style_revision_sha256": sha(s2), "out": str(OUT / "INSTRUCTION_DIFF.md")}, indent=1))
+
+
+if __name__ == "__main__":
+    main()

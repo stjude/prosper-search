@@ -1,0 +1,21 @@
+{
+  "fig8_reader_order": ["reader.one", "reader.two", "reader.three", "reader.four", "reader.five"],
+  "expertise_tier": {
+    "reader.one": "expert",
+    "reader.two": "expert",
+    "reader.three": "general",
+    "reader.four": "general",
+    "reader.five": "general"
+  },
+  "excluded_readers": [
+    "dev.one", "dev.two", "dev.three", "dev.four", "dev.five",
+    "jane.doe", "test.user", "demo.reader"
+  ],
+  "curator": "reader.two",
+  "export_checks": {
+    "prod_export_20261027-101111": {
+      "counts": {"reader.one": [80, 80, 80], "reader.two": [32, 32, 32]},
+      "material_matches": {"reader.one": 160, "reader.two": 60}
+    }
+  }
+}
