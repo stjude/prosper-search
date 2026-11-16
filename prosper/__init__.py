@@ -27,7 +27,7 @@ Usage:
     print(ProsperPipeline.list_available_models())
 
 Author: Haoran Chen
-License: MIT
+License: Apache-2.0
 """
 
 __version__ = "1.0.0"

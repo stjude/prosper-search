@@ -11,3 +11,7 @@ You may obtain a copy of the License at
 
 This project depends on third-party libraries distributed under their own
 licenses. See each dependency's project page and LICENSE file for details.
+
+prosper/evaluation/r2_1_hoptimus_reinhard.py adapts code from torchstain
+(Copyright (c) 2020 EIDOSlab), distributed under the MIT License; the full
+MIT licence text is reproduced in that file.
