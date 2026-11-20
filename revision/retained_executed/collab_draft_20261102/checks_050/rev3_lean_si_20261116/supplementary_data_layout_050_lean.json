@@ -1,0 +1,98 @@
+{
+ "_comment": "Pass 050 third in-place revision (2026-11-16): supplementary_data_layout_050.json with pdf_tables emptied (no table is printed in the Supplementary Information; the tables are in Supplementary Data 1-6 only). data_files and sheet_overrides unchanged. | [\"Layout of the submitted supplementary tables (lead decision, 2026-11-10; Haoran: 'do what you recommended and go further toward the guideline').\", \"npj Digital Medicine: supplementary tables are either reproduced in the single merged Supplementary Information PDF or, when too large,\", \"supplied as Excel files labelled 'Supplementary Data N' whose title and legend appear in the PDF. The 47 Supplementary Tables keep their\", \"S-numbers (captions, notes and manuscript citations unchanged); every table's full workbook content is shipped in one of six themed\", \"Excel files (data_files), and the tables listed under pdf_tables are additionally reproduced as real tables in the PDF (display sheets only).\", \"Sheet names in the Supplementary Data files are prefixed with the table number (S8_...). pdf_tables[...].columns = subset of header\", \"names shown (None = all); decimals = float printing (default 3); landscape = page orientation (default: landscape when >= 9 columns);\", \"stop_at_blank = stop at the first empty row (notes written below a table in the same sheet are not rendered).\"] | pass 043 copy (checks_043/reproduction): Supplementary Data 5 title changed from 'Bayesian tumor-group probabilities and the summary pilot: model, neighbor labels, probability matrices and pilot endpoints' because S48 now leads with the ratings of the 80 summaries shown to readers (FIXLIST_043 D); data_files tables and pdf_tables unchanged. | pass 048 copy (checks_048): data_files and pdf_tables unchanged; explicit sheet_overrides for the renamed/added reader-study sheets (the names equal the default S#_<sheet> rule) besides the builder's built-in S26/S48 overrides.",
+ "data_files": [
+  {
+   "number": 1,
+   "title": "Encoders, aggregation methods and the internal COMET benchmark",
+   "tables": [
+    "S1",
+    "S2",
+    "S3",
+    "S4",
+    "S5",
+    "S6",
+    "S7",
+    "S8",
+    "S9",
+    "S10",
+    "S35",
+    "S36",
+    "S37"
+   ]
+  },
+  {
+   "number": 2,
+   "title": "Tumor-tile filtering, query perturbations and TITAN slide search",
+   "tables": [
+    "S11",
+    "S12",
+    "S13",
+    "S14",
+    "S34",
+    "S38"
+   ]
+  },
+  {
+   "number": 3,
+   "title": "Additional query collections (STV, KidRare, CCDI-MCI): cohorts, retrieval and diagnosis mapping",
+   "tables": [
+    "S15",
+    "S16",
+    "S17",
+    "S18",
+    "S19",
+    "S20",
+    "S21",
+    "S22",
+    "S23",
+    "S33"
+   ]
+  },
+  {
+   "number": 4,
+   "title": "Localization: Optimal Transport class decomposition and ROI heat-map studies",
+   "tables": [
+    "S24",
+    "S25"
+   ]
+  },
+  {
+   "number": 5,
+   "title": "Bayesian tumor-group probabilities and LLM summary checks: model, neighbor labels, probability matrices and summary-rating endpoints",
+   "tables": [
+    "S26",
+    "S27",
+    "S28",
+    "S29",
+    "S30",
+    "S48"
+   ]
+  },
+  {
+   "number": 6,
+   "title": "Blinded before/after reader study",
+   "tables": [
+    "S31",
+    "S32",
+    "S39",
+    "S40",
+    "S41",
+    "S42",
+    "S43",
+    "S44",
+    "S45",
+    "S46",
+    "S47",
+    "S49"
+   ]
+  }
+ ],
+ "pdf_tables": {},
+ "sheet_overrides": {
+  "S26/calibration_reliability_bins": "S26_calibration_bins",
+  "S48/reader_study_summaries_checks": "S48_reader_summaries_checks",
+  "S39/confidence_change": "S39_confidence_change",
+  "S41/engagement_post_hoc": "S41_engagement_post_hoc",
+  "S41/endpoints_engaged_post_hoc": "S41_endpoints_engaged_post_hoc"
+ }
+}

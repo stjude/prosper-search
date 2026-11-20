@@ -43,16 +43,17 @@ LLM summary"; "Step 1/2/3" never appears on the figure (2026-10-28).
 
 Sources (accepted, read-only; nothing recomputed here) — the five-reader run of the
 pipeline (scripts/reader_study/analyze.py at HEAD c30e238; build_readings.py with the uncommitted
-revision population-check fix) on export prod_export_20261114-095616 (readers <reader-login>,
-<reader-login>, <reader-login>, <reader-login>, <reader-login>; 80/80/73/6/80 readings = 319; tiers expert,
-expert, general, general, general — Reader 5's tier assigned on 2026-11-08, plan 003
-amendment 009; interim look: Reader 3 at 73/80, plan 003 amendment 014):
-  $PROSPER_OUT/reader_study_suite/analysis/20261114_prod_export_20261114-095616_five_readers/
+revision population-check fix; final run at HEAD 3e8b5c3) on export prod_export_20261116-085036, the
+"reading stopped" export (readers <reader-login>, <reader-login>, <reader-login>, <reader-login>, <reader-login>;
+80 readings each = 400; tiers expert, expert, general, general, general — Reader 5's tier assigned by
+the author 2026-11-08, plan 003 amendment 009; final run registered in plan 003 amendment 018):
+  $PROSPER_OUT/reader_study_suite/analysis/20261116_prod_export_20261116-085036_five_readers/
     readings.csv (sha256 asserted equal to analyze_run.json `readings_sha256`),
     analyze_run.json and every table below (sha256 asserted equal to the run's OUTPUTS_SHA256),
     tables/{T2_primary_endpoints,T3_outcome_classes,T4_strata_5_3,S1_trajectory_5_1,
             T6_reading_time_5_6,S2_confidence_5_2}.csv  — every drawn value is asserted equal to them.
-(Earlier runs: 20261027_prod_export_20261027-101111_two_readers, 20261102_prod_export_20261102-090640,
+(Earlier runs: 20261114_prod_export_20261114-095616_five_readers (80/80/73/6/80) — archived in
+v9_20261114_five_readers_1114_export/; 20261027_prod_export_20261027-101111_two_readers, 20261102_prod_export_20261102-090640,
 20261106_prod_export_20261106-090432 — its render archived in v6_20261106_four_readers_1106_export/;
 20261108_prod_export_20261108-114240, the four-reader run of that export — its render archived in
 v7_20261108_four_readers_1108_export/; 20261108_prod_export_20261108-114240_five_readers (80/80/45/6/15)
@@ -129,15 +130,15 @@ from _common import GREY, out_dir, prosper_out, save, style, write_provenance  #
 from figS1_S2_neighbor_ladder import legibility, visible_texts  # noqa: E402
 
 FIGURE = "fig8_reader_study"
-ANALYSIS_DEFAULT = "reader_study_suite/analysis/20261114_prod_export_20261114-095616_five_readers"
+ANALYSIS_DEFAULT = "reader_study_suite/analysis/20261116_prod_export_20261116-085036_five_readers"
 READERS_DEFAULT = ",".join(READER_CONFIG["fig8_reader_order"])  # Reader 1..5 order
 TABLES = ("T2_primary_endpoints", "T3_outcome_classes", "T4_strata_5_3", "S1_trajectory_5_1", "T6_reading_time_5_6",
           "S2_confidence_5_2")
 WIDTH_IN = 180 / 25.4
 # revision ([internal record] 2026-11-14 15:23 CST): stored tier code "general" (plan 003 amendments 006/009)
 # is displayed as "trainee-level pathologist"; the codes, row order and readings are unchanged.
-TIER_LABEL = {"expert": "pediatric pathologist", "general": "trainee-level pathologist", "trainee": "resident"}
-TIER_PLURAL = {"expert": "pediatric pathologists", "general": "trainee-level pathologists", "trainee": "residents"}
+TIER_LABEL = {"expert": "experienced pathologist", "general": "trainee-level pathologist", "trainee": "resident"}
+TIER_PLURAL = {"expert": "experienced pathologists", "general": "trainee-level pathologists", "trainee": "residents"}
 OUT_ROOT: Path | None = None  # --out-root: write composites/panels under <root>/<figure> instead of figures_20261021
 
 
@@ -231,7 +232,7 @@ def panel_a(ax, rows: list[dict], r: pd.DataFrame):
 
     rd = ", ".join(f"{d['label']} {d['n']}" for d in rows)
     # revision: one common case list; readers could choose the reading order, so no "fixed order" claim
-    # revision: "shared 80-case list" (Readers 3 and 4 read 73 and 6), "STV", "proportion of readings" (label-only)
+    # revision: "shared 80-case list", "STV", "proportion of readings" (label-only); final export: every reader read all 80
     ax.text(0, 99, f"shared {n_cases}-case list for all readers ({coh.get('CCDI', 0)} CCDI-MCI, {coh.get('STV', 0)} STV), reference label hidden",
             fontsize=6, va="top")
     # reader numbers grouped by expertise tier (rows are already in tier order), e.g. with five readers
@@ -462,6 +463,28 @@ def panel_b_small(axes, rows, T, r) -> pd.DataFrame:
 
 STEP_MK = [("A", "o", False), ("B", "o", True), ("C", "D", True)]  # (step, marker, filled)
 
+# Retrieved labels without a reader on the same cases (plan 003 amendment 021; set by main() from --search-alone).
+# When set, panel B `rows` shows a band from the nearest-slide count to the plurality-of-five count, a dotted line
+# at the hit@5 count, and labels its left axis in number of cases (plotted positions unchanged).
+SEARCH_ALONE: dict | None = None
+SEARCH_BAND_COL = "#d9f0d3"
+
+
+def load_search_alone(search_dir: Path, r: pd.DataFrame) -> tuple[dict, pd.DataFrame]:
+    """Counts from V1_search_alone.csv (scripts/reader_study/search_vs_reader.py), all 80 cases; the nearest-slide
+    and hit@5 counts are asserted against the locked covariates of readings.csv."""
+    v1 = pd.read_csv(search_dir / "V1_search_alone.csv")
+    v1 = v1[v1.case_set == "all 80"].replace({"search_criterion": {"hit@5 (shortlist)": "hit5"}})
+    v1 = v1[v1.search_criterion.isin(["top1", "plurality5", "hit5"])].set_index("search_criterion")
+    cases = r.drop_duplicates("case_id")
+    true = lambda s: int(s.astype(str).str.lower().eq("true").sum())
+    assert len(cases) == int(v1.loc["top1", "n"]) == int(v1.loc["plurality5", "n"]) == int(v1.loc["hit5", "n"])
+    assert true(cases.top1_correct) == int(v1.loc["top1", "k"]) and true(cases.hit5) == int(v1.loc["hit5", "k"])
+    assert v1.loc["top1", "k"] <= v1.loc["plurality5", "k"] <= v1.loc["hit5", "k"]
+    s = {k: int(v1.loc[k, "k"]) for k in ("top1", "plurality5", "hit5")}
+    s["n"] = int(v1.loc["top1", "n"])
+    return s, v1.loc[["top1", "plurality5", "hit5"], ["k", "n", "estimate", "boot95_lo", "boot95_hi"]].reset_index()
+
 
 def panel_b_rows(axes, rows, T, r) -> pd.DataFrame:
     """rows: readers as rows (same order/labels as C–F). Left: proportion at Step 1 (hollow) →
@@ -505,8 +528,21 @@ def panel_b_rows(axes, rows, T, r) -> pd.DataFrame:
                Line2D([], [], color=COL_FAV, lw=1.0, label="favored diagnosis = reference label"),
                Line2D([], [], color=COL_DIFF_EDGE, lw=0.7, ls=":", marker="o", mfc="white", mec=COL_DIFF_EDGE, mew=0.7, ms=3.2,
                       label="reference label in differential")]
-    ax.legend(handles=handles, loc="lower left", bbox_to_anchor=(0.0, 1.0), fontsize=6, frameon=False, handlelength=1.6,
-              borderaxespad=0, ncol=2, columnspacing=1.0)
+    if SEARCH_ALONE:
+        s, n = SEARCH_ALONE, SEARCH_ALONE["n"]
+        assert all(int(v["fav"][0].n) == n for v in vals), "the case-count axis needs every reader on the same cases"
+        ax.axvspan(s["top1"] / n, s["plurality5"] / n, color=SEARCH_BAND_COL, lw=0, zorder=0)
+        ax.axvline(s["hit5"] / n, color=COL_DIFF_EDGE, lw=0.8, ls=":", zorder=1)
+        ticks = [k for k in range(0, n + 1, 20) if k / n >= lo]
+        ax.set_xticks([k / n for k in ticks])
+        ax.set_xticklabels([str(k) for k in ticks])
+        ax.set_xlabel(f"number of cases (of {n})", fontsize=6.5)
+        # the three stage markers stay alone in the first key column (empty entry in its fourth row)
+        handles = (handles[:3] + [Line2D([], [], ls="none", label="")] + handles[3:]
+                   + [Patch(facecolor=SEARCH_BAND_COL, edgecolor="none", label="search alone: nearest slide to vote of 5"),
+                      Line2D([], [], color=COL_DIFF_EDGE, lw=0.8, ls=":", label="search alone: reference label in 5 nearest")])
+    ax.legend(handles=handles, labels=[h.get_label() for h in handles], loc="lower left", bbox_to_anchor=(0.0, 1.0),
+              fontsize=6, frameon=False, handlelength=1.6, borderaxespad=0, ncol=2, columnspacing=1.0)
     return pd.DataFrame(src)
 
 
@@ -1409,14 +1445,20 @@ def main():
                          "working panels D, F, G lettered A, B, C")
     ap.add_argument("--out-root", default=None,
                     help="write under <out-root>/fig8_reader_study/ instead of $PROSPER_OUT/figures_20261021/ (pass 041)")
+    ap.add_argument("--search-alone", default=None,
+                    help="output directory of scripts/reader_study/search_vs_reader.py; adds the retrieved labels "
+                         "without a reader to panel B `rows` (plan 003 amendment 021; pass 050)")
     args = ap.parse_args()
-    global OUT_ROOT
+    global OUT_ROOT, SEARCH_ALONE
     OUT_ROOT = Path(args.out_root) if args.out_root else None
     analysis = Path(args.analysis)
     readers = [x.strip() for x in args.readers.split(",") if x.strip()]
     style()
     r, T, run, tiers = load(analysis, readers)
     rows = reader_rows(readers, tiers, r)
+    band = None
+    if args.search_alone:
+        SEARCH_ALONE, band = load_search_alone(Path(args.search_alone), r)
 
     facts = []
     for dd in rows:
@@ -1447,6 +1489,13 @@ def main():
         "time-to-diagnosis; outcome classes per plan 002 §3.3 with confirm split per 003 §B1. Descriptive; no test."
     )
     inputs = [analysis / "readings.csv", analysis / "analyze_run.json"] + [analysis / "tables" / f"{k}.csv" for k in TABLES]
+    if SEARCH_ALONE:
+        inputs.append(Path(args.search_alone) / "V1_search_alone.csv")
+        note += (f" Panel B also shows the retrieved labels without a reader on the same {SEARCH_ALONE['n']} cases (exploratory, "
+                 f"added after the reader results; plan 003 amendment 021): band from {SEARCH_ALONE['top1']} (nearest reference "
+                 f"slide in the reference group) to {SEARCH_ALONE['plurality5']} (plurality vote over the five nearest, count ties "
+                 f"to the nearest-ranked label), dotted line at {SEARCH_ALONE['hit5']} (reference group among the five nearest); "
+                 "left axis labelled in number of cases; source_data_panelB_search_band.csv.")
     panels = [] if args.panels.lower() == "none" else [(p.strip().upper() if len(p.strip()) <= 2 else p.strip()) for p in args.panels.split(",") if p.strip()]
     b_variants = [v.strip() for v in args.b_variants.split(",") if v.strip()]
     e_variants = [v.strip() for v in args.e_variants.split(",") if v.strip()]
@@ -1463,6 +1512,8 @@ def main():
     if args.compose:
         cpanels = tuple(p.strip().upper() for p in args.compose_panels.split(",") if p.strip())
         fig, srcs, layout, H = compose(rows, T, r, b_variants[0], e_variants[0], args.dodge, cpanels)
+        if band is not None and "B" in cpanels and b_variants[0] == "rows":
+            srcs["B_search_band"] = band
         items.append(dict(fig=fig, srcs=srcs, layout=layout, H=H, stem=MAIN_STEM, tag="8", src_prefix="source_data_panel",
                           rename=MAIN_LETTER if cpanels == ("A", "B", "C", "E") else {},
                           what=f"Fig. 8 composite, panels {','.join(cpanels)} in that order (panel B `{b_variants[0]}`, "

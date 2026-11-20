@@ -2,7 +2,8 @@
 """Reader-study supplementary workbooks (final numbers S31, S32, S39–S47) from one five-reader analysis directory.
 
 Input (read-only): the frozen analysis directory written by `scripts/reader_study/analyze.py`
-(`tables/*.csv`, `analyze_run.json`) and its `_qc74` companion (`QC_sensitivity_trajectory.csv`). The reader-study
+(`tables/*.csv`, `analyze_run.json`), its `_qc74` companion (`QC_sensitivity_trajectory.csv`) and the coded-comment
+directory written by `build_reader_comment_coding.py` (four S47 sheets). The reader-study
 export, database and backups are never opened here (AGENTS.md, "Pathologist evaluation results are read-only");
 this script only repackages analysis-layer CSVs.
 
@@ -22,12 +23,12 @@ so every row whose reader column (READER_COLS) equals that label is skipped in e
 skipped rows is written to the source sheet, manifest.json and BUILD_REPORT.md, and a global check asserts that the
 word does not occur (case-insensitive, whole word) in any cell of any sheet. The analysis layer is unchanged.
 
-Usage (interim refresh on the 14 Nov export; the final run is the same command with the new directories):
+Usage (final export of 16 November 2026):
   export PROSPER_OUT="$PWD/prosper_revision_output"
-  python3 scripts/supp_tables/build_reader_study_tables.py \
-      --analysis "$PROSPER_OUT/reader_study_suite/analysis/20261114_prod_export_20261114-095616_five_readers" \
-      --qc74 "$PROSPER_OUT/reader_study_suite/analysis/20261114_prod_export_20261114-095616_five_readers_qc74" \
-      --label "interim refresh on the export of 14 November 2026 (Reader 3 at 73/80)"
+  A="$PROSPER_OUT/reader_study_suite/analysis/20261116_prod_export_20261116-085036_five_readers"
+  python3 scripts/supp_tables/build_reader_study_tables.py --analysis "$A" --qc74 "${A}_qc74" \
+      --comments "${A}_comment_coding" \
+      --label "analysis of the export of 16 November 2026 (all five readers at 80/80 cases)"
 """
 from __future__ import annotations
 
@@ -73,7 +74,11 @@ TABLES: dict[str, tuple[str, list[tuple[str, str]]]] = {
                          ("paired_cases", "tables/T10b_paired_cases_5_7.csv")]),
     "S47": ("S-RS-T11", [("mislead", "tables/T8a_mislead_list.csv"), ("rescue", "tables/T8b_rescue_list.csv"),
                          ("misread", "tables/T8c_misread_list.csv"),
-                         ("harmful_confidence", "tables/T8d_harmful_confidence_list.csv")]),
+                         ("harmful_confidence", "tables/T8d_harmful_confidence_list.csv"),
+                         ("reader_comments", "COMMENTS:comments_coded.csv"),
+                         ("comment_code_counts", "COMMENTS:comment_code_counts.csv"),
+                         ("comment_issue_cases", "COMMENTS:comment_issue_cases.csv"),
+                         ("comment_rating_context", "COMMENTS:comment_rating_context.csv")]),
 }
 READER_COLS = {"reader_id", "reader1_id", "reader2_id"}
 ALL_READER_SET = "pooled"  # label of the combined reader set in scripts/reader_study/analyze.py reader_sets()
@@ -107,6 +112,8 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--analysis", required=True, type=Path)
     ap.add_argument("--qc74", required=True, type=Path)
+    ap.add_argument("--comments", required=True, type=Path,
+                    help="coded-comment directory written by build_reader_comment_coding.py")
     ap.add_argument("--label", required=True, help="provenance label written to every source sheet")
     ap.add_argument("--out", type=Path, default=None)
     a = ap.parse_args()
@@ -142,7 +149,8 @@ def main() -> int:
                     ("reader_labels", "; ".join(f"{label_of[r]} = {t} tier" for r, t in zip(readers, tiers)))]
         dropped_all[final] = {}
         for sheet, relp in sheets:
-            p = (a.qc74 / relp[5:]) if relp.startswith("QC74:") else (a.analysis / relp)
+            p = ((a.qc74 / relp[5:]) if relp.startswith("QC74:") else
+                 (a.comments / relp[9:]) if relp.startswith("COMMENTS:") else (a.analysis / relp))
             bind.bind(p, f"{final} sheet {sheet}")
             with open(p, newline="", encoding="utf-8") as fh:
                 rows = list(csv.reader(fh))
