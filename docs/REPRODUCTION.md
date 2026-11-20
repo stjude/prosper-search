@@ -1,7 +1,7 @@
 # How the code maps to the paper
 
 This file links each display item in the revised manuscript (main Figs. 1–8,
-Supplementary Figs. S1–S16 and Supplementary Tables S1–S48 in Supplementary
+Supplementary Figs. S1–S16 and Supplementary Tables S1–S49 in Supplementary
 Data 1–6) to the code in this repository that produced it. For each item it
 lists the inputs and how far the item can be reproduced.
 
@@ -66,8 +66,8 @@ workbooks.
 | Fig. 4 Additional collections | `prosper/evaluation/external_cli.py`, `revision/scripts/r1_3_external_correction.py`, `r1_3_external_synthesis.py`, `r1_3_kidrare_filter_full.py`, `r1_3_kidrare_filter_extension.py`, `c3_ccdi_specimen_preparation.py`, `r3_2_s30_chance_baseline.py` | `revision/scripts/figures/fig4_additional_collections.py` | COMET-R, EXT, INT; FID | R | |
 | Fig. 5 Optimal Transport correspondence | `prosper/embeddings/slide_embedding/ot_embedding.py`, `prosper/visualization/ot_visualization.py`, `revision/scripts/r2_5_fig5_submitted_recipe_composite.py`, `r2_5_fig5_he_overlays.py`, `r2_5_fig5_tissue_grid.py`, `r2_5_fig5_final_layout.py`, `r3_5_l1_maps.py`, `r3_5_l2_alignment.py`, `r3_5_tumour_correspondence_map.py` | `figures/fig5_ot_correspondence_absolute_candidate.py` → `fig5_ot_correspondence_option2_candidate.py` (released), which import `fig5_ot_correspondence.py` | COMET-R, INT; FID | R | The expected slide identifiers of the shown pairs are read from the local figure-identifier file. |
 | Fig. 6 ROI search | `revision/scripts/roi_search_6cfg/`, `prosper/evaluation/roi_cli.py`, `roi_eval.py`, `prosper/search/roi_search.py`, `revision/scripts/r4a_c6_roi_per_group_whole_patient.py` | `revision/scripts/figures/fig6_roi_search.py` (panel A; default `--b-panel submitted`) | COMET-R, INT; FID; SUB for panel B | R | Panel B is the submitted panel. |
-| Fig. 7 Case studies | `prosper/bayesian/disease_probs.py`, `revision/scripts/e1_bayes_heldout_primary.py`, `revision/scripts/fig7_roi_same_patient_readback.py` | — | COMET-R, INT; SUB | S | Submitted graphic, unchanged. The read-back script checks the case-study values against the retained outputs. |
-| Fig. 8 Reader study | `revision/scripts/reader_study/` (`build_readings.py`, `derive.py`, `endpoints.py`, `paired.py`, `qc_sensitivity.py`, `analyze.py`), `revision/scripts/ilp_representatives/` and `slide_selector/` (case selection) | `revision/scripts/figures/fig8_reader_study.py` | RS; FID; reader configuration (see `revision/config/README.md`) | R | Reader logins are read from a local, git-ignored configuration. |
+| Fig. 7 Case studies | `prosper/bayesian/disease_probs.py`, `revision/scripts/e1_bayes_heldout_primary.py`, `revision/scripts/fig7_roi_same_patient_readback.py` | — | COMET-R, INT; SUB | S | Submitted graphic, unchanged except that the delivered file is flattened onto a white background (no computation; the flattening step is not in the repository). The read-back script checks the case-study values against the retained outputs. |
+| Fig. 8 Reader study | `revision/scripts/reader_study/` (`build_readings.py`, `derive.py`, `endpoints.py`, `paired.py`, `qc_sensitivity.py`, `analyze.py`), `revision/scripts/ilp_representatives/` and `slide_selector/` (case selection); panel B band and dotted line (retrieved labels without a reader, exploratory): `revision/scripts/reader_study/search_vs_reader.py` | `revision/scripts/figures/fig8_reader_study.py`, run with `--panels none --b-variants rows --e-variants v3 --compose --compose-supp --search-alone <output directory of search_vs_reader.py>` | RS; FID; reader configuration (see `revision/config/README.md`) | R | Reader logins are read from a local, git-ignored configuration. The delivered source-data files omit the `reader_id` column and the delivered provenance note omits the logins; that filtering was done by a wrapper that is not in the repository (the figure script itself writes both). |
 
 ## Supplementary figures
 
@@ -77,16 +77,16 @@ workbooks.
 | S2 Neighbor diversity versus hit@k | `r4b_s1s2_neighbor_ladder.py` | `figures/figS1_S2_neighbor_ladder.py` | COMET-R, INT; FID | R | |
 | S3 Subtype-level retrieval | `revision/scripts/s6_subtype_scoring.py`, `r3_7_fine_label_reevaluation.py`, `retained_executed/r3_7_all_tissue_ci_20261103/` | `figures/figS_subtype_retrieval.py` | COMET-R, INT; FID | R* | Also reads an unreleased internal document. |
 | S4 Tumor calls on normal-tissue controls | `prosper/preprocessing/tumor_tiles_cli.py` | `revision/scripts/r2_4_supp_normal_fp_figure.py` | COMET-R, INT; FID | R | |
-| S5 Tile classifier and filtering variants | `revision/scripts/s16_grouped_tile_classifier.py`, `r2_1_tf2_s2_heads.py`, `r2_6_conch_tumor_heads.py` | `figures/figS_r21_f4_classifier_budget.py` | COMET-R, INT; FID | R | |
-| S6 Retrieval under simulated perturbations | `prosper/evaluation/r2_1_perturb_*.py`, `r2_1_hoptimus_perturb*.py`; executed stage versions in `revision/retained_executed/r2_1_perturb_suite_20261005/`; `revision/scripts/r2_1_fig4a_mmv5.py` | `figures/figS_perturbation.py` | COMET-R, INT; FID | R | |
-| S7 CCDI-MCI neuroblastoma by metadata factor | `revision/scripts/r1_2_scope_correction.py`, `s6_5_build_kidrare_nb_block.py` | `figures/figS3_nb_analysis.py` | EXT, INT; FID | R | |
-| S8 Effects of predicted tumor filtering in additional collections | `r1_3_kidrare_filter_full.py`, `r1_3_kidrare_filter_extension.py`, `r1_3_external_synthesis.py` | `figures/figS5_filtering_effects.py` | COMET-R, EXT, INT; FID | R | |
+| S5 Tile classifier and filtering variants | `revision/scripts/s16_grouped_tile_classifier.py`, `r2_1_tf2_s2_heads.py`, `r2_6_conch_tumor_heads.py` | `figures/figS_r21_f4_classifier_budget.py`, then `figures/figS_lean_048.py letters --fig S5` | COMET-R, INT; FID | R | The final step re-renders the same values with upper-case panel letters. |
+| S6 Retrieval under simulated perturbations | `prosper/evaluation/r2_1_perturb_*.py`, `r2_1_hoptimus_perturb*.py`; executed stage versions in `revision/retained_executed/r2_1_perturb_suite_20261005/`; `revision/scripts/r2_1_fig4a_mmv5.py` | `figures/figS_perturbation_candidates.py` (`render_forest(band=False)`, with `figS_perturbation.py`), then `figures/figS6_plurality_relabel.py --variant plurality` | COMET-R, INT; FID | R | The final step re-renders the same values with the corrected column header (plurality-vote accuracy). |
+| S7 CCDI-MCI neuroblastoma by metadata factor | `revision/scripts/r1_2_scope_correction.py`, `s6_5_build_kidrare_nb_block.py` | `figures/figS3_nb_analysis.py`, then `figures/figS_lean_048.py letters --fig S7` | EXT, INT; FID | R | The final step re-renders the same values with upper-case panel letters. |
+| S8 Effects of predicted tumor filtering in additional collections | `r1_3_kidrare_filter_full.py`, `r1_3_kidrare_filter_extension.py`, `r1_3_external_synthesis.py` | `figures/figS5_filtering_effects.py`, then `figures/figS_lean_048.py s8` | COMET-R, EXT, INT; FID | R | The final step keeps panels A and B only. |
 | S9 Failure structure in additional collections | `r1_3_external_synthesis.py`, `r2_3_internal_failure_*.py` | `figures/figS6_S7_external_failure.py` | COMET-R, EXT, INT; FID | R* | Also reads an unreleased internal document. |
 | S10 WT and preparation strata | `c3_ccdi_specimen_preparation.py`, `ccdi_frozen_hub_tabulation.py` | `figures/figS6_S7_external_failure.py` | COMET-R, EXT, INT; FID | R* | as S9 |
-| S11 Transport-linked tissue clusters | `revision/scripts/r3_5_l1_maps.py` | `figures/figS_r35_l1_sources_rerender.py`, then the assembly `figS_r35_l1_l2_assembly.py` | COMET-R, INT; FID | R | Display slide identifiers are read from the local figure-identifier file. |
-| S12 Localization by matched transport-cost difference | `r3_5_l2_alignment.py`, `r3_5_l2_diag_f4.py`, `retained_executed/script_snapshots/r3_5_l2_alignment_v3_28b781b6.py` | `figS_r35_l2_sources_rerender.py` and `figS_r35_l1_l2_assembly.py` | COMET-R, INT; FID | R | As S11. |
+| S11 Transport-linked tissue clusters | `revision/scripts/r3_5_l1_maps.py` | `figures/figS_r35_l1_sources_rerender.py`, then the assembly `figS_r35_l1_l2_assembly.py`, then `figures/figS_lean_048.py s11` | COMET-R, INT; FID | R | Display slide identifiers are read from the local figure-identifier file. The final step keeps the three annotated same-group pairs, re-laid with larger captions; it reads the slide images to verify the copied tiles. |
+| S12 Localization by matched transport-cost difference | `r3_5_l2_alignment.py`, `r3_5_l2_diag_f4.py`, `retained_executed/script_snapshots/r3_5_l2_alignment_v3_28b781b6.py` | `figS_r35_l2_sources_rerender.py` and `figS_r35_l1_l2_assembly.py`, then `figures/figS_lean_048.py s12` | COMET-R, INT; FID | R | As S11. The final step changes only the colour-bar label. |
 | S13 Randomly sampled linked tile pairs | `revision/scripts/r3_5_fig5_ot_tile_montage.py` | `figures/figS13_tile_pairs_composite.py` | COMET-R, INT; FID | R* | Also reads an unreleased internal document. |
-| S14 Reader study, secondary displays | `revision/scripts/reader_study/` | `figures/fig8_reader_study.py` | RS; FID | R | |
+| S14 Reader study, secondary displays | `revision/scripts/reader_study/` | `figures/fig8_reader_study.py` (same run as Fig. 8, `--compose-supp`) | RS; FID | R | |
 | S15 Tumor-group counts in COMET | — | — | SUB | S | Submitted Supplementary Fig. S4, unchanged |
 | S16 Reader-study instrument | — | `figures/figS_instrument_screenshots.py` | instrument screenshots (practice case; not released) | R | Layout of screenshots, no computation; the screenshots are not released. |
 
@@ -94,14 +94,28 @@ workbooks.
 
 Each table was first written as a per-table workbook by the builder listed
 below. `revision/scripts/supp_tables/assemble_final_tables_20261110.py`
-assembled those into the final per-table workbooks, and
-`build_supplementary_data_workbooks.py` with `supplementary_data_layout.json`
-grouped them into the six Supplementary Data files. The delivered workbooks
+assembled those into the final per-table workbooks. The delivered workbooks
 then went through text-only post-assembly edits that are **not** in this
-repository; see [KNOWN_GAPS.md](KNOWN_GAPS.md). All builders read two
-unreleased documents, the Supplementary Information legend source and an
-internal table specification, for captions and specification checks. So every
-table builder is **R\*** at best. Each builder writes an
+repository (provenance labels, headers and captions, and the removal of
+sheets that the Supplementary Information does not cite); see
+[KNOWN_GAPS.md](KNOWN_GAPS.md). The reader-study tables (S31, S32, S39–S47)
+were rebuilt for the final export by
+`revision/scripts/supp_tables/build_reader_comment_coding.py` (coded
+comments, S47), `build_reader_study_tables.py` (raw tables) and
+`finalize_reader_study_tables.py` (presentation rules and the S31 case
+composition). S49 was written by
+`revision/retained_executed/collab_draft_20261102/checks_050/reproduction/make_s49_pass050.py`.
+The six delivered Supplementary Data files were grouped by
+`revision/retained_executed/collab_draft_20261102/checks_051/reproduction/build_supplementary_data_workbooks_051.py`
+with the layout `revision/retained_executed/collab_draft_20261102/checks_050/rev3_lean_si_20261116/supplementary_data_layout_050_lean.json`;
+these two scripts and their helpers under
+`revision/retained_executed/e1_si_close_audit_20261115/scratch/si-tables/`
+are kept under their executed names and output-folder layout. The earlier
+grouping step, `revision/scripts/supp_tables/build_supplementary_data_workbooks.py`
+with `supplementary_data_layout.json` (47 tables), is also released. All
+builders read two unreleased documents, the Supplementary Information legend
+source and an internal table specification, for captions and specification
+checks. So every table builder is **R\*** at best. Each builder writes an
 `input_bindings.json` listing every input it read, with hashes.
 
 | Table | SD | Analysis code (numbers) | Table builder (`revision/scripts/supp_tables/`) | Inputs | Level |
@@ -140,9 +154,10 @@ table builder is **R\*** at best. Each builder writes an
 | S26 Bayesian probability model across k | 5 | `prosper/bayesian/disease_probs.py`, `revision/scripts/e1_bayes_heldout_primary.py`, `e1_bayes_heldout_filter_sensitivity.py`, `prosper/evaluation/calibration_cli.py`, `retained_executed/knn_comparator_recalc_20261110/` | submitted Table S9 updated by `assemble_final_tables_20261110.py`; `audit_S26_v2_20261109.py` | COMET-R, INT | R* |
 | S27–S30 Top-5/top-18 neighbor labels and probability matrices | 5 | `prosper/bayesian/disease_probs.py`, `e1_bayes_heldout_primary.py` | submitted Tables S10–S13 with additions in `assemble_final_tables_20261110.py` | COMET-R, INT | R* |
 | S48 LLM summary checks | 5 | `revision/scripts/llm_pilot_round2/` (pilot generation harness `llm_grounding_cli.executed_fc88a2e7.py`, `run_round2.py`, `analyze_r2.py`), `revision/scripts/llm_reader80/`, `prosper/evaluation/st1_llm_summaries_cli.py` | `build_llm_pilot_r2_tables.py`; reader-summary rating sheets `reader80_sheets.py` | LLM, INT | R* (see note) |
-| S31 Reader and case flow | 6 | `revision/scripts/reader_study/` | `build_reader_study_tables.py` | RS | R* |
-| S32 Primary endpoints per reader | 6 | as S31 | `build_reader_study_tables.py` | RS | R* |
-| S39–S47 Reader-study secondary tables | 6 | as S31 | `build_reader_study_tables.py` | RS | R* |
+| S31 Reader and case flow | 6 | `revision/scripts/reader_study/` | `build_reader_study_tables.py`, `finalize_reader_study_tables.py` | RS | R* |
+| S32 Primary endpoints per reader | 6 | as S31 | `build_reader_study_tables.py`, `finalize_reader_study_tables.py` | RS | R* |
+| S39–S47 Reader-study secondary tables | 6 | as S31; S47 coded comments: `build_reader_comment_coding.py` | `build_reader_study_tables.py`, `finalize_reader_study_tables.py` | RS; comment code sheet (reader-study material, not released) | R* |
+| S49 Readers' answers and the retrieved labels without a reader (exploratory) | 6 | `revision/scripts/reader_study/search_vs_reader.py` | `revision/retained_executed/collab_draft_20261102/checks_050/reproduction/make_s49_pass050.py` | RS | R* |
 
 Notes on specific tables:
 
@@ -161,7 +176,15 @@ Notes on specific tables:
 - **Reader-study tables** read a frozen, immutable export of the study
   database. The analysis never reads the reader-token table. Reader logins
   are mapped to "Reader 1–5" through a local configuration file that is not
-  released.
+  released. `search_vs_reader.py` takes the reader logins in Reader 1–5
+  order on its command line (`--readers`).
+- **S49** is an exploratory comparison added after the reader results were
+  known. `search_vs_reader.py` applies fixed rules to the labels of the
+  retrieved slides that readers were shown (for example the nearest slide, or
+  the plurality vote over the five or ten nearest with count ties going to the
+  nearest-ranked label) and compares them with each reader's favored
+  diagnosis. `make_s49_pass050.py` writes four of its eight output tables as
+  the S49 sheets, dropping the rows and the column listed in its docstring.
 
 The upstream analysis lists name the principal producers. The complete input
 set of each table is the `input_bindings.json` that its builder writes.

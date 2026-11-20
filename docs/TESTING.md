@@ -58,11 +58,11 @@ data; `PROSPER_SITE_TESTS` and `PROSPER_SLOW_TESTS` unset.
 | Command | Passed | Skipped | Failed | Errors |
 |---|---:|---:|---:|---:|
 | `pytest` | 3120 | 731 | 6 | 3 |
-| `pytest revision` | 850 (+10 subtests) | 303 | 1 | 0 |
+| `pytest revision` | 854 (+10 subtests) | 303 | 1 | 0 |
 | `pytest prosper/llm/summarizer/tests` | 49 | 0 | 0 | 0 |
 | `pytest scripts` | 1 | 1 | 0 | 0 |
 | `pytest tests/test_r2_1_cpu_startup_probe.py` | 77 | 87 | 0 | 0 |
-| **Total** | **4097** | **1122** | **7** | **3** |
+| **Total** | **4101** | **1122** | **7** | **3** |
 
 Skips by reason:
 

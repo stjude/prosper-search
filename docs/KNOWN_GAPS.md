@@ -17,6 +17,7 @@ substitution without changing the executed content. They are withheld.
 | `revision/scripts/llm_reader80/trace_readback_reader80.py` | A hand-transcribed check list pairing 22 slide identifiers (not printed in the manuscript) with payload values; removing them would remove the check itself | Its check output, read by `report_reader80.py`, cannot be regenerated. |
 | `tests/test_submit_r2_1_route_b_uni2.py` and its three fixtures under `tests/fixtures/r2_1_route_b_uni2_readback/` | Captured cluster job listings and submission records (user, queue, hosts, internal paths, job IDs) | That submission-readback test is absent. |
 | Reader-study entity map (`docs/pathologist_study/reader_study_misc_entity_map_20261027.csv` in the executed workspace, read by `revision/scripts/reader_study/analyze.py` and `build_readings.py`) | Reader-study material: diagnoses as written by readers and their mapping to tumor groups | The reader-study analysis needs it at that path; the reader-study tests that load it are skipped without it (see [TESTING.md](TESTING.md)). |
+| Reader-comment code sheet (`docs/pathologist_study/reader_study_comment_codes_final_20261116.csv` in the executed workspace, read by `revision/scripts/supp_tables/build_reader_comment_coding.py`) | Reader-study material: one row per reader comment with the codes assigned to it | The coded-comment sheets of Table S47 cannot be rebuilt without it. |
 
 One further candidate builder for an alternative Fig. 6B panel was not
 released because it was not adopted and its docstring named case identifiers;
@@ -34,22 +35,40 @@ table itself is not released.
 ## 2. Steps not in the repository
 
 - **Post-assembly packaging of the supplementary tables.** After
-  `assemble_final_tables_20261110.py` wrote the per-table workbooks, two
-  further packaging steps edited cell text and labels before the six
-  Supplementary Data files were written: provenance labels were rewritten as
-  plain descriptions, internal codes, paths and checksums were removed,
+  `assemble_final_tables_20261110.py` wrote the per-table workbooks, further
+  packaging steps edited cell text and labels and removed sheets before the
+  six Supplementary Data files were written: provenance labels were rewritten
+  as plain descriptions, internal codes, paths and checksums were removed,
   headers were made readable and some labels were renamed (for example
   "majority" to "plurality"). A recorded diff of the first step lists 8,434
   edited cells; four of them replaced numeric cells in one Table S25 sheet by
   descriptions of the populations. The second step changed 25 text cells and no
   numeric cells, and added the two reader-summary rating sheets of Table S48,
   which are built by the released `revision/scripts/supp_tables/reader80_sheets.py`.
-  These packaging scripts, their final grouping layout and their caption
-  source are not released because they embed internal paths and process
-  annotations in their assertions. The released
-  `build_supplementary_data_workbooks.py` with `supplementary_data_layout.json`
-  is the earlier grouping step (47 tables). Consequently the released code
-  reproduces the table values but not the exact delivered workbook files.
+  Later steps made further logged label and text edits (no numeric value
+  changed), reduced the workbooks to
+  the sheets that the Supplementary Information cites (rows and columns of
+  some sheets were trimmed, and four Table S25 endpoint sheets were assembled
+  by copying values from its key-value sheets), and regenerated the caption
+  sheets from the Supplementary Information. These packaging scripts and their
+  caption source are not released because they embed internal paths and
+  process annotations in their assertions, or work on case-level sheets that
+  are not distributed. The two steps that come after them are released under
+  their executed names in `revision/retained_executed/`: the S49 builder
+  (`collab_draft_20261102/checks_050/reproduction/make_s49_pass050.py`) and
+  the grouping step that wrote the six delivered files
+  (`collab_draft_20261102/checks_051/reproduction/build_supplementary_data_workbooks_051.py`
+  with its layout and the two helpers under
+  `e1_si_close_audit_20261115/scratch/si-tables/`). The released
+  `revision/scripts/supp_tables/build_supplementary_data_workbooks.py` with
+  `supplementary_data_layout.json` is the earlier grouping step (47 tables).
+  Consequently the released code reproduces the table values but not the
+  exact delivered workbook files.
+- **Fig. 8 output filter.** The delivered Fig. 8 and Supplementary Fig. S14
+  were rendered by the released `fig8_reader_study.py` through a small wrapper
+  that only redirected the output folder, dropped the `reader_id` column from
+  the source-data files and removed reader logins from the provenance note.
+  The wrapper is not released; run directly, the figure script writes both.
 - **Caption and specification documents.** The table builders and several
   figure builders read the Supplementary Information legend source and an
   internal table specification for captions and consistency checks. These

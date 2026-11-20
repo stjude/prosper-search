@@ -28,7 +28,7 @@ scripts locate siblings and inputs relative to their own position
 | `scripts/*.py` | Analyses: benchmark grid and comparators, patient-excluded metrics and whole-patient intervals, tumor-filtering held-out pipeline, Bayesian held-out evaluation, perturbation readbacks, additional collections (CCDI-MCI, KidRare), Optimal Transport localization, TITAN/CONCH comparisons, fine-label and cohort accounting |
 | `scripts/figures/` | Builders for main and supplementary figures |
 | `scripts/supp_tables/` | Builders for the supplementary tables and the grouped Supplementary Data workbooks |
-| `scripts/reader_study/` | Reader-study analysis pipeline (derivation, endpoints, paired comparisons, QC sensitivity) and its tests |
+| `scripts/reader_study/` | Reader-study analysis pipeline (derivation, endpoints, paired comparisons, QC sensitivity), the exploratory comparison of readers' answers with the retrieved labels (`search_vs_reader.py`), and their tests |
 | `scripts/llm_pilot_round2/` | LLM summary pilot: payload construction, generation harness (executed copy), readback and analysis |
 | `scripts/llm_reader80/` | Rating of the 80 reader-study summaries and its report |
 | `scripts/roi_search_6cfg/` | Region-of-interest search under six encoder/similarity configurations |
@@ -36,7 +36,7 @@ scripts locate siblings and inputs relative to their own position
 | `scripts/slide_selector/` | Integer linear programming representative-subset selection (top-k neighbor coverage) |
 | `scripts/ilp_representatives/` | Two-stage representative selection of reader-study cases with the slide selector |
 | `scripts/test_*.py`, `tests/` | Unit tests for the analysis scripts |
-| `retained_executed/` | Byte-retained copies of code versions that differ from the current files but produced reported results (e.g. the stage-specific perturbation-suite modules); paths follow the original output-folder layout |
+| `retained_executed/` | Copies of executed code kept outside `scripts/`: code versions that differ from the current files but produced reported results (e.g. the stage-specific perturbation-suite modules), and one-off builders run from output folders (the S49 table and the grouping of the delivered Supplementary Data 1–6); paths follow the original output-folder layout |
 | `config/` | Local configuration templates (see below) |
 
 ## File naming

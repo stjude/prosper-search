@@ -374,7 +374,7 @@ export OPENAI_API_KEY="your-key"
 
 [docs/REPRODUCTION.md](docs/REPRODUCTION.md) lists, for every main figure
 (Figs. 1–8), supplementary figure (Figs. S1–S16) and supplementary table
-(Tables S1–S48 in Supplementary Data 1–6), the code that produced it, its
+(Tables S1–S49 in Supplementary Data 1–6), the code that produced it, its
 inputs and how far it can be reproduced. Most analyses need controlled-access
 data or intermediate outputs that are not in this repository.
 [docs/KNOWN_GAPS.md](docs/KNOWN_GAPS.md) lists the files that are not released
